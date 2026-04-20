@@ -139,6 +139,18 @@ Walks the tree; **`dt`** is reserved. User functions are resolved via the VM’s
 
 ---
 
+## `ENEMY.*` — gameplay helpers
+
+### `ENEMY.FOLLOWPATH(entity, path, speed)` 
+Moves an entity along a calculated path at a fixed speed. Unlike `NAVAGENT`, this is a high-level helper that directly updates the entity's position.
+
+- **Arguments**:
+  - `entity` (handle): The entity to move.
+  - `path` (handle): A valid `PATH` object.
+  - `speed` (float): Movement speed.
+
+---
+
 ## Full Example (sketch)
 
 ```basic

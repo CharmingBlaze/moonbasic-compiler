@@ -12,11 +12,15 @@ build-compiler:
 build-moonrun:
 	go build -tags fullruntime -o moonrun ./cmd/moonrun
 
+build-static:
+	powershell -File scripts/build_static.ps1
+
 test:
 	go test ./...
 
 check:
 	go run . --check examples/mario64/main_entities.mb
+	go run . --check examples/mario64/main_easymode.mb
 
 # Compile both tag axes (compiler CLI + moonrun); needs CGO for fullruntime (see docs/BUILDING.md).
 check-builds:

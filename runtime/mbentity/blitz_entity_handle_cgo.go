@@ -33,6 +33,7 @@ func registerBlitzEntityHandles(m *Module, r runtime.Registrar) {
 
 	r.Register("CUBE", "entity", runtime.AdaptLegacy(m.blitzCube))
 	r.Register("SPHERE", "entity", runtime.AdaptLegacy(m.blitzSphere))
+	r.Register("CAPSULE", "entity", runtime.AdaptLegacy(m.blitzCapsule))
 }
 
 func (m *Module) wrapEntityRef(id int64) (value.Value, error) {
@@ -108,6 +109,30 @@ func (m *Module) blitzSphere(args []value.Value) (value.Value, error) {
 	e.segH, e.segV = int32(seg), int32(seg)
 	e.static = true
 	e.w, e.h, e.d = rad*2, rad*2, rad*2
+	st.ents[id] = e
+	return m.wrapEntityRef(id)
+}
+
+// blitzCapsule: CAPSULE(radius#, height#) — static capsule for drawing/collision.
+func (m *Module) blitzCapsule(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("CAPSULE expects 2 arguments (radius#, height#)")
+	}
+	rad, ok1 := argF32(args[0])
+	h, ok2 := argF32(args[1])
+	if !ok1 || !ok2 || rad <= 0 || h <= 0 {
+		return value.Nil, fmt.Errorf("CAPSULE: radius and height must be positive and numeric")
+	}
+	st := m.store()
+	id := st.nextID
+	st.nextID++
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
+	e.kind = entKindCapsule
+	e.radius = rad
+	e.cylH = h
+	e.static = true
+	e.w, e.h, e.d = rad*2, h, rad*2
 	st.ents[id] = e
 	return m.wrapEntityRef(id)
 }

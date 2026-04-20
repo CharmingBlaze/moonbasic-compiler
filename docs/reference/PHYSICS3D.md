@@ -168,6 +168,29 @@ Adds a static mesh collision shape. Only valid for `STATIC` bodies.
 
 ---
 
+## Body Types & Shapes
+
+While `BODY3D.CREATE` is the standard way to build bodies, specialized factories exist for common patterns.
+
+### `KINEMATIC.*` / `KINEMATICREF.*`
+Kinematic bodies are driven by scripts rather than forces. They do not react to collisions but can push dynamic bodies.
+
+- **`KINEMATIC.CREATE(x, y, z)`**: Shorthand to create a kinematic body at a position.
+- **`KINEMATICREF.SETVELOCITY(handle, vx, vy, vz)`**: Sets the target movement velocity.
+- **`KINEMATICREF.UPDATE(handle, dt)`**: Manually steps the kinematic motion.
+
+### `STATIC.*`
+Static bodies are immovable and optimized for level geometry.
+
+- **`STATIC.CREATE(x, y, z)`**: Shorthand for an empty static body.
+
+### `SHAPEREF.*`
+Low-level handles to collision shapes.
+
+- **`SHAPEREF.FREE(handle)`**: Releases a shape handle.
+
+---
+
 ## Body Properties
 
 ### `BODY3D.SETMASS(body, mass)` 

@@ -59,10 +59,14 @@ func (v *VM) runtimeError(msg string) error {
 	} else if frame != nil && frame.Chunk != nil && frame.Chunk.Name != "" {
 		where = frame.Chunk.Name
 	}
+	var err error
 	if line >= 1 {
-		return fmt.Errorf("[moonBASIC] Error in %s line %d:\n  %s", where, line, msg)
+		err = fmt.Errorf("[moonBASIC] Error in %s line %d:\n  %s", where, line, msg)
+	} else {
+		err = fmt.Errorf("[moonBASIC] Error in %s:\n  %s", where, msg)
 	}
-	return fmt.Errorf("[moonBASIC] Error in %s:\n  %s", where, msg)
+	fmt.Printf("DEBUG: VM.runtimeError: %v\n", err)
+	return err
 }
 
 // reg returns a register from the current frame.

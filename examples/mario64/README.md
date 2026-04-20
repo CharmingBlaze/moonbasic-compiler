@@ -11,6 +11,7 @@ Small **third-person** demos in a **Blitz3D-style** spirit: walk on a plane, jum
 | **`main_entities.mb`** | **Engine-style:** **CreateCube** / **CreateSphere**, **COLLISIONS**, **EntityGrounded** (coyote), **EntityMoveCameraRelative**, **Camera.OrbitEntity**, **CopyEntity** platforms, **ENTITY.UPDATE**, **DrawEntities**, child **hat** on **player**. |
 | **`main_v2.mb`** | **Recommended teaching path:** parallel arrays for platforms, but **`Input.Axis`**, **`MOVEX`/`MOVEZ`**, **`BOXTOPLAND`** float return, **`IIF$`**, and **one line** for orbit yaw (`Input.Axis(KEY_Q, KEY_E) * DEGPERSEC(...)`). Heavily commented. |
 | **`main_v3.mb`** | Same logic with **`TYPE` / `DIM AS`** — one `Platform` array instead of nine arrays. Uses **`Input.Orbit`** and **`MOVESTEPX`/`MOVESTEPZ`**. |
+| **`main_easymode.mb`** | **Showcase / Easy Mode:** fog, nav agent, **`CHARACTER`** KCC hero, collectibles, post FX toggle. Run with **fullruntime** + **CGO** like other 3D samples. |
 
 ---
 
@@ -298,6 +299,14 @@ go run -tags fullruntime . --run examples/mario64/modern_blitz_hop.mb
 ```bash
 go run -tags fullruntime . --run examples/mario64/main_orbit_simple.mb
 ```
+
+**`main_easymode.mb`** (Misty Star Road showcase — nav, particles, optional post stack):
+
+```bash
+go run -tags fullruntime . --run examples/mario64/main_easymode.mb
+```
+
+**Parser note (handle `X` / `Y` / `Z` reads):** For **`ident.X()`** the compiler only treats it as a **handle method** when **`ident`** is already known as a **variable** in the parser’s symbol pass. Otherwise **`ident.X`** can be parsed as a **namespace call**, which breaks entity spatial reads (wrong builtin / arity → immediate runtime error, often seen as a black window). Prefer **`array(i).X()`** or **`ENTITY.GETPOS`**-style calls when in doubt; **`arr(i).method()`** as a **standalone statement** is not supported — assign to a local first (e.g. **`s = arr(i)`** then **`s.Hide()`**).
 
 **Controls (`main.mb` / orbit samples):** **Q/E** yaw, **right-drag** yaw/pitch, **wheel** zoom, **WASD** move, **Space** jump, **Esc** quit.
 

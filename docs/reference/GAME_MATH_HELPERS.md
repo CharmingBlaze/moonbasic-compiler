@@ -45,6 +45,14 @@ Use to face a target or stick from a world-space delta on the ground plane.
 
 ---
 
+## Angles in degrees
+
+| Command | Returns |
+|--------|---------|
+| **`ANGLE.DIFFERENCE(a, b)`** | Shortest signed difference **b − a** in **degrees** (−180..180). Alias of `MATH.ANGLEDIFF`. |
+
+---
+
 ## Angles in radians
 
 | Command | Returns |

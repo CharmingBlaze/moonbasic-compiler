@@ -36,7 +36,7 @@ func (v *VM) doCallBuiltin(i opcode.Instruction) error {
 	argCount := int(uint32(i.Operand) >> 24)
 	nameIdx := int32(i.Operand & 0x00FFFFFF)
 	name := frame.Chunk.Names[nameIdx]
-
+ 
 	argStart := i.SrcB
 
 	// Extract args from registers starting at argStart

@@ -56,7 +56,7 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 			k := ch.AddName(sym.StaticKey)
 			ch.Emit(opcode.OpStoreGlobal, 0, valReg, 0, k, n.Line)
 		} else {
-			idx := ch.AddName(n.Name)
+			idx := ch.AddName(strings.ToUpper(n.Name))
 			ch.Emit(opcode.OpStoreGlobal, 0, valReg, 0, idx, n.Line)
 		}
 
@@ -135,7 +135,7 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 	case *ast.ConstDeclNode:
 		g.nextReg = g.baseReg
 		valReg := g.emitExpr(ch, n.Expr)
-		idx := ch.AddName(n.Name)
+		idx := ch.AddName(strings.ToUpper(n.Name))
 		ch.Emit(opcode.OpStoreGlobal, 0, valReg, 0, idx, n.Line)
 		g.nextReg = g.baseReg
 
@@ -227,7 +227,7 @@ func (g *CodeGen) emitLoadNamed(ch *opcode.Chunk, name string, line int) uint8 {
 		ch.Emit(opcode.OpLoadGlobal, r, 0, 0, k, line)
 		return r
 	}
-	idx := ch.AddName(name)
+	idx := ch.AddName(strings.ToUpper(name))
 	r := g.allocReg()
 	ch.Emit(opcode.OpLoadGlobal, r, 0, 0, idx, line)
 	return r
@@ -244,7 +244,7 @@ func (g *CodeGen) emitStoreNamed(ch *opcode.Chunk, name string, line int, src ui
 		ch.Emit(opcode.OpStoreGlobal, 0, src, 0, k, line)
 		return
 	}
-	idx := ch.AddName(name)
+	idx := ch.AddName(strings.ToUpper(name))
 	ch.Emit(opcode.OpStoreGlobal, 0, src, 0, idx, line)
 }
 
@@ -308,7 +308,7 @@ func (g *CodeGen) emitFor(ch *opcode.Chunk, n *ast.ForNode) {
 	if sym != nil && (sym.Kind == symtable.Local || sym.Kind == symtable.Param) {
 		ch.Emit(opcode.OpMove, uint8(sym.Slot), fromReg, 0, 0, n.Line)
 	} else {
-		idx := ch.AddName(n.Var)
+		idx := ch.AddName(strings.ToUpper(n.Var))
 		ch.Emit(opcode.OpStoreGlobal, 0, fromReg, 0, idx, n.Line)
 	}
 	g.nextReg = g.baseReg // var is set, clear temps
@@ -353,7 +353,7 @@ func (g *CodeGen) emitFor(ch *opcode.Chunk, n *ast.ForNode) {
 	if sym != nil && (sym.Kind == symtable.Local || sym.Kind == symtable.Param) {
 		ch.Emit(opcode.OpMove, uint8(sym.Slot), newVarReg, 0, 0, n.Line)
 	} else {
-		idx := ch.AddName(n.Var)
+		idx := ch.AddName(strings.ToUpper(n.Var))
 		ch.Emit(opcode.OpStoreGlobal, 0, newVarReg, 0, idx, n.Line)
 	}
 	g.nextReg = g.baseReg
@@ -385,7 +385,7 @@ func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallSt
 	g.nextReg = g.baseReg
 	
 	// Fast-path macro expansion for spatial setters
-	if n.NS == "ENTITY" && len(n.Args) == 2 {
+	if strings.EqualFold(n.NS, "ENTITY") && len(n.Args) == 2 {
 		propID := -1
 		switch strings.ToUpper(n.Method) {
 		case "X": propID = 0
@@ -419,7 +419,7 @@ func (g *CodeGen) emitNamespaceAssignStmt(ch *opcode.Chunk, n *ast.NamespaceAssi
 	g.nextReg = g.baseReg
 
 	// Fast-path macro expansion for spatial setters: ENTITY.X(id) = val
-	if n.NS == "ENTITY" && len(n.Args) == 1 {
+	if strings.EqualFold(n.NS, "ENTITY") && len(n.Args) == 1 {
 		propID := -1
 		switch strings.ToUpper(n.Method) {
 		case "X": propID = 0
@@ -475,7 +475,7 @@ func (g *CodeGen) emitHandleCallStmt(ch *opcode.Chunk, n *ast.HandleCallStmt) {
 	recReg := g.emitExpr(ch, n.Receiver)
 	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
-	midx := ch.AddName(n.Method)
+	midx := ch.AddName(strings.ToUpper(n.Method))
 	dst := g.allocReg() // discard result
 	operand := (int32(len(n.Args)) << 24) | midx
 	ch.Emit(opcode.OpCallHandle, dst, recReg, argStart, operand, n.Line)

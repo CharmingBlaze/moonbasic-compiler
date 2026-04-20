@@ -70,6 +70,21 @@ Quick **debug HUD** lines: **`template`** uses placeholders **`{0}`** … **`{9}
 
 ---
 
+## Retained-mode Text (`TEXTDRAW.*`)
+
+For text that updates its position or content without needing full signature re-specification each frame.
+
+| Command | Role |
+|---------|------|
+| `TEXTDRAW.DRAW(handle)` | Draws the text object. |
+| `TEXTDRAW.POS(handle, x, y)` | Sets position. |
+| `TEXTDRAW.SIZE(handle, s)` | Sets font size. |
+| `TEXTDRAW.COLOR(handle, r, g, b, a)` | Sets color. |
+| `TEXTDRAW.SETTEXT(handle, str)` | Sets content string. |
+| `TEXTDRAW.FREE(handle)` | Releases the object. |
+
+---
+
 ## Overlay
 
 | Command | Arguments |

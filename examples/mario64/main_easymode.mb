@@ -10,6 +10,7 @@ CURSOR.HIDE()
 ; 0. Professional Lead Engineer Diagnostics
 DEBUG.SHOWFPSGRAPH(TRUE)
 PHYSICS3D.SETTIMESTEP(90.0) ; High-fidelity decoupled physics
+PHYSICS3D.START()
 
 ; 1. Batch 6: Environmental Atmosphere
 COLORPRINT(0, 180, 255, "System: Initializing Batch 6 Atmosphere (Fog & Materials)...")
@@ -24,10 +25,8 @@ nav.SetGrid(60, 60, 0.5, -15, -15) ; 30x30 area
 nav.Build()                          ; Auto-scan static world
 
 ; Create Guardian Agent
-guardianEnt = ENTITY.CREATECUBE(1, 1, 1)
-SCALENT(guardianEnt, 0.6, 1.2, 0.6)
-ENTITYCOLOR(guardianEnt, 255, 100, 100, 255)
-POSENT(guardianEnt, 8, 3, 8) ; Place on Step 1
+guardianEnt = CUBE(1, 1, 1)
+guardianEnt = guardianEnt.Scale(0.6, 1.2, 0.6).Color(255, 100, 100, 255).Pos(8, 3, 8) ; Place on Step 1
 
 agent = NAVAGENT.CREATE(nav)
 agent.SetPos(8, 3, 8)
@@ -49,8 +48,9 @@ cam = CAMERA.CREATE()
 cam.fov(60)
 
 ; Initialize Player (standalone Character.Create → implicit KCC subject for Player.Get* with no args)
-playerEnt = MODEL.CREATECAPSULE(0.5, 2.0)
-hero = Character.Create(0, 5, 0)
+playerEnt = CAPSULE(0.5, 2.0)
+hero = playerEnt.CreateCharacter(0.5, 2.0)
+hero.SetPos(0, 5, 0)
 hero.SetStepHeight(0.4)
 hero.SetMaxSlope(45.0)
 hero.SetSnapDistance(0.5)
@@ -77,43 +77,36 @@ TYPE Platform
 ENDTYPE
 
 DIM plats AS Platform(5)
-plats(1) = Platform(ENTITY.CREATECUBE(1, 1, 1), 100, 200, 100) ; Floor
-SCALENT(plats(1).ent, 30, 1, 30)
-POSENT(plats(1).ent, 0, 0, 0)
+plats(1) = Platform(CUBE(1, 1, 1), 100, 200, 100) ; Floor
+p1 = plats(1).ent : p1 = p1.Scale(30, 1, 30).Pos(0, 0, 0)
 floorShape = SHAPE.CREATEBOX(15, 0.5, 15)
 floorBody = Static.Create(floorShape)
 floorBody.SetPos(0, 0, 0)
 
-plats(2) = Platform(ENTITY.CREATECUBE(1, 1, 1), 150, 150, 255) ; Step 1
-SCALENT(plats(2).ent, 4, 1, 4)
-POSENT(plats(2).ent, 8, 2, 8)
+plats(2) = Platform(CUBE(1, 1, 1), 150, 150, 255) ; Step 1
+p2 = plats(2).ent : p2 = p2.Scale(4, 1, 4).Pos(8, 2, 8)
 stepShape = SHAPE.CREATEBOX(2, 0.5, 2)
 step1Body = Static.Create(stepShape)
 step1Body.SetPos(8, 2, 8)
 
-plats(3) = Platform(ENTITY.CREATECUBE(1, 1, 1), 255, 150, 150) ; Step 2
-SCALENT(plats(3).ent, 4, 1, 4)
-POSENT(plats(3).ent, 12, 4, 12)
+plats(3) = Platform(CUBE(1, 1, 1), 255, 150, 150) ; Step 2
+p3 = plats(3).ent : p3 = p3.Scale(4, 1, 4).Pos(12, 4, 12)
 step2Body = Static.Create(stepShape)
 step2Body.SetPos(12, 4, 12)
 
-plats(4) = Platform(ENTITY.CREATECUBE(1, 1, 1), 255, 255, 100) ; Goal
-SCALENT(plats(4).ent, 6, 1, 6)
-POSENT(plats(4).ent, 16, 6, 16)
+plats(4) = Platform(CUBE(1, 1, 1), 255, 255, 100) ; Goal
+p4 = plats(4).ent : p4 = p4.Scale(6, 1, 6).Pos(16, 6, 16).Alpha(0.6)
 goalShape = SHAPE.CREATEBOX(3, 0.5, 3)
 goalBody = Static.Create(goalShape)
 goalBody.SetPos(16, 6, 16)
-; Batch 6: Set Goal to be semi-transparent
-ENTITYALPHA(plats(4).ent, 0.6)
 
 ; Stars (Collection Goal)
 DIM starEnts AS HANDLE(5)
 DIM starActive(5)
 FOR i = 1 TO 5
-    starEnts(i) = ENTITY.CREATESPHERE(0.5)
-    SCALENT(starEnts(i), 0.4, 0.4, 0.4)
-    POSENT(starEnts(i), RAND(-15, 15), 2.5 + RND(0, 3), RAND(-15, 15))
-    ENTITY.COLOR(starEnts(i), 255, 255, 0, 255)
+    s = SPHERE(0.5)
+    s = s.Scale(0.4, 0.4, 0.4).Pos(RAND(-15, 15), 2.5 + RND(0, 3), RAND(-15, 15)).Color(255, 255, 0, 255)
+    starEnts(i) = s
     starActive(i) = 1
 NEXT
 
@@ -125,9 +118,15 @@ cinematicMode = 0
 COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 
 ; Main Game Loop
-WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE 1
+    ; --- 1. Loop Control ---
+    IF WINDOW.SHOULDCLOSE() THEN END
+    IF KEYDOWN(KEY_ESCAPE) THEN END
+    
+    ; Clear screen
     RENDER.CLEAR()
-    SKYCOLOR(0, 0, 15) ; Deep night sky
+    SKYCOLOR(0, 0, 15)
+    
     dt = TIME.DELTA()
 
     ; 1. Input: Camera Orbiting
@@ -190,14 +189,14 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         agent.MoveTo(px0, py0, pz0)
     ENDIF
     agent.Update(dt)
-    ax, ay, az = agent.pos()
-    POSENT(guardianEnt, ax, ay, az)
+    ax = agent.X() : ay = agent.Y() : az = agent.Z()
+    guardianEnt.Pos(ax, ay, az)
 
     ; 3. Automatic World Simulation
     ENTITY.UPDATE(dt)
     hero.Update(dt)
-    hx, hy, hz = hero.pos()
-    POSENT(playerEnt, hx, hy, hz)
+    hx = hero.X() : hy = hero.Y() : hz = hero.Z()
+    playerEnt.Pos(hx, hy, hz)
 
     ; 4. Jumping — after hero.Update so GetGrounded reflects this frame's contact
     IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN hero.Jump(JUMP_FORCE)
@@ -211,12 +210,14 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     
     FOR i = 1 TO 5
         IF starActive(i) = 1 THEN
-            dist = DIST3D(px, py, pz, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
+            s = starEnts(i)
+            ; Use starEnts(i).X/Y/Z here — bare s.X() can parse as namespace S.X instead of entity position.
+            dist = DIST3D(px, py, pz, starEnts(i).X(), starEnts(i).Y(), starEnts(i).Z())
             IF dist < 1.1 THEN
                 starActive(i) = 0
                 score = score + 1
-                HideEntity(starEnts(i))
-                EMITTERPOS(starEmit, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
+                s.Hide()
+                EMITTERPOS(starEmit, starEnts(i).X(), starEnts(i).Y(), starEnts(i).Z())
                 EMITPARTICLE(starEmit, 30)
             ENDIF
         ENDIF
@@ -227,7 +228,7 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ; 7. Rendering
     CAMERA.BEGIN(cam)
         FOR i = 1 TO 4
-            ENTITY.COLOR(plats(i).ent, plats(i).r, plats(i).g, plats(i).b, 255)
+            p = plats(i).ent : p.Color(plats(i).r, plats(i).g, plats(i).b, 255)
         NEXT
         ENTITY.DRAWALL()
         PARTICLES.DRAWEMITTER(starEmit)

@@ -70,6 +70,27 @@ Primitives, text, textures, billboards — see **[DRAW2D.md](DRAW2D.md)** and **
 
 ---
 
+## `RAYLIB.*` — Raw API Access
+
+For developers who prefer the standard Raylib function names or need to port existing C code. These are 1-to-1 mappings to the underlying Raylib C functions.
+
+| Command | Equivalent Raylib C Function |
+|---------|-----------------------------|
+| `RAYLIB.INITWINDOW(w, h, title)` | `InitWindow` |
+| `RAYLIB.CLOSEWINDOW()` | `CloseWindow` |
+| `RAYLIB.BEGINFRAME()` | `BeginDrawing` |
+| `RAYLIB.ENDFRAME()` | `EndDrawing` |
+| `RAYLIB.CLEARBACKGROUND(r, g, b, a)` | `ClearBackground` |
+| `RAYLIB.DRAWFPS(x, y)` | `DrawFPS` |
+| `RAYLIB.LOADTEXTURE(path)` | `LoadTexture` |
+| `RAYLIB.DRAWTEXTURE(tex, x, y, tint)` | `DrawTexture` |
+| `RAYLIB.ISKEYDOWN(key)` | `IsKeyDown` |
+| `RAYLIB.GETMOUSEX()` | `GetMouseX` |
+
+*Note: There are 30+ raw Raylib mappings. Most developers should prefer the idiomatic **`WINDOW.*`**, **`DRAW.*`**, and **`INPUT.*`** namespaces.*
+
+---
+
 ## Clipboard
 
 **`SYSTEM.GETCLIPBOARD`** (returns string) and **`SYSTEM.SETCLIPBOARD`** `(text)` wrap Raylib clipboard when CGO is enabled; see **`runtime/system/clipboard_cgo.go`**.

@@ -428,8 +428,7 @@ func (m *Module) entCreate(args []value.Value) (value.Value, error) {
 	e.gravity = -28
 	st.ents[id] = e
 	st.dynamicEnts = append(st.dynamicEnts, e)
-	fmt.Println("MB_DEBUG: CREATESPHERE ID =", id)
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
@@ -461,8 +460,7 @@ func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
 	e.gravity = 0
 	st.ents[id] = e
 	st.staticEnts = append(st.staticEnts, e)
-	fmt.Println("MB_DEBUG: CREATEBOX ID =", id)
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entSetPosition(args []value.Value) (value.Value, error) {

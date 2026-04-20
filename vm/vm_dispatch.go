@@ -333,7 +333,7 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 	argCount := int(uint32(i.Operand) >> 24)
 	nameIdx := int32(i.Operand & 0x00FFFFFF)
 	methodName := frame.Chunk.Names[nameIdx]
-
+ 
 	hVal := v.reg(i.SrcA)
 	argStart := i.SrcB
 

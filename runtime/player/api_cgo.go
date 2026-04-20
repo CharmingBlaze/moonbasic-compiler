@@ -67,6 +67,7 @@ func (m *Module) playerCreateInternal(args []value.Value) (int64, error) {
 	m.entToChar[id] = h
 	_ = m.ent.PlayerBridgeClearScriptedMotion(id)
 	m.lastHero = id
+	fmt.Printf("DEBUG: playerCreateInternal: established KCC for id=%d, lastHero=%d\n", id, m.lastHero)
 	return id, nil
 }
 

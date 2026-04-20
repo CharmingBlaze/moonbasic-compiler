@@ -210,6 +210,21 @@ Returns the contact surface normal as a `[nx, ny]` array handle.
 
 ---
 
+## 2D Player Helpers (`PLAYER2D.*`)
+
+High-level helpers for top-down or platformer movement (can be used with or without Box2D).
+
+| Command | Role |
+|---------|------|
+| `PLAYER2D.CREATE(x, y)` | Allocates a 2D player state handle. |
+| `PLAYER2D.FREE(handle)` | Frees the player state. |
+| `PLAYER2D.MOVE(handle, dx, dy)` | Adds a delta to the player position. |
+| `PLAYER2D.CLAMP(handle, minX, minY, maxX, maxY)` | Keeps player within a screen/world box. |
+| `PLAYER2D.GETX(handle)` / `GETY(handle)` | Current position. |
+| `PLAYER2D.SETPOS(handle, x, y)` | Teleport player. |
+
+---
+
 ## Full Example: Falling Box
 
 ```basic

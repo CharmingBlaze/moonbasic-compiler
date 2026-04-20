@@ -25,56 +25,55 @@ $ZigCC = "zig cc -target x86_64-windows-gnu -static"
 $ZigCXX = "zig c++ -target x86_64-windows-gnu -static"
 
 if (-not $env:CC) {
-    if (-not (Get-Command zig -ErrorAction SilentlyContinue)) {
-        Write-Error "zig not found on PATH. Install Zig from https://ziglang.org/ or set CC/CXX to your MinGW toolchain (e.g. gcc/g++ from MSYS2)."
-    }
-    $env:CC = $ZigCC
-}
-if (-not $env:CXX) {
     if (Get-Command zig -ErrorAction SilentlyContinue) {
-        $env:CXX = $ZigCXX
+        $env:CC = $ZigCC
+        if (-not $env:CXX) { $env:CXX = $ZigCXX }
+    } elseif (Get-Command gcc -ErrorAction SilentlyContinue) {
+        Write-Host "Zig not found, falling back to GCC for static build." -ForegroundColor Yellow
+        $env:CC = "gcc"
+        if (-not $env:CXX) { $env:CXX = "g++" }
+    } else {
+        Write-Error "Neither zig nor gcc found on PATH. Please install a C toolchain."
+        exit 1
     }
 }
 
 $env:CGO_ENABLED = "1"
 
-$out = if ($env:OUTPUT) { $env:OUTPUT } else { "moonrun_static.exe" }
+$outMoonrun = "moonrun_static.exe"
+$outMoonbasic = "moonbasic_static.exe"
 
-Write-Host "CC=$($env:CC)"
-Write-Host "CXX=$($env:CXX)"
-Write-Host "CGO_ENABLED=$($env:CGO_ENABLED)"
-Write-Host "Building cmd/moonrun with -tags fullruntime -> $out ..."
+Write-Host "--- Building Compiler: $outMoonbasic ---" -ForegroundColor Cyan
+# Compiler is usually pure Go, but we use static flags for maximum portability.
+& go build -ldflags="-s -w -extldflags=-static" -o $outMoonbasic .
 
-# Use -ldflags=-... as a single flag value so PowerShell/go do not split on spaces (see `go help build`).
-$goArgs = @(
-    "build",
-    "-tags", "fullruntime",
-    "-o", $out,
-    "./cmd/moonrun"
-)
-if (-not $env:MOONBASIC_SKIP_STATIC_EXTLDFLAGS) {
-    # CGO final link: static libgcc/libstdc++ where possible (in addition to zig -static on CC/CXX).
-    $goArgs = @(
-        "build",
-        "-tags", "fullruntime",
-        "-ldflags=-linkmode external -extldflags=-static",
-        "-o", $out,
-        "./cmd/moonrun"
-    )
-}
-
-& go @goArgs
 if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to build compiler."
     exit $LASTEXITCODE
 }
 
-Write-Host "Output: $out"
+Write-Host "--- Building Runtime: $outMoonrun ---" -ForegroundColor Cyan
+Write-Host "CC=$($env:CC)"
+Write-Host "CXX=$($env:CXX)"
 
-$dumpbin = Get-Command dumpbin -ErrorAction SilentlyContinue
-if ($dumpbin) {
-    Write-Host "--- dumpbin /dependents (verify no unexpected DLLs) ---"
-    & dumpbin /dependents $out
-} else {
-    Write-Host "Tip: In a VS Developer shell, run: dumpbin /dependents $out"
-    Write-Host "     Non-system DLLs (e.g. raylib.dll, jolt.dll) should be absent for a static build."
+$goArgs = @(
+    "build",
+    "-tags", "fullruntime",
+    "-ldflags=-linkmode external -extldflags=-static",
+    "-o", $outMoonrun,
+    "./cmd/moonrun"
+)
+
+& go @goArgs
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to build runtime."
+    exit $LASTEXITCODE
 }
+
+Write-Host "Done! Binaries: $outMoonbasic, $outMoonrun" -ForegroundColor Green
+
+# Verification
+$MingwBin = Split-Path (Get-Command gcc).Source
+Write-Host "--- Verifying Imports ---" -ForegroundColor Yellow
+powershell -File scripts/verify_windows_pe_imports.ps1 -Exe $outMoonbasic -MingwBin $MingwBin
+powershell -File scripts/verify_windows_pe_imports.ps1 -Exe $outMoonrun -MingwBin $MingwBin

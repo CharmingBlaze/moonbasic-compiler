@@ -228,23 +228,33 @@ func (r *Registry) CommandKeys() []string {
 // Call executes a command by its fully qualified name.
 func (r *Registry) Call(name string, args []value.Value) (value.Value, error) {
 	key := strings.ToUpper(name)
+	// fmt.Printf("DEBUG: Registry.Call(%s)\n", key)
 	r.mu.RLock()
 	fn, ok := r.Commands[key]
 	r.mu.RUnlock()
 	if !ok {
+		fmt.Printf("DEBUG: Registry.Call(%s) NOT FOUND\n", key)
 		return value.Value{}, FormatUnknownRegistryCommand(key, r.CommandKeys())
 	}
 	exit := enterCall(r)
 	defer exit()
-	return fn(r, args...)
+	res, err := fn(r, args...)
+	if err != nil {
+		fmt.Printf("DEBUG: Registry.Call(%s) ERROR: %v\n", key, err)
+	}
+	return res, err
 }
 
 // Shutdown releases all module-level resources.
 func (r *Registry) Shutdown() {
-	for _, m := range r.Modules {
+	fmt.Printf("DEBUG: Registry.Shutdown starting...\n")
+	for i, m := range r.Modules {
+		fmt.Printf("DEBUG: Shutting down module %d...\n", i)
 		m.Shutdown()
 	}
+	fmt.Printf("DEBUG: Registry.Shutdown: Freeing heap...\n")
 	r.Heap.FreeAll()
+	fmt.Printf("DEBUG: Registry.Shutdown finished.\n")
 }
 
 // ResetModules clears internal module state (called by ERASE ALL / FREE.ALL).

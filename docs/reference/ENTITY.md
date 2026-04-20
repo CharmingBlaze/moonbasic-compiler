@@ -87,6 +87,11 @@ Frees the entity and its resources.
 
 ---
 
+### `FREE.ALL`
+Frees all active array handles in the system. Use for major scene transitions or shutdown.
+
+---
+
 ## Spatial Macros (`ENTITY.X`, `ENTITY.Y`, ...)
 
 Shorthand for reading/writing coordinates directly from the entity store. These compile to fast bytecode.

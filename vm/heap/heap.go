@@ -172,6 +172,7 @@ func (s *Store) FreeAll() {
 	for i := range s.entries {
 		e := &s.entries[i]
 		if e.Obj != nil {
+			fmt.Printf("DEBUG: heap.FreeAll: Freeing slot %d (%s)...\n", i, e.Obj.TypeName())
 			e.Obj.Free()
 			e.Obj = nil
 			e.Gen++

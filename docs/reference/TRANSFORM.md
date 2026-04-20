@@ -46,6 +46,8 @@ Returns the product of two matrices.
 ### `TRANSFORM.FREE(handle)`
 Releases the matrix handle from memory.
 
+- **Alias**: `MATRIX.FREE`
+
 ---
 
 ## Full Example

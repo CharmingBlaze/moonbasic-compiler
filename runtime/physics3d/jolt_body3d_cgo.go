@@ -129,6 +129,39 @@ func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) {
 	bu.QCapR = float32(r)
 	return args[0], nil
 }
+func (m *Module) bdAddShapeInternal(builderHandle value.Value, shapeHandle value.Value) (value.Value, error) {
+	bu, err := heap.Cast[*BuilderObj](m.h, heap.Handle(builderHandle.IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	shObj, err := heap.Cast[*ShapeObj](m.h, heap.Handle(shapeHandle.IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if bu.Shape != nil {
+		bu.Shape.Destroy()
+	}
+	// Clone or reference shape? Jolt-go shapes are ref-counted internally but wrapper might not expose it correctly.
+	// For now, we'll create a new box/sphere/capsule of same dimensions to be safe.
+	switch shObj.Kind {
+	case 1: // Box
+		bu.Shape = jolt.CreateBox(jolt.Vec3{X: shObj.Dim1, Y: shObj.Dim2, Z: shObj.Dim3})
+		bu.QBox = jolt.Vec3{X: shObj.Dim1, Y: shObj.Dim2, Z: shObj.Dim3}
+	case 2: // Sphere
+		bu.Shape = jolt.CreateSphere(shObj.Dim1)
+		bu.QSphere = shObj.Dim1
+	case 3: // Capsule
+		hh := shObj.Dim2/2 - shObj.Dim1
+		if hh < 0.05 { hh = 0.05 }
+		bu.Shape = jolt.CreateCapsule(hh, shObj.Dim1)
+		bu.QCapH = hh
+		bu.QCapR = shObj.Dim1
+	default:
+		return value.Nil, fmt.Errorf("BODY3D: unsupported shape kind %d for one-shot creation", shObj.Kind)
+	}
+	bu.QKind = uint8(shObj.Kind)
+	return builderHandle, nil
+}
 
 func (m *Module) bdAddMesh(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle {
@@ -726,14 +759,32 @@ func (m *Module) brFree(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) knCreate(args []value.Value) (value.Value, error) {
+	if len(args) == 1 && args[0].Kind == value.KindHandle {
+		bh, err := phCreateBody(m, "KINEMATIC")
+		if err != nil { return bh, err }
+		if _, err := m.bdAddShapeInternal(bh, args[0]); err != nil { return value.Nil, err }
+		return m.bdCommit([]value.Value{bh, value.FromFloat(0), value.FromFloat(0), value.FromFloat(0)})
+	}
 	return phCreateBody(m, "KINEMATIC")
 }
 
 func (m *Module) stCreate(args []value.Value) (value.Value, error) {
+	if len(args) == 1 && args[0].Kind == value.KindHandle {
+		bh, err := phCreateBody(m, "STATIC")
+		if err != nil { return bh, err }
+		if _, err := m.bdAddShapeInternal(bh, args[0]); err != nil { return value.Nil, err }
+		return m.bdCommit([]value.Value{bh, value.FromFloat(0), value.FromFloat(0), value.FromFloat(0)})
+	}
 	return phCreateBody(m, "STATIC")
 }
 
 func (m *Module) trCreate(args []value.Value) (value.Value, error) {
+	if len(args) == 1 && args[0].Kind == value.KindHandle {
+		bh, err := phCreateBody(m, "TRIGGER")
+		if err != nil { return bh, err }
+		if _, err := m.bdAddShapeInternal(bh, args[0]); err != nil { return value.Nil, err }
+		return m.bdCommit([]value.Value{bh, value.FromFloat(0), value.FromFloat(0), value.FromFloat(0)})
+	}
 	return phCreateBody(m, "TRIGGER")
 }
 

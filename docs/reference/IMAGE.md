@@ -99,6 +99,17 @@ WINDOW.CLOSE()
 
 ---
 
+## Clipboard (`CLIPBOARD.*`)
+
+System clipboard access for image data.
+
+### `CLIPBOARD.GETIMAGE()`
+Retrieves an image currently stored in the system clipboard (if any).
+
+- **Returns**: (Handle) A new image handle, or `0` if no image data is available.
+
+---
+
 ## Common mistakes
 
 - **`IMAGE.*` vs GPU** — To display pixels, use **`TEXTURE.FROMIMAGE`** then **`DRAW.TEXTURE`** (or equivalent), not **`IMAGE.*`** alone.
