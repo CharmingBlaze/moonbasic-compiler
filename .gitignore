@@ -29,3 +29,11 @@ third_party/jolt-go/jolt/lib/windows_amd64/*.a
 
 # Local JoltPhysics source checkout for building static libs (CI clones its own copy).
 third_party/JoltPhysics/
+
+# Local debug/scratch artifacts
+debug_output*.txt
+output.txt
+moonbasic.exe~
+test_error.mb
+scratch/render_test.mb
+editors/vscode-moonbasic/vscode-moonbasic-*.vsix
