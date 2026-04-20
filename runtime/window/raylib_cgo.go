@@ -218,6 +218,9 @@ func (m *Module) closeWindowLocked() {
 		return
 	}
 	m.shutdownAutomation()
+	if m.onAudioClose != nil {
+		m.onAudioClose()
+	}
 	reg := runtime.ActiveRegistry()
 	if reg != nil && reg.Driver.System != nil {
 		reg.Driver.System.CloseWindow()

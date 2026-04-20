@@ -245,16 +245,17 @@ func (r *Registry) Call(name string, args []value.Value) (value.Value, error) {
 	return res, err
 }
 
-// Shutdown releases all module-level resources.
+// Shutdown releases all module-level resources in reverse order of registration.
 func (r *Registry) Shutdown() {
-	fmt.Printf("DEBUG: Registry.Shutdown starting...\n")
-	for i, m := range r.Modules {
-		fmt.Printf("DEBUG: Shutting down module %d...\n", i)
+	// fmt.Printf("DEBUG: Registry.Shutdown starting...\n")
+	for i := len(r.Modules) - 1; i >= 0; i-- {
+		m := r.Modules[i]
+		// fmt.Printf("DEBUG: Shutting down module %d (%T)...\n", i, m)
 		m.Shutdown()
 	}
-	fmt.Printf("DEBUG: Registry.Shutdown: Freeing heap...\n")
+	// fmt.Printf("DEBUG: Registry.Shutdown: Freeing heap...\n")
 	r.Heap.FreeAll()
-	fmt.Printf("DEBUG: Registry.Shutdown finished.\n")
+	// fmt.Printf("DEBUG: Registry.Shutdown finished.\n")
 }
 
 // ResetModules clears internal module state (called by ERASE ALL / FREE.ALL).
