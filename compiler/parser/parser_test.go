@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"moonbasic/compiler/ast"
 )
 
 func TestParseReference(t *testing.T) {
@@ -63,5 +65,49 @@ func TestColonSeparatedStatementsInWhileBody(t *testing.T) {
 	}
 	if len(prog.Stmts) != 1 {
 		t.Fatalf("want 1 stmt, got %d", len(prog.Stmts))
+	}
+}
+
+func TestUnknownNamespaceFallsBackToHandleCallExpr(t *testing.T) {
+	prog, err := ParseSource("x.mbc", "s = SPHERE(1)\nd = s.X()\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prog.Stmts) != 2 {
+		t.Fatalf("want 2 stmts, got %d", len(prog.Stmts))
+	}
+	assign, ok := prog.Stmts[1].(*ast.AssignNode)
+	if !ok {
+		t.Fatalf("expected second stmt assign, got %T", prog.Stmts[1])
+	}
+	if _, ok := assign.Expr.(*ast.HandleCallExpr); !ok {
+		t.Fatalf("expected s.X() to parse as HandleCallExpr, got %T", assign.Expr)
+	}
+}
+
+func TestKnownNamespaceStaysNamespaceExpr(t *testing.T) {
+	prog, err := ParseSource("x.mbc", "d = CAMERA.CREATE()\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	assign, ok := prog.Stmts[0].(*ast.AssignNode)
+	if !ok {
+		t.Fatalf("expected assign, got %T", prog.Stmts[0])
+	}
+	if _, ok := assign.Expr.(*ast.NamespaceCallExpr); !ok {
+		t.Fatalf("expected CAMERA.CREATE() to parse as NamespaceCallExpr, got %T", assign.Expr)
+	}
+}
+
+func TestIndexedHandleCallStatementParses(t *testing.T) {
+	prog, err := ParseSource("x.mbc", "DIM a AS HANDLE(2)\na(1).Hide()\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prog.Stmts) != 2 {
+		t.Fatalf("want 2 stmts, got %d", len(prog.Stmts))
+	}
+	if _, ok := prog.Stmts[1].(*ast.HandleCallStmt); !ok {
+		t.Fatalf("expected a(1).Hide() to parse as HandleCallStmt, got %T", prog.Stmts[1])
 	}
 }
