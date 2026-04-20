@@ -115,6 +115,34 @@ Threading: **`Net.Update`** / **`Net.Receive`** should run on the **same thread*
 
 ---
 
+## Binary Packets (`PACKET.*`)
+
+For complex binary protocols where string encoding is too slow or bulky.
+
+| Command | Role |
+|---------|------|
+| `PACKET.CREATE(size)` | Allocates a raw binary buffer of **size** bytes. |
+| `PACKET.DATA(packet)` | Returns the raw data as a string (base64 or hex depending on version) or a memory view. |
+| `PACKET.FREE(packet)` | Releases the packet memory. |
+| `PACKET.MAKE(size)` | DEPRECATED alias of `PACKET.CREATE`. |
+
+---
+
+## Legacy ENet Aliases (`ENET.*`)
+
+The following commands are aliases for the **`NET.*`** core system, maintained for compatibility with older MoonBASIC scripts.
+
+| Command | Equivalent |
+|---------|------------|
+| `ENET.INITIALIZE()` | `NET.START()` |
+| `ENET.DEINITIALIZE()` | `NET.STOP()` |
+| `ENET.CREATEHOST(...)` | `NET.CREATESERVER(...)` |
+| `ENET.MAKEHOST(...)` | `NET.CREATESERVER(...)` |
+| `ENET.PEERPING(peer)` | Returns current ping (ms). |
+| `ENET.PEERSEND(...)` | `PEER.SEND(...)` |
+
+---
+
 ## Event Handling
 
 When `Net.Receive()` returns a valid event handle, you must inspect it and then free it.

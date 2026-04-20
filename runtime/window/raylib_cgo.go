@@ -239,7 +239,11 @@ func (m *Module) wShouldClose(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.FromBool(false), nil
 	}
 	if rt != nil && rt.Driver.System != nil {
-		return value.FromBool(rt.Driver.System.WindowShouldClose()), nil
+		sc := rt.Driver.System.WindowShouldClose()
+		if sc {
+			fmt.Printf("DEBUG: WINDOW.SHOULDCLOSE returning TRUE\n")
+		}
+		return value.FromBool(sc), nil
 	}
 	return value.FromBool(false), nil
 }

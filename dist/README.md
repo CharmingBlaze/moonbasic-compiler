@@ -16,6 +16,9 @@ If you came here from the repo: **you usually do not need this folder.**
 3. **Four download archives per version tag**  
    Each release publishes **two** full-runtime (Linux + Windows) and **two** compiler-only archives. Together they cover tooling plus “run anywhere you install the full bundle.”
 
+4. **VS Code extension (optional)**  
+   Each tagged release also publishes **`moonbasic-<tag>-vscode.vsix`**. Install with **Extensions → … → Install from VSIX…** in Visual Studio Code, then ensure **`moonbasic`** is on **`PATH`** or set **`moonbasic.languageServerPath`** to your **`moonbasic` / `moonbasic.exe`**. No Node.js or git clone required. Steps: **[`docs/GETTING_STARTED.md`](../docs/GETTING_STARTED.md#vs-code-syntax-and-lsp)**.
+
 ---
 
 ## Two kinds of downloads

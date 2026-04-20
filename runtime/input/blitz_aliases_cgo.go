@@ -121,9 +121,12 @@ func (m *Module) inAxis(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AXIS expects 2 arguments (negKey, posKey)")
 	}
 	k1, err1 := KeyCodeFromValue(args[0])
+	if err1 != nil {
+		return value.Nil, fmt.Errorf("AXIS (negKey): %w", err1)
+	}
 	k2, err2 := KeyCodeFromValue(args[1])
-	if err1 != nil || err2 != nil {
-		return value.Nil, fmt.Errorf("AXIS: invalid key codes")
+	if err2 != nil {
+		return value.Nil, fmt.Errorf("AXIS (posKey): %w", err2)
 	}
 	v := 0.0
 	if rl.IsKeyDown(k1) {

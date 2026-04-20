@@ -12,7 +12,7 @@ switch ($Target) {
     "build-compiler" { go build -o moonbasic.exe . }
     "build-moonrun"  { go build -tags fullruntime -o moonrun.exe ./cmd/moonrun }
     "test"           { go test ./... }
-    "check"          { go run . --check examples/mario64/main_entities.mb }
+    "check"          { go run . --check examples/mario64/main_entities.mb; go run . --check examples/mario64/main_easymode.mb }
     "check-builds"   { & powershell -File (Join-Path $PSScriptRoot "check_builds.ps1") }
     "run-spin-cube" {
         $env:CGO_ENABLED = "1"

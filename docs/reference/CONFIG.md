@@ -59,6 +59,24 @@ Removes a key from the store.
 
 ---
 
+## Resource Helpers (`RES.*`)
+
+Helpers for locating game assets across different search paths.
+
+### `RES.PATH(filename)`
+Returns the full absolute path for a resource file, searching the game's search paths (working directory, asset folders, etc.).
+
+- **Returns**: (String) The resolved path.
+
+---
+
+### `RES.EXISTS(filename)`
+Returns `TRUE` if the resource file exists in any search path.
+
+- **Returns**: (Boolean)
+
+---
+
 ## Full Example
 
 This example loads settings, reads a volume value, changes it, and saves.

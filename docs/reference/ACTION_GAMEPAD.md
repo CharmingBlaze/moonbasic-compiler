@@ -62,6 +62,13 @@ Returns `TRUE` if the gamepad button is currently held.
 
 ---
 
+### `AXIS.DPADY(idx)`
+Returns the vertical state of the D-pad for the specified gamepad index.
+
+- **Returns**: (Float) -1.0 (Down), 1.0 (Up), or 0.0.
+
+---
+
 ## Full Example
 
 This example sets up jump and move actions, then polls them in a game loop.

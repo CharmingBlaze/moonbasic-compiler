@@ -53,14 +53,21 @@
       }
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CharmingBlaze/moonbasic.git",
+    "directory": "editors/vscode-moonbasic"
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
     "typescript": "^5.3.3"
   },
   "dependencies": {

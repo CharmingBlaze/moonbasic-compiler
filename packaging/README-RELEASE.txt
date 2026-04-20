@@ -43,7 +43,10 @@ FIRST STEPS
 TIPS
 ----
   • Put the binaries on your PATH if you want to run them from any directory.
-  • For editor support, run:  moonbasic --lsp  (stdio language server)
+  • Visual Studio Code: on the same GitHub Release page, download  moonbasic-<tag>-vscode.vsix
+    and use Extensions -> ... -> Install from VSIX...  Then set moonbasic.languageServerPath
+    if moonbasic is not on PATH.  See docs/GETTING_STARTED.md in the repo (#vs-code-syntax-and-lsp).
+  • For editor support (any client), run:  moonbasic --lsp  (stdio language server)
   • More help: https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md
 
 Linux: if the app fails to start, ensure GPU drivers and a normal desktop OpenGL stack

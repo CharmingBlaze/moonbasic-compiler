@@ -16,6 +16,7 @@ The **compiled distribution** ships only from **[GitHub Releases](https://github
 |-----------|-------------------------------------------------------------|
 | **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` |
 | **Compile** `.mb` → `.mbc`, **`--check`**, **`--lsp`** only (CI, tooling, no game window) | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
+| **VS Code** (syntax + LSP for `.mb`) | **`moonbasic-<tag>-vscode.vsix`** — [install from VSIX](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) (same release as your binaries; no repo clone) |
 
 - **Full runtime** includes **`moonbasic`** + **`moonrun`** (+ `README-RELEASE.txt`). Use this if you want to play or develop games with a window.
 - **Compiler only** is a small folder with **`moonbasic`** only (no `moonrun`). Same command names for `--check` / compile / LSP as the full build — see **[`dist/README.md`](dist/README.md)** for the full picture.
@@ -30,7 +31,7 @@ The **compiled distribution** ships only from **[GitHub Releases](https://github
 
 **Release `moonrun` does not require Go, GCC, or Clang on your machine** — it compiles `.mb` in-process, then runs the engine. You may still need a normal GPU stack (Linux) or the [VC++ x64 redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist) on some Windows setups if a DLL is missing; see **`README-RELEASE.txt`** inside the full-runtime archive.
 
-**Editor:** run **`moonbasic --lsp`** and attach your LSP client (stdio).
+**Editor:** run **`moonbasic --lsp`** and attach your LSP client (stdio). **VS Code:** download **`moonbasic-<tag>-vscode.vsix`** from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) and **Install from VSIX…** — [quick steps](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp). Repo contributors: [DEVELOPER.md — moonBASIC in VS Code](docs/DEVELOPER.md#moonbasic-in-vs-code) (workspace tasks).
 
 More detail on what each zip contains: **[`dist/README.md`](dist/README.md)** · step-by-step install, first window, and **how to ship your game to players**: **[`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)** (section **Ship your game**)
 

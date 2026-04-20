@@ -1,4 +1,9 @@
 {
+  "moonbasic.languageServerPath": "",
+  "[moonbasic]": {
+    "editor.tabSize": 4,
+    "files.eol": "\n"
+  },
   "go.buildTags": "fullruntime,gopls_stub",
   "gopls": {
     "buildFlags": ["-tags=fullruntime,gopls_stub"],

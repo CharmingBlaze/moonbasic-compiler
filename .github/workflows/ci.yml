@@ -62,6 +62,7 @@ jobs:
           go run . --check examples/fps/main.mb
           go run . --check examples/spin_cube/main.mb
           go run . --check examples/mario64/main_entities.mb
+          go run . --check examples/mario64/main_easymode.mb
           go run . --check examples/terrain_chase/main.mb
           go run . --check examples/rpg/main.mb
           go run . --check examples/racing/main.mb
@@ -129,6 +130,7 @@ jobs:
           go run . --check examples/fps/main.mb
           go run . --check examples/spin_cube/main.mb
           go run . --check examples/mario64/main_entities.mb
+          go run . --check examples/mario64/main_easymode.mb
           go run . --check examples/terrain_chase/main.mb
           go run . --check examples/rpg/main.mb
           go run . --check examples/racing/main.mb
@@ -295,3 +297,21 @@ jobs:
             -o /tmp/moonbasic ./cmd/moonbasic
           /tmp/moonbasic --version | grep -q ci
           /tmp/moonbasic --check testdata/enet_smoke.mb
+
+  vscode-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
+
+      - name: Package VS Code extension (.vsix)
+        run: |
+          set -e
+          cd editors/vscode-moonbasic
+          npm ci
+          npm run package

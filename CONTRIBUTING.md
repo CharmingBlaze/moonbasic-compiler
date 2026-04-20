@@ -18,6 +18,7 @@ From the repository root:
 ```bash
 go test ./...
 go run . --check examples/mario64/main_entities.mb
+go run . --check examples/mario64/main_easymode.mb
 ```
 
 The [`--check`](.github/workflows/ci.yml) samples mirror a subset of CI; fixing failures before opening a PR saves round-trips.

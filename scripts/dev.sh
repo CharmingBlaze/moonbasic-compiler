@@ -7,7 +7,7 @@ case "$cmd" in
   build-compiler) go build -o moonbasic . ;;
   build-moonrun)  go build -tags fullruntime -o moonrun ./cmd/moonrun ;;
   test)           go test ./... ;;
-  check)          go run . --check examples/mario64/main_entities.mb ;;
+  check)          go run . --check examples/mario64/main_entities.mb && go run . --check examples/mario64/main_easymode.mb ;;
   check-builds)   bash scripts/check_builds.sh ;;
   run-spin-cube)  CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb ;;
   help|*)

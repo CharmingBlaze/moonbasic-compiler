@@ -241,8 +241,33 @@ jobs:
           name: moonbasic-compiler-windows-amd64
           path: moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip
 
+  # Portable VS Code extension (syntax + LSP client). No Go required to install — only moonbasic on PATH or moonbasic.languageServerPath.
+  vscode-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
+
+      - name: Build VSIX
+        run: |
+          set -e
+          cd editors/vscode-moonbasic
+          npm ci
+          npm run package
+          cp vscode-moonbasic-*.vsix "${GITHUB_WORKSPACE}/moonbasic-${GITHUB_REF_NAME}-vscode.vsix"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: moonbasic-${{ github.ref_name }}-vscode.vsix
+
   github-release:
-    needs: [linux-amd64, windows-amd64, compiler-only-linux, compiler-only-windows]
+    needs: [linux-amd64, windows-amd64, compiler-only-linux, compiler-only-windows, vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -255,7 +280,7 @@ jobs:
       - name: Collect archives for upload
         run: |
           mkdir -p upload
-          find release-assets -type f \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp -v {} upload/ \;
+          find release-assets -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.vsix' \) -exec cp -v {} upload/ \;
           ls -la upload/
 
       - name: Create GitHub Release
@@ -270,10 +295,13 @@ jobs:
 
             **Compiler only** (tooling / CI — `.mb` → `.mbc`, `--check`, `--lsp`, no engine DLLs beside `moonbasic`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
 
+            **VS Code** (optional): `moonbasic-<tag>-vscode.vsix` — install with **Extensions → … → Install from VSIX…**; point **`moonbasic.languageServerPath`** at your `moonbasic` / `moonbasic.exe` if it is not on `PATH`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
+
             | File | Contents |
             |------|----------|
             | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, compile to `.mbc`, `--lsp`) — full manifest |
             | `moonrun` / `moonrun.exe` | Full runtime — run `.mb` / `.mbc` games |
+            | `moonbasic-<tag>-vscode.vsix` | VS Code extension (grammar + LSP client) — optional |
 
             Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [Build from source](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/BUILDING.md) · [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/dist/README.md)
         env:

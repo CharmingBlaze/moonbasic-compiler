@@ -6,6 +6,13 @@ This document tracks the recent development history of moonBASIC.
 
 ## Version 0.1 (April 2026)
 
+### April 20, 2026 (release hygiene)
+
+-   **Examples / Easy Mode**: Fixed **`examples/mario64/main_easymode.mb`** crashing on first frame when reading star positions. **`s.X()`** / **`s.Y()`** / **`s.Z()`** could parse as a **namespace call** (`S.X`, …) instead of a **handle method** if the parser had not yet registered **`s`** as a variable in that parse context. **Fix:** use **`starEnts(i).X()`** (and **`.Y()` / `.Z()`**) for position reads so the receiver is an **indexed expression**, which always becomes **`HandleCallExpr`** → correct **`ENTITY.*`** dispatch with the entity id. **`s.Hide()`** remains valid after **`s = starEnts(i)`** (statements cannot use **`arr(i).Hide()`** yet).
+-   **CI**: Semantic check now includes **`examples/mario64/main_easymode.mb`** alongside **`main_entities.mb`**.
+-   **Build**: **`scratch/clean_manifest.go`** and **`scratch/check_tags.go`** marked **`//go:build ignore`** so they do not share **`package main`** with **`verify_array_pt5_test.go`** (fixes duplicate **`main`** when running **`go test ./...`**).
+-   **Audit**: Regenerated **`docs/audit/manifest_keys.txt`**, **`docs/audit/runtime_keys.txt`**, and **`docs/MISSING_COMMANDS_AUDIT.md`** via **`python tools/diff_manifest_runtime.py --write`** so **`--check`** matches **`commands.json`** and the runtime scan.
+
 ### April 5–6, 2026
 
 -   **Blitz3D-style API**: **`CAMERA.TURN`**, **`ROTATE`**, **`ORBIT`** (alias of **`SETORBIT`**), **`ZOOM`**, **`FOLLOW`**, **`CAMERA.FOLLOWENTITY`**; **`ENTITY.CREATE`**, **`CREATEBOX`**, movement, simple collision/physics, **`DRAWALL`**; input aliases **`KEYHIT`**, **`MOUSEXSPEED`/`MOUSEYSPEED`**, **`JOYX`/`JOYY`/`JOYBUTTON`** (see [BLITZ3D.md](reference/BLITZ3D.md)).

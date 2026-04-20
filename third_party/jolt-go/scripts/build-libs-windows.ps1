@@ -38,7 +38,7 @@ Push-Location $BUILD_DIR
 # LTO / IPO policy (keep parity with release.yml Linux Jolt job):
 # - -fno-lto on compile: archives contain normal COFF objects, not GCC LTO bytecode.
 # - CMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF: CMake targets must not add -flto behind our back.
-cmake .. `
+cmake .. -G "MinGW Makefiles" `
     -DCMAKE_BUILD_TYPE=Release `
     -DCMAKE_CXX_FLAGS="-fno-lto" `
     -DCMAKE_C_FLAGS="-fno-lto" `
@@ -49,7 +49,7 @@ cmake .. `
     -DTARGET_PERFORMANCE_TEST=OFF `
     -DTARGET_SAMPLES=OFF `
     -DTARGET_VIEWER=OFF
-cmake --build . --config Release -j $env:NUMBER_OF_PROCESSORS
+cmake --build . --config Release
 Pop-Location
 
 Write-Host "--- Building Wrapper ---" -ForegroundColor Blue

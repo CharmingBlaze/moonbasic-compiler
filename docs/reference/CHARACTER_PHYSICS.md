@@ -141,6 +141,47 @@ Instantly moves the character to a new position and resets all velocities. Use t
 
 ---
 
+## State & Getters
+
+These commands allow you to query the internal state of the character controller. Most have handle method equivalents.
+
+### Physical Dimensions
+| Command | Returns | Handle Method |
+|---------|---------|---------------|
+| `CHAR.GETRADIUS(e)` | (Float) Horizontal radius | `e.getRadius()` |
+| `CHAR.GETHEIGHT(e)` | (Float) Total height | `e.getHeight()` |
+| `CHAR.GETCAPSULERADIUS(e)` | (Float) Jolt shape radius | `e.getCapsuleRadius()` |
+| `CHAR.GETCAPSULEHEIGHT(e)` | (Float) Jolt shape height | `e.getCapsuleHeight()` |
+
+### Movement State
+| Command | Returns | Handle Method |
+|---------|---------|---------------|
+| `CHAR.GETVELOCITYX(e)` | (Float) Linear velocity X | `e.getVelocityX()` |
+| `CHAR.GETVELOCITYY(e)` | (Float) Linear velocity Y | `e.getVelocityY()` |
+| `CHAR.GETVELOCITYZ(e)` | (Float) Linear velocity Z | `e.getVelocityZ()` |
+| `CHAR.GETSPEED(e)` | (Float) Horizontal speed | `e.getSpeed()` |
+| `CHAR.GETISJUMPING(e)` | (Bool) True if in jump state | `e.getIsJumping()` |
+| `CHAR.GETISFALLING(e)` | (Bool) True if falling | `e.getIsFalling()` |
+| `CHAR.GETISSLIDING(e)` | (Bool) True if sliding on steep slope | `e.getIsSliding()` |
+
+### Ground & Collision
+| Command | Returns | Handle Method |
+|---------|---------|---------------|
+| `CHAR.GETGROUNDSTATE(e)` | (Int) Ground state index | `e.getGroundState()` |
+| `CHAR.GETGROUNDVELOCITYX(e)` | (Float) Base velocity X | `e.getGroundVelocityX()` |
+| `CHAR.GETONSLOPE(e)` | (Bool) True if on walkable slope | `e.getOnSlope()` |
+| `CHAR.GETONWALL(e)` | (Bool) True if touching wall | `e.getOnWall()` |
+| `CHAR.GETCEILING(e)` | (Bool) True if touching ceiling | `e.getCeiling()` |
+
+### `CHARCONTROLLER.*` (Low-level Physics)
+Low-level access to the Jolt character solver.
+- `CHARCONTROLLER.GETPOS(e)`: Returns [x,y,z] as an array handle.
+- `CHARCONTROLLER.GETLINEARVEL(e)`: Returns [vx,vy,vz] as an array handle.
+- `CHARCONTROLLER.GROUNDSTATE(e)`: Returns the ground state enumeration.
+- `CHARCONTROLLER.X(e) / Y(e) / Z(e)`: Raw coordinate access.
+
+---
+
 ## Full Example: Player Controller
 
 ```basic

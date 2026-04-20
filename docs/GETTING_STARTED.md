@@ -29,6 +29,16 @@ More detail on what each archive contains: **[`dist/README.md`](../dist/README.m
 
 To **build moonbasic from source** (contributors), see **[BUILDING.md](BUILDING.md)**.
 
+### VS Code: syntax and LSP
+
+After you install **`moonbasic`** from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest), you can add editor support **without cloning the repo** or installing Node.js:
+
+1. On the **same release page**, download **`moonbasic-<tag>-vscode.vsix`** (listed next to the platform zips).
+2. In Visual Studio Code: **Extensions** → **⋯** → **Install from VSIX…** and select that file.
+3. If **`moonbasic`** is not on your system **`PATH`**, open **Settings** → search **`moonbasic.languageServerPath`** → set it to the full path of **`moonbasic`** or **`moonbasic.exe`** (for example, the folder where you extracted the zip).
+
+That gives you **syntax highlighting**, **snippets**, and **LSP** (completions and diagnostics) while you edit **`.mb`** files. Optional: clone the repo and use the workspace [`.vscode`](../.vscode/) tasks for **check / compile / moonrun** — see **[DEVELOPER.md — moonBASIC in VS Code](DEVELOPER.md#moonbasic-in-vs-code)** (contributors).
+
 ---
 
 ## 2. Ship your game (for authors)

@@ -21504,7 +21504,8 @@
         "float"
       ],
       "description": "Easy Mode shorthand for positioning an entity",
-      "key": "ENTITY.POS"
+      "key": "ENTITY.POS",
+      "returns": "handle"
     },
     {
       "args": [
@@ -21514,7 +21515,8 @@
         "float"
       ],
       "description": "Easy Mode shorthand for rotating an entity (absolute)",
-      "key": "ENTITY.ROT"
+      "key": "ENTITY.ROT",
+      "returns": "handle"
     },
     {
       "args": [
@@ -21634,7 +21636,8 @@
         "float"
       ],
       "description": "Easy Mode: Set entity transparency (0.0 to 1.0)",
-      "key": "ENTITY.ALPHA"
+      "key": "ENTITY.ALPHA",
+      "returns": "handle"
     },
     {
       "args": [
@@ -21774,7 +21777,8 @@
         "float",
         "float"
       ],
-      "key": "ENTITY.SCALE"
+      "key": "ENTITY.SCALE",
+      "returns": "handle"
     },
     {
       "args": [
@@ -21783,14 +21787,16 @@
         "int",
         "int"
       ],
-      "key": "ENTITY.COLOR"
+      "key": "ENTITY.COLOR",
+      "returns": "handle"
     },
     {
       "args": [
         "int",
         "handle"
       ],
-      "key": "ENTITY.COLOR"
+      "key": "ENTITY.COLOR",
+      "returns": "handle"
     },
     {
       "args": [
@@ -21800,7 +21806,8 @@
         "int",
         "int"
       ],
-      "key": "ENTITY.COLOR"
+      "key": "ENTITY.COLOR",
+      "returns": "handle"
     },
     {
       "args": [
@@ -22807,7 +22814,7 @@
       "description": "Default 1x1x1 axis-aligned box; returns entity",
       "key": "CreateCube",
       "phase": "any",
-      "returns": "int"
+      "returns": "handle"
     },
     {
       "args": [
@@ -22816,7 +22823,7 @@
       "description": "1x1x1 box parented to entity (parent entity id)",
       "key": "CreateCube",
       "phase": "any",
-      "returns": "int"
+      "returns": "handle"
     },
     {
       "args": [
@@ -22827,7 +22834,7 @@
       "description": "Box with width, height, depth (no parent)",
       "key": "CreateCube",
       "phase": "any",
-      "returns": "int"
+      "returns": "handle"
     },
     {
       "args": [
@@ -22839,7 +22846,7 @@
       "description": "Box (w,h,d) parented to entity",
       "key": "CreateCube",
       "phase": "any",
-      "returns": "int"
+      "returns": "handle"
     },
     {
       "key": "ENTITY.CREATEENTITY",
@@ -23748,16 +23755,25 @@
     {
       "args": [
         "float",
+        "float"
+      ],
+      "description": "Blitz-style static capsule entity (radius, height) \u00e2\u20ac\u201d ENTITYREF handle",
+      "key": "CAPSULE",
+      "returns": "handle"
+    },
+    {
+      "args": [
+        "float",
         "float",
         "float"
       ],
       "key": "ENTITY.CREATECUBE",
-      "returns": "int"
+      "returns": "handle"
     },
     {
       "description": "Easy Mode: ENTITY.CREATECUBE(1, 1, 1)",
       "key": "CREATECUBE",
-      "returns": "int"
+      "returns": "handle"
     },
     {
       "args": [

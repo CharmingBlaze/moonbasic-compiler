@@ -318,6 +318,18 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "ENTITY.FREE", true, true
 		case "HIDE":
 			return "ENTITY.HIDE", true, true
+		case "X":
+			return "ENTITY.X", true, true
+		case "Y":
+			return "ENTITY.Y", true, true
+		case "Z":
+			return "ENTITY.Z", true, true
+		case "P":
+			return "ENTITY.P", true, true
+		case "W", "YAW":
+			return "ENTITY.W", true, true
+		case "R":
+			return "ENTITY.R", true, true
 		case "SHOW":
 			return "ENTITY.SHOW", true, true
 		case "MOVEWITHCAMERA":
@@ -2583,6 +2595,18 @@ func handleCallDispatch(tag uint16, method string, argCount int) (registryKey st
 			return "ENTITY.GETCOLOR", true, true
 		case "SETALPHA", "ALPHA":
 			return "ENTITY.GETALPHA", true, true
+		case "X":
+			return "ENTITY.X", true, true
+		case "Y":
+			return "ENTITY.Y", true, true
+		case "Z":
+			return "ENTITY.Z", true, true
+		case "P":
+			return "ENTITY.P", true, true
+		case "W", "YAW":
+			return "ENTITY.W", true, true
+		case "R":
+			return "ENTITY.R", true, true
 		case "GETPOS", "GETROT", "GETSCALE", "GETCOLOR", "GETALPHA":
 			return "ENTITY." + mn, true, true
 		case "CREATEVEHICLE":

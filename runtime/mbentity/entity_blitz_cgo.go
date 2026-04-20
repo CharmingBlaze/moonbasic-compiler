@@ -330,7 +330,7 @@ func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
 	e.w, e.h, e.d = rad*2, rad*2, rad*2
 	e.physBottomOffset = rad
 	st.ents[id] = e
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entCreateCylinderEasy(args []value.Value) (value.Value, error) {
@@ -377,7 +377,7 @@ func (m *Module) entCreateCylinder(args []value.Value) (value.Value, error) {
 	e.static = true
 	e.physBottomOffset = h * 0.5
 	st.ents[id] = e
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entCreatePlane(args []value.Value) (value.Value, error) {
@@ -398,7 +398,7 @@ func (m *Module) entCreatePlane(args []value.Value) (value.Value, error) {
 	e.static = true
 	e.physBottomOffset = 0 // Plane is already 0+tiny
 	st.ents[id] = e
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entCreateMesh(args []value.Value) (value.Value, error) {
@@ -1455,7 +1455,7 @@ func (m *Module) entFind(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	if !ok2 {
 		return value.FromInt(0), nil
 	}
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entMoveRelative(args []value.Value) (value.Value, error) {
@@ -1737,7 +1737,7 @@ func (m *Module) entCreateSpriteFromTexture(rt *runtime.Runtime, args ...value.V
 		e.getExt().parentID = pid
 		childLinkAdd(st, pid, id)
 	}
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -1777,7 +1777,7 @@ func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.
 		e.getExt().parentID = pid
 		childLinkAdd(st, pid, id)
 	}
-	return value.FromInt(id), nil
+	return m.wrapEntityRef(id)
 }
 
 func (m *Module) entScaleSprite(args []value.Value) (value.Value, error) {
