@@ -178,7 +178,10 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 			if p.sym.IsVar(name) {
 				return arena.Make(p.ar, ast.HandleCallStmt{Receiver: arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col}), Method: field, Args: args, Line: line, Col: col}), nil
 			}
-			return arena.Make(p.ar, ast.NamespaceCallStmt{NS: name, Method: field, Args: args, Line: line, Col: col}), nil
+			if builtinmanifest.Default().Has(name, field) {
+				return arena.Make(p.ar, ast.NamespaceCallStmt{NS: name, Method: field, Args: args, Line: line, Col: col}), nil
+			}
+			return arena.Make(p.ar, ast.HandleCallStmt{Receiver: arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col}), Method: field, Args: args, Line: line, Col: col}), nil
 		default:
 			return nil, p.failf("expected '=' or '(' after field %s", field)
 		}
@@ -199,15 +202,28 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 				return nil, err2
 			}
 			p.skipNewlines()
-			if p.cur().Type != token.EQ {
-				return nil, p.failf("expected '=' after %s(...).%s", name, field)
+			if p.cur().Type == token.EQ {
+				p.advance()
+				rhs, err3 := p.parseExpr()
+				if err3 != nil {
+					return nil, err3
+				}
+				return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: rhs, Line: line, Col: col}), nil
 			}
-			p.advance()
-			rhs, err3 := p.parseExpr()
-			if err3 != nil {
-				return nil, err3
+			if p.cur().Type == token.LPAREN {
+				callArgs, err3 := p.parseArgList()
+				if err3 != nil {
+					return nil, err3
+				}
+				recv := arena.Make(p.ar, ast.IndexExpr{
+					Base:  arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col}),
+					Index: args,
+					Line:  line,
+					Col:   col,
+				})
+				return arena.Make(p.ar, ast.HandleCallStmt{Receiver: recv, Method: field, Args: callArgs, Line: line, Col: col}), nil
 			}
-			return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: rhs, Line: line, Col: col}), nil
+			return nil, p.failf("expected '=' or '(' after %s(...).%s", name, field)
 		}
 		if p.cur().Type == token.EQ || p.cur().Type == token.PLUSEQ || p.cur().Type == token.MINUSEQ || p.cur().Type == token.STAREQ || p.cur().Type == token.SLASHEQ {
 			// It is an assignment to an array or object method result (if we allowed that, but we don't yet).

@@ -5,6 +5,7 @@ package parser
 import (
 	"moonbasic/compiler/arena"
 	"moonbasic/compiler/ast"
+	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/compiler/token"
 )
 
@@ -239,8 +240,12 @@ func (p *Parser) parsePostfixChain(base ast.Expr) (ast.Expr, error) {
 				if id, ok := base.(*ast.IdentNode); ok {
 					if p.sym.IsVar(id.Name) {
 						base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: base, Method: meth, Args: args, Line: line, Col: col})
-					} else {
+					} else if builtinmanifest.Default().Has(id.Name, meth) {
 						base = arena.Make(p.ar, ast.NamespaceCallExpr{NS: id.Name, Method: meth, Args: args, Line: line, Col: col})
+					} else {
+						// If NS.METHOD is not a known builtin namespace command, prefer handle call.
+						// This avoids mis-parsing local-style calls like s.X() as namespace S.X().
+						base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: base, Method: meth, Args: args, Line: line, Col: col})
 					}
 				} else {
 					// Chained call: (anything).meth()
