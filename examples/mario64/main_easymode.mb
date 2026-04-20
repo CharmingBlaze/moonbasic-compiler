@@ -120,8 +120,8 @@ COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 ; Main Game Loop
 WHILE 1
     ; --- 1. Loop Control ---
-    IF WINDOW.SHOULDCLOSE() THEN END
-    IF KEYDOWN(KEY_ESCAPE) THEN END
+    IF WINDOW.SHOULDCLOSE() THEN EXIT WHILE
+    IF KEYDOWN(KEY_ESCAPE) THEN EXIT WHILE
     
     ; Clear screen
     RENDER.CLEAR()
@@ -157,7 +157,7 @@ WHILE 1
     rightZ = fwdX
     vx = (fwdX * moveForward + rightX * moveStrafe) * MOVE_SPEED
     vz = (fwdZ * moveForward + rightZ * moveStrafe) * MOVE_SPEED
-    hero.SetVelocity(vx, 0, vz)
+    hero.SetVelocity(vx, Player.GetVelocityY(playerEnt), vz)
 
     ; 2b. Debug Inspector Hooks
     IF INPUT.KEYHIT(KEY_F1) THEN DEBUG.DUMPHEAP()
@@ -195,8 +195,7 @@ WHILE 1
     ; 3. Automatic World Simulation
     ENTITY.UPDATE(dt)
     hero.Update(dt)
-    hx = hero.X() : hy = hero.Y() : hz = hero.Z()
-    playerEnt.Pos(hx, hy, hz)
+    ; CHARACTERREF.UPDATE already syncs the bound entity position through the player bridge.
 
     ; 4. Jumping — after hero.Update so GetGrounded reflects this frame's contact
     IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN hero.Jump(JUMP_FORCE)
