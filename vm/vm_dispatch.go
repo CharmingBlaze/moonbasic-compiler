@@ -41,12 +41,20 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 		return v.doCallBuiltin(i)
 	case opcode.OpCallUser:
 		return v.doCallUser(i)
+	case opcode.OpCallRef:
+		return v.doCallRef(i)
 	case opcode.OpReturn, opcode.OpReturnVoid:
 		return v.doReturn(i)
 
 	// Handles
 	case opcode.OpNew:
 		return v.doNew(i)
+	case opcode.OpPushFuncRef:
+		return v.doPushFuncRef(i)
+	case opcode.OpTypeInstances:
+		return v.doTypeInstances(i)
+	case opcode.OpYield:
+		return v.doYield(i)
 	case opcode.OpFieldGet:
 		return v.doFieldGet(i)
 	case opcode.OpFieldSet:
@@ -56,6 +64,7 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 	case opcode.OpDelete:
 		h := v.reg(i.SrcA)
 		if h.Kind == value.KindHandle {
+			v.unregisterTypeInstance(heap.Handle(h.IVal))
 			_ = v.Heap.Free(heap.Handle(h.IVal))
 		}
 
@@ -238,6 +247,7 @@ func (v *VM) doNew(i opcode.Instruction) error {
 	if err != nil {
 		return v.runtimeError(err.Error())
 	}
+	v.registerTypeInstance(typeName, h)
 	v.setReg(i.Dst, value.FromHandle(h))
 	return nil
 }

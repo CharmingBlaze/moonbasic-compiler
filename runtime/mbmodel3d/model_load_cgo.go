@@ -26,6 +26,7 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		if err != nil {
 			return value.Nil, err
 		}
+		path = rt.ResolveAssetPath(path)
 		mod := rl.LoadModel(path)
 		obj := &modelObj{model: mod, loadedPath: path, animSpeed: 1}
 		obj.setFinalizer()
@@ -48,6 +49,7 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		if err != nil {
 			return value.Nil, err
 		}
+		path = rt.ResolveAssetPath(path)
 
 		obj := &modelObj{loadedPath: path, animSpeed: 1, isLoading: true}
 		obj.setFinalizer()

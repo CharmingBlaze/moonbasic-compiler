@@ -100,6 +100,19 @@ func (t *Table) PredeclareType(name string) {
 	t.types[strings.ToUpper(name)] = true
 }
 
+// IsFuncRef reports whether name is a variable holding a function reference.
+func (t *Table) IsFuncRef(name string) bool {
+	sym := t.Resolve(name)
+	return sym != nil && sym.Type == types.FuncRef
+}
+
+// SetVarType sets the inferred type on an existing variable symbol.
+func (t *Table) SetVarType(name string, typ types.Tag) {
+	if sym := t.Resolve(name); sym != nil {
+		sym.Type = typ
+	}
+}
+
 // IsFunction reports whether name is a known user function.
 func (t *Table) IsFunction(name string) bool {
 	return t.funcs[strings.ToUpper(name)]

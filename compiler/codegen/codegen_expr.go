@@ -211,8 +211,30 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 	case *ast.GroupedExpr:
 		return g.emitExpr(ch, n.Inner)
 
+	case *ast.FuncRefNode:
+		fnKey := strings.ToLower(n.Name)
+		if _, ok := g.Prog.Functions[fnKey]; !ok {
+			g.codegenError(n.Line, n.Col, fmt.Sprintf("undefined function: %s", n.Name), "Define the function before taking a reference.")
+			return 0
+		}
+		idx := ch.AddName(fnKey)
+		dst := g.allocReg()
+		ch.Emit(opcode.OpPushFuncRef, dst, 0, 0, idx, n.Line)
+		g.nextReg = dst + 1
+		return dst
+
+	case *ast.FuncLitNode:
+		return g.emitFuncLit(ch, n)
+
+	case *ast.CallRefExpr:
+		return g.emitCallRef(ch, n)
+
 	case *ast.NamespaceCallExpr:
-		fmt.Printf("DEBUG: codegen: NamespaceCallExpr: NS=%q Method=%q Args=%d\n", n.NS, n.Method, len(n.Args))
+		if dst, ok := g.tryEmitEnumMember(ch, n.NS, n.Method, len(n.Args), n.Line); ok {
+			g.nextReg = g.baseReg
+			g.allocReg()
+			return dst
+		}
 		// NS.METHOD(...)
 		// Fast-path macro expansion for high-frequency spatial getters
 		if strings.EqualFold(n.NS, "ENTITY") && len(n.Args) == 1 {

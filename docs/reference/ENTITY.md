@@ -172,14 +172,13 @@ These globals mirror Blitz-style names; canonical forms are **`ENTITY.*`** / **`
 ### `ENTITY.GETPOS(entity)` → **handle** 
 
 - **Arguments:** `entity` (int entity id).
-- **Returns:** a 3-float tuple-like array handle `[x, y, z]` for destructuring.
-- **Use case:** convenient one-call position reads in game loops.
+- **Returns:** a 3-float tuple-like array handle `[x, y, z]` for destructuring with **`px, py, pz = ENTITY.GETPOS(player)`** (same unpacking rules as multi-value **`RETURN`** — see [LANGUAGE.md](../../LANGUAGE.md)).
+
+`ENTITY.GETPOSITION(entity)` remains available and returns a vec3 handle for the handle-based vector API.
 
 ```basic
 px, py, pz = ENTITY.GETPOS(player)
 ```
-
-`ENTITY.GETPOSITION(entity)` remains available and returns a vec3 handle for the handle-based vector API.
 
 ---
 

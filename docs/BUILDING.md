@@ -98,7 +98,7 @@ Official **Linux** full-runtime archives (**`moonbasic-<tag>-linux-amd64.tar.gz`
 
 First, get the source code from GitHub:
 ```bash
-git clone https://github.com/CharmingBlaze/moonbasic
+git clone https://github.com/CharmingBlaze/moonbasic-compiler
 cd moonbasic
 ```
 

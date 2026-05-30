@@ -225,9 +225,15 @@ WINDOW.CLOSE()
 
 ### Gamepad
 
+Global constants (Raylib axis/button indices, seeded at runtime): **`GAMEPAD_AXIS_LEFT_X`**, **`GAMEPAD_AXIS_LEFT_Y`**, **`GAMEPAD_AXIS_RIGHT_X`**, **`GAMEPAD_AXIS_RIGHT_Y`**, **`GAMEPAD_BUTTON_RIGHT_FACE_DOWN`**, **`GAMEPAD_BUTTON_RIGHT_FACE_RIGHT`**, **`GAMEPAD_BUTTON_RIGHT_FACE_LEFT`**, **`GAMEPAD_BUTTON_RIGHT_FACE_UP`**, and related face buttons. Use with **`INPUT.GETGAMEPADAXISVALUE(id, axis)`** or **`INPUT.JOYDOWN(id, button)`**.
+
+Runnable sample: [`examples/gamepad/main.mb`](../../examples/gamepad/main.mb).
+
 | Command | Description |
 |--------|-------------|
 | `INPUT.ISGAMEPADAVAILABLE(id)` | Returns `TRUE` if gamepad `id` is connected. |
+| `INPUT.GAMEPADCONNECTED(id)` | Alias of **`ISGAMEPADAVAILABLE`**. |
+| `INPUT.ONGAMEPAD(pad, callback)` | Registers a callback fired when any gamepad connects or disconnects. **`pad`** is the index (`0`…`7`) or **`-1`** for all pads. Callback receives **`(padIndex, connected)`** where **`connected`** is **`TRUE`** on plug-in. |
 | `INPUT.JOYX(id)` / `INPUT.JOYY(id)` | Left stick X/Y for gamepad `id`. |
 | `INPUT.JOYBUTTON(id, btn)` | Returns `TRUE` if button `btn` is held on gamepad `id`. |
 | `INPUT.JOYDOWN(id, btn)` | Alias of `INPUT.JOYBUTTON`. |

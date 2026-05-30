@@ -1272,21 +1272,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		if e == nil || !e.hasRLModel || e.ext == nil || len(e.ext.modelAnims) == 0 {
 			continue
 		}
-		ext := e.ext
-		ai := ext.animIndex
-		if ai < 0 || int(ai) >= len(ext.modelAnims) {
-			ai = 0
-		}
-		anim := ext.modelAnims[ai]
-		if anim.FrameCount <= 0 {
-			continue
-		}
-		if ext.animSpeed != 0 {
-			ext.animTime += dt * ext.animSpeed * 30
-		}
-		frame := pickAnimFrame(e, anim)
-		rl.UpdateModelAnimation(e.rlModel, anim, frame)
-		rl.UpdateModelAnimationBones(e.rlModel, anim, frame)
+		m.updateEntityAnimation(e, e.ext, dt)
 	}
 	m.syncBoneSockets()
 	if m.h != nil {

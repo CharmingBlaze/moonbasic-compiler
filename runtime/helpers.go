@@ -95,3 +95,24 @@ func (rt *Runtime) RetBool(b bool) value.Value {
 func (rt *Runtime) RetHandle(h int32) value.Value {
 	return value.FromHandle(h)
 }
+
+// ArgCallback resolves a collision/timer callback (string function name or @func reference).
+func (rt *Runtime) ArgCallback(args []value.Value, index int) (string, error) {
+	if index >= len(args) {
+		return "", Errorf("missing callback argument %d", index+1)
+	}
+	v := args[index]
+	switch v.Kind {
+	case value.KindString:
+		return rt.ArgString(args, index)
+	case value.KindFunc:
+		idx := int32(v.IVal)
+		names := rt.ActiveChunkNames
+		if idx < 0 || names == nil || int(idx) >= len(names) {
+			return "", Errorf("invalid function reference for argument %d", index+1)
+		}
+		return names[idx], nil
+	default:
+		return "", Errorf("argument %d must be a string or function reference", index+1)
+	}
+}

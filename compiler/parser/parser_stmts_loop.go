@@ -32,6 +32,33 @@ func (p *Parser) parseWhile() (ast.Stmt, error) {
 func (p *Parser) parseFor() (ast.Stmt, error) {
 	line, col := p.cur().Line, p.cur().Col
 	p.advance()
+	if p.cur().Type == token.EACH {
+		p.advance()
+		vname, err := p.expectIdent()
+		if err != nil {
+			return nil, err
+		}
+		if err := p.expect(token.IN); err != nil {
+			return nil, err
+		}
+		arr, err := p.parseExpr()
+		if err != nil {
+			return nil, err
+		}
+		if p.cur().Type != token.NEWLINE {
+			return nil, p.failf("expected newline after FOR EACH ... IN ...")
+		}
+		p.advance()
+		p.defineAssignedName(vname)
+		body, err := p.parseStmtBlockUntil([]token.TokenType{token.NEXT})
+		if err != nil {
+			return nil, err
+		}
+		if err := p.expect(token.NEXT); err != nil {
+			return nil, err
+		}
+		return arena.Make(p.ar, ast.ForInStmt{Var: vname, Array: arr, Body: body, Line: line, Col: col}), nil
+	}
 	vname, err := p.expectIdent()
 	if err != nil {
 		return nil, err

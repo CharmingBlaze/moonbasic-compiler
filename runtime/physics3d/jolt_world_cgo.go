@@ -193,6 +193,7 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 	if physicsKCCFanIn != nil {
 		physicsKCCFanIn(m)
 	}
+	m.drainCollisionEvents()
 
 	// Process Aero (Shared Go Logic)
 	m.ProcessAeroDynamics(float32(dt))
@@ -383,38 +384,31 @@ func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("PHYSICS3D.PROCESSCOLLISIONS expects 0 arguments")
 	}
+	m.drainCollisionEvents()
+	return value.Nil, nil
+}
+
+func (m *Module) drainCollisionEvents() {
 	joltMu.Lock()
 	sys := joltSys
 	joltMu.Unlock()
-	if sys == nil {
-		return value.Nil, nil
-	}
-	
-	// Drain rigid body contacts (sensors & triggers)
-	events := sys.DrainContactQueue(256)
-	for _, ev := range events {
-		ha, okA := joltLookupHandle(ev.Body1)
-		hb, okB := joltLookupHandle(ev.Body2)
-		if !okA || !okB {
-			continue
-		}
-
-		joltMu.Lock()
-		for _, rule := range collRules {
-			// Match bidirectional rules (h1=ha, h2=hb OR h1=hb, h2=ha)
-			// A rule with ha=0 or hb=0 could be a wildcard, but MoonBASIC currently requires explicit pairs.
-			if (rule.ha == ha && rule.hb == hb) || (rule.ha == hb && rule.hb == ha) {
-				collPending = append(collPending, collEvent{
-					ha: ha,
-					hb: hb,
-					cb: rule.cb,
-				})
+	if sys != nil {
+		events := sys.DrainContactQueue(256)
+		for _, ev := range events {
+			ha, okA := joltLookupHandle(ev.Body1)
+			hb, okB := joltLookupHandle(ev.Body2)
+			if !okA || !okB {
+				continue
 			}
+			joltMu.Lock()
+			for _, rule := range collRules {
+				if (rule.ha == ha && rule.hb == hb) || (rule.ha == hb && rule.hb == ha) {
+					collPending = append(collPending, collEvent{ha: ha, hb: hb, cb: rule.cb})
+				}
+			}
+			joltMu.Unlock()
 		}
-		joltMu.Unlock()
 	}
-
-	// Character collisions already populate collPending elsewhere (usually in Step)
 	joltMu.Lock()
 	q := collPending
 	collPending = nil
@@ -424,7 +418,6 @@ func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) {
 			_, _ = m.invoke(ev.cb, []value.Value{value.FromHandle(ev.ha), value.FromHandle(ev.hb)})
 		}
 	}
-	return value.Nil, nil
 }
 
 func (m *Module) phRaycast(args []value.Value) (value.Value, error) {

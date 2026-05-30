@@ -13,8 +13,9 @@ import (
 )
 
 type fontObj struct {
-	f       rl.Font
-	release heap.ReleaseOnce
+	f         rl.Font
+	isDefault bool
+	release   heap.ReleaseOnce
 }
 
 func (o *fontObj) TypeName() string { return "Font" }
@@ -22,6 +23,9 @@ func (o *fontObj) TypeName() string { return "Font" }
 func (o *fontObj) TypeTag() uint16 { return heap.TagFont }
 
 func (o *fontObj) Free() {
+	if o.isDefault {
+		return
+	}
 	o.release.Do(func() { rl.UnloadFont(o.f) })
 }
 
@@ -41,6 +45,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("FONT.FREE", "font", runtime.AdaptLegacy(m.fontFree))
 	r.Register("FONT.DRAWDEFAULT", "font", runtime.AdaptLegacy(m.fontDrawDefault))
 	r.Register("FONT.SETDEFAULT", "font", runtime.AdaptLegacy(m.fontSetDefault))
+	m.registerJamHooks(r)
 }
 
 // Shutdown implements runtime.Module.

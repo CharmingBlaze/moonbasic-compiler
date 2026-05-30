@@ -62,8 +62,8 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     IF KEYPRESSED(KEY_SPACE) THEN score = score + 1
 
     RENDER.CLEAR(20, 20, 40)
-    DRAW.TEXT("Score: " + STR(score), 10, 10, 22, 255, 255, 255, 255)
-    DRAW.TEXT("W=" + STR(SCREENW()) + " H=" + STR(SCREENH()), 10, 40, 18, 180, 180, 180, 255)
+    DRAW.TEXT($"Score: {score}", 10, 10, 22, 255, 255, 255, 255)
+    DRAW.TEXT($"W={SCREENW()} H={SCREENH()}", 10, 40, 18, 180, 180, 180, 255)
     RENDER.FRAME()
 WEND
 

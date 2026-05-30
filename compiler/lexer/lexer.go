@@ -131,6 +131,19 @@ func (l *Lexer) NextToken() (token.Token, error) {
 		return l.NextToken()
 	}
 
+	if ch == '@' {
+		line, col := l.line, l.col
+		l.advance()
+		return token.Token{Type: token.AT, Lit: "@", Line: line, Col: col}, nil
+	}
+
+	if ch == '$' {
+		if l.pos+1 < len(l.input) && l.input[l.pos+1] == '"' {
+			l.advance() // $
+			return l.lexInterpString()
+		}
+	}
+
 	if ch == '"' {
 		return l.lexString()
 	}
@@ -188,6 +201,7 @@ func (l *Lexer) lexOp() (token.Token, error) {
 	case '#':
 		return advanceEmit(token.HASH, "#")
 	case '$':
+		// $ alone is a string suffix; $"..." is handled in NextToken before lexOp.
 		return advanceEmit(token.DOLLAR, "$")
 	case '?':
 		return advanceEmit(token.QUESTION, "?")

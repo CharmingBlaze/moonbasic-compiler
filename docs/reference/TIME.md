@@ -25,6 +25,35 @@ Returns seconds since last frame.
 
 ---
 
+### `WINDOW.SETLOOPMODE(mode$, hz)`
+Controls how **`TIME.DELTA()`** reports frame time (see also **`TIME.SETMAXDELTA`** for a simple cap).
+
+| Mode | Behavior |
+|------|----------|
+| `"variable"` | Default — raw frame time (with optional max-delta cap). |
+| `"fixed"` | Constant step **`1/hz`** (default 60 Hz) — use for fixed-timestep physics. |
+| `"semi-fixed"` | Cap delta to **`hz`** seconds (default 0.1 s) — avoids huge steps on alt-tab. |
+
+```basic
+WINDOW.SETLOOPMODE("fixed", 60)
+WINDOW.SETLOOPMODE("semi-fixed", 0.1)
+```
+
+Use **`TIME.PHYSICSSTEPS()`** and **`TIME.PHYSICSSTEP()`** with fixed mode to run multiple physics updates per frame when the accumulator has credit:
+
+```basic
+WINDOW.SETLOOPMODE("fixed", 60)
+WHILE NOT WINDOW.CLOSED()
+    steps = TIME.PHYSICSSTEPS()
+    FOR i = 1 TO steps
+        UpdatePhysics(TIME.PHYSICSSTEP())
+    NEXT
+    Draw()
+WEND
+```
+
+---
+
 ### `TIME.GET()`
 Returns total elapsed seconds since start.
 

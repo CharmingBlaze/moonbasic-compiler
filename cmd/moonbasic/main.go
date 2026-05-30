@@ -11,16 +11,21 @@ import (
 	"strings"
 
 	"moonbasic/compiler/pipeline"
+	"moonbasic/dap"
 	"moonbasic/internal/version"
 	"moonbasic/lsp"
 )
 
 func main() {
+	if handled, code := dispatchSubcommand(); handled {
+		os.Exit(code)
+	}
 	var (
 		checkOnly        = flag.Bool("check", false, "parse and type-check only")
 		strictDeprecated = flag.Bool("strict-deprecated", false, "with --check: treat deprecated MAKE/SETPOSITION aliases as errors")
 		showVer          = flag.Bool("version", false, "print version and exit")
 		lspMode     = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
+		dapMode     = flag.Bool("dap", false, "run Debug Adapter Protocol (stdio) for editors")
 		disasm      = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
 		symbolsOut  = flag.String("symbols-out", "", "also write symbol table JSON (path, globals with Persistent, funcs, types) to this file when compiling")
 	)
@@ -28,9 +33,11 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "moonBASIC Compiler %s\n", version.Version)
 		fmt.Fprintf(os.Stderr, "Usage:\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic new <name>            scaffold a new game project\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic [flags] <source.mb>     compile to .mbc\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --check <source.mb>     parse and type-check only\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --lsp                   language server on stdio\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic --dap                   debug adapter on stdio (use moonrun --dap to debug)\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --disasm <file.mbc>     disassemble bytecode\n")
 		fmt.Fprintf(os.Stderr, "Flags:\n")
 		flag.PrintDefaults()
@@ -50,6 +57,14 @@ func main() {
 		return
 	}
 
+	if *dapMode {
+		if err := dap.ServeStdio(); err != nil {
+			fmt.Fprintf(os.Stderr, "dap: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	args := flag.Args()
 	if len(args) == 0 {
 		flag.Usage()
@@ -63,7 +78,6 @@ func main() {
 			fmt.Fprintln(os.Stderr, "error: --disasm requires a .mbc file")
 			os.Exit(2)
 		}
-		// TODO: Implement or call pipeline disasm
 		prog, err := pipeline.DecodeMOONFromFile(path)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "decode: %v\n", err)

@@ -9,6 +9,7 @@ import (
 	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/compiler/entityspatial"
 	"moonbasic/compiler/errors"
+	"moonbasic/compiler/types"
 )
 
 // Analyzer performs constant folding and static checks after parsing.
@@ -31,11 +32,22 @@ type Analyzer struct {
 	// scopes[0] is always global.
 	scopes []map[string]bool
 
+	// typeScopes mirrors scopes with inferred static types for signature checking.
+	typeScopes []map[string]types.Tag
+
 	// StrictDeprecated turns manifest migration aliases (MAKE, SETPOSITION, …) into type errors.
 	StrictDeprecated bool
 
 	deprecationNotices []DeprecationNotice
 	deprecationSeen    map[string]bool
+
+	enums map[string]map[string]int64 // ENUM name -> member -> value
+
+	funcSigs   map[string]funcSig
+	funcByName map[string]*ast.FunctionDef
+
+	warnings    []SemanticWarning
+	warningSeen map[string]bool
 }
 
 // DefaultAnalyzer uses the built-in command manifest and enables folding.
@@ -52,16 +64,38 @@ func DefaultAnalyzer(file string, lines []string) *Analyzer {
 func (a *Analyzer) Run(prog *ast.Program) error {
 	a.CallGraph = make(map[string]map[string]bool)
 	a.Types = make(map[string]*ast.TypeDef)
+	a.enums = make(map[string]map[string]int64)
 	a.currentFunc = "<MAIN>"
+
+	a.collectEnums(prog.Stmts)
 
 	if a.Fold {
 		FoldConstants(prog)
 	}
 	a.scopes = []map[string]bool{make(map[string]bool)} // Global scope
+	a.typeScopes = []map[string]types.Tag{make(map[string]types.Tag)}
 	a.deprecationNotices = nil
 	a.deprecationSeen = make(map[string]bool)
+	a.warnings = nil
+	a.warningSeen = make(map[string]bool)
 	a.seedBuiltinConstants()
 	return a.checkProgram(prog)
+}
+
+// Warnings returns non-fatal semantic warnings (namespace shadowing, NOT/OR precedence, …).
+func (a *Analyzer) Warnings() []SemanticWarning {
+	return append([]SemanticWarning(nil), a.warnings...)
+}
+
+func (a *Analyzer) addWarning(line, col int, code, msg string) {
+	key := fmt.Sprintf("%d:%d:%s:%s", line, col, code, msg)
+	if a.warningSeen[key] {
+		return
+	}
+	a.warningSeen[key] = true
+	a.warnings = append(a.warnings, SemanticWarning{
+		File: a.File, Line: line, Col: col, Code: code, Message: msg,
+	})
 }
 
 // DeprecationNotices returns structured deprecation data for tooling (LSP, IDEs).
@@ -89,10 +123,14 @@ func (a *Analyzer) seedBuiltinConstants() {
 		"KEY_F1", "KEY_F2", "KEY_F3", "KEY_F4", "KEY_F5", "KEY_F6", "KEY_F7", "KEY_F8", "KEY_F9", "KEY_F10", "KEY_F11", "KEY_F12",
 		"GAMEPAD_AXIS_LEFT_X", "GAMEPAD_AXIS_LEFT_Y",
 		"GAMEPAD_AXIS_RIGHT_X", "GAMEPAD_AXIS_RIGHT_Y",
-
+		"GAMEPAD_AXIS_LEFT_TRIGGER", "GAMEPAD_AXIS_RIGHT_TRIGGER",
 		"GAMEPAD_BUTTON_RIGHT_FACE_DOWN", "GAMEPAD_BUTTON_RIGHT_FACE_RIGHT",
 		"GAMEPAD_BUTTON_RIGHT_FACE_LEFT", "GAMEPAD_BUTTON_RIGHT_FACE_UP",
 		"GAMEPAD_BUTTON_LEFT_FACE_UP", "GAMEPAD_BUTTON_LEFT_FACE_DOWN", "GAMEPAD_BUTTON_LEFT_FACE_LEFT", "GAMEPAD_BUTTON_LEFT_FACE_RIGHT",
+		"GAMEPAD_BUTTON_LEFT_TRIGGER_1", "GAMEPAD_BUTTON_LEFT_TRIGGER_2",
+		"GAMEPAD_BUTTON_RIGHT_TRIGGER_1", "GAMEPAD_BUTTON_RIGHT_TRIGGER_2",
+		"GAMEPAD_BUTTON_MIDDLE_LEFT", "GAMEPAD_BUTTON_MIDDLE", "GAMEPAD_BUTTON_MIDDLE_RIGHT",
+		"GAMEPAD_BUTTON_LEFT_THUMB", "GAMEPAD_BUTTON_RIGHT_THUMB",
 	}
 	for _, k := range keys {
 		a.scopes[0][k] = true
@@ -137,6 +175,15 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 		}
 	}
 
+	a.buildFuncSigs(prog)
+	a.funcByName = make(map[string]*ast.FunctionDef)
+	for _, f := range prog.Functions {
+		a.funcByName[strings.ToLower(f.Name)] = f
+	}
+	if err := a.validateFunctionSignatures(prog); err != nil {
+		return err
+	}
+
 	a.currentFunc = "<MAIN>"
 	for _, s := range prog.Stmts {
 		if err := a.checkStmt(s); err != nil {
@@ -150,7 +197,12 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 		a.pushScope()
 		// Parameters are implicitly assigned
 		for _, p := range f.Params {
-			a.assign(p.Name)
+			a.assign(p.Name, f.Line, f.Col)
+			if p.TypeHint != "" {
+				if tag, _, err := normalizeTypeHint(p.TypeHint); err == nil {
+					a.setVarType(p.Name, tag)
+				}
+			}
 		}
 		for _, s := range f.Body {
 			if err := a.checkStmt(s); err != nil {
@@ -166,17 +218,54 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 
 func (a *Analyzer) pushScope() {
 	a.scopes = append(a.scopes, make(map[string]bool))
+	a.typeScopes = append(a.typeScopes, make(map[string]types.Tag))
 }
 
 func (a *Analyzer) popScope() {
 	if len(a.scopes) > 1 {
 		a.scopes = a.scopes[:len(a.scopes)-1]
+		a.typeScopes = a.typeScopes[:len(a.typeScopes)-1]
 	}
 }
 
-func (a *Analyzer) assign(name string) {
+func (a *Analyzer) setVarType(name string, tag types.Tag) {
+	if tag == types.Unknown {
+		return
+	}
 	name = strings.ToUpper(name)
+	a.typeScopes[len(a.typeScopes)-1][name] = tag
+}
+
+func (a *Analyzer) lookupVarType(name string) types.Tag {
+	name = strings.ToUpper(name)
+	for i := len(a.typeScopes) - 1; i >= 0; i-- {
+		if t, ok := a.typeScopes[i][name]; ok {
+			return t
+		}
+	}
+	return types.Unknown
+}
+
+func (a *Analyzer) assign(name string, line, col int) {
+	name = strings.ToUpper(name)
+	if a.Table != nil && a.Table.HasNamespace(name) {
+		a.addWarning(line, col, "namespace-shadow",
+			fmt.Sprintf("variable name %q shadows the %s.* namespace — built-in calls like %s.DELTA() may break; use a different name", strings.ToLower(name), name, name))
+	}
 	a.scopes[len(a.scopes)-1][name] = true
+}
+
+func (a *Analyzer) checkNotOrPrecedence(e ast.Expr) {
+	b, ok := e.(*ast.BinopNode)
+	if !ok || !strings.EqualFold(b.Op, "OR") {
+		return
+	}
+	u, ok := b.Left.(*ast.UnaryNode)
+	if !ok || !strings.EqualFold(u.Op, "NOT") {
+		return
+	}
+	a.addWarning(b.Line, b.Col, "not-or-precedence",
+		"expression NOT x OR y binds as (NOT x) OR y, not NOT (x OR y) — use NOT (x OR y) if you intend to negate the whole condition")
 }
 
 func (a *Analyzer) isAssigned(name string) bool {
@@ -202,14 +291,17 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		if err := a.checkExprCalls(n.Expr); err != nil {
 			return err
 		}
-		a.assign(n.Name)
+		a.assign(n.Name, n.Line, n.Col)
+		a.setVarType(n.Name, a.inferExprTag(n.Expr))
 		return nil
 	case *ast.MultiAssignNode:
 		if err := a.checkExprCalls(n.Expr); err != nil {
 			return err
 		}
+		tag := a.inferExprTag(n.Expr)
 		for _, nm := range n.Names {
-			a.assign(nm)
+			a.assign(nm, n.Line, n.Col)
+			a.setVarType(nm, tag)
 		}
 		return nil
 	case *ast.IndexAssignNode:
@@ -244,6 +336,10 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 				return err
 			}
 		}
+		if err := a.checkUserCall(n.Name, n.Args, n.Line, n.Col); err != nil {
+			return err
+		}
+		return a.checkGlobalBuiltinCall(n.Name, n.Args, n.Line, n.Col)
 	case *ast.HandleCallStmt:
 		if err := a.checkExprCalls(n.Receiver); err != nil {
 			return err
@@ -254,6 +350,7 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.IfNode:
+		a.checkNotOrPrecedence(n.Cond)
 		if err := a.checkExprCalls(n.Cond); err != nil {
 			return err
 		}
@@ -278,6 +375,7 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.WhileNode:
+		a.checkNotOrPrecedence(n.Cond)
 		if err := a.checkExprCalls(n.Cond); err != nil {
 			return err
 		}
@@ -287,7 +385,8 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.ForNode:
-		a.assign(n.Var) // Iterator is assigned
+		a.assign(n.Var, n.Line, n.Col)
+		a.setVarType(n.Var, types.Int) // Iterator is assigned
 		for _, e := range []ast.Expr{n.From, n.To} {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
@@ -343,8 +442,28 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.ReturnNode:
-		if n.Expr != nil {
-			return a.checkExprCalls(n.Expr)
+		for _, e := range n.Exprs {
+			if err := a.checkExprCalls(e); err != nil {
+				return err
+			}
+		}
+		if fn := a.funcByName[strings.ToLower(a.currentFunc)]; fn != nil {
+			if err := a.checkReturnTypes(fn, n.Exprs, n.Line, n.Col); err != nil {
+				return err
+			}
+		}
+	case *ast.EnumDeclNode:
+		return nil
+	case *ast.ForInStmt:
+		a.assign(n.Var, n.Line, n.Col)
+		a.setVarType(n.Var, types.Float)
+		if err := a.checkExprCalls(n.Array); err != nil {
+			return err
+		}
+		for _, t := range n.Body {
+			if err := a.checkStmt(t); err != nil {
+				return err
+			}
 		}
 	case *ast.DimNode:
 		for _, e := range n.Dims {
@@ -352,7 +471,8 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 				return err
 			}
 		}
-		a.assign(n.Name)
+		a.assign(n.Name, n.Line, n.Col)
+		a.setVarType(n.Name, types.Array)
 		return nil
 	case *ast.ConstDeclNode:
 		if a.currentFunc != "<MAIN>" {
@@ -361,15 +481,17 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		if err := a.checkExprCalls(n.Expr); err != nil {
 			return err
 		}
-		a.assign(n.Name)
+		a.assign(n.Name, n.Line, n.Col)
+		a.setVarType(n.Name, a.inferExprTag(n.Expr))
 		return nil
 	case *ast.StaticDeclNode:
 		if n.Init != nil {
 			if err := a.checkExprCalls(n.Init); err != nil {
 				return err
 			}
+			a.setVarType(n.Name, a.inferExprTag(n.Init))
 		}
-		a.assign(n.Name)
+		a.assign(n.Name, n.Line, n.Col)
 		return nil
 	case *ast.SwapStmt, *ast.EraseStmt:
 		return nil
@@ -378,12 +500,15 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			if err := a.checkExprCalls(n.Init); err != nil {
 				return err
 			}
+			a.setVarType(n.Name, a.inferExprTag(n.Init))
 		}
-		a.assign(n.Name)
+		a.assign(n.Name, n.Line, n.Col)
 		return nil
 	case *ast.DeleteStmt:
 		return a.checkExprCalls(n.Expr)
 	case *ast.EachStmt:
+		a.assign(n.Var, n.Line, n.Col)
+		a.setVarType(n.Var, types.Handle)
 		for _, t := range n.Body {
 			if err := a.checkStmt(t); err != nil {
 				return err
@@ -439,6 +564,9 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 				return err
 			}
 		}
+		if err := a.checkUserCall(n.Name, n.Args, n.Line, n.Col); err != nil {
+			return err
+		}
 	case *ast.IndexFieldExpr:
 		for _, arg := range n.Index {
 			if err := a.checkExprCalls(arg); err != nil {
@@ -475,6 +603,23 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 	return nil
 }
 
+func (a *Analyzer) checkGlobalBuiltinCall(name string, args []ast.Expr, line, col int) error {
+	if a.funcNames[strings.ToUpper(name)] {
+		return nil
+	}
+	cmd, ok := a.Table.LookupGlobalArity(name, len(args))
+	if !ok {
+		return nil
+	}
+	if msg := strings.TrimSpace(cmd.Stub); msg != "" {
+		key := builtinmanifest.NormalizeCommand(name)
+		return a.typeError(line, col,
+			fmt.Sprintf("command %s is not yet available in this release: %s", key, msg),
+			"Remove the call or use an implemented alternative (see docs/reference/MIGRATION.md).")
+	}
+	return nil
+}
+
 func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, col int) error {
 	if err := a.checkEntitySpatialMacroArgs(ns, method, args, line, col); err != nil {
 		return err
@@ -482,6 +627,11 @@ func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, 
 	for _, arg := range args {
 		if err := a.checkExprCalls(arg); err != nil {
 			return err
+		}
+	}
+	if members, ok := a.enums[strings.ToUpper(ns)]; ok {
+		if _, ok2 := members[strings.ToUpper(method)]; ok2 && len(args) == 0 {
+			return nil
 		}
 	}
 
@@ -497,6 +647,11 @@ func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, 
 		return a.typeError(line, col, msg, hint)
 	}
 	key := builtinmanifest.Key(ns, method)
+	if msg := strings.TrimSpace(cmd.Stub); msg != "" {
+		return a.typeError(line, col,
+			fmt.Sprintf("command %s is not yet available in this release: %s", key, msg),
+			"Remove the call or use an implemented alternative (see docs/reference/MIGRATION.md).")
+	}
 	if repl, ok := a.Table.DeprecationReplacement(ns, method); ok {
 		if a.StrictDeprecated {
 			return a.typeError(line, col,
@@ -538,7 +693,21 @@ func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, 
 	return nil
 }
 
-// checkEntitySpatialMacroArgs rejects literal entity indices outside [0, MaxEntitySpatialIndex).
+func (a *Analyzer) collectEnums(stmts []ast.Stmt) {
+	for _, s := range stmts {
+		en, ok := s.(*ast.EnumDeclNode)
+		if !ok {
+			continue
+		}
+		enumName := strings.ToUpper(en.Name)
+		if a.enums[enumName] == nil {
+			a.enums[enumName] = make(map[string]int64)
+		}
+		for i, m := range en.Members {
+			a.enums[enumName][strings.ToUpper(m)] = int64(i)
+		}
+	}
+}
 func (a *Analyzer) checkEntitySpatialMacroArgs(ns, method string, args []ast.Expr, line, col int) error {
 	if !strings.EqualFold(ns, "ENTITY") {
 		return nil

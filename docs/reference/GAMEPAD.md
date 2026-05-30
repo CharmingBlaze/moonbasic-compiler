@@ -8,9 +8,9 @@ Direct gamepad axis and button polling by device ID. For named action mapping se
 2. `GAMEPAD.AXIS(gamepadId, axisId)` — returns -1.0 to 1.0.
 3. `GAMEPAD.BUTTON(gamepadId, button)` — returns `TRUE` while held.
 
-Axis constants: `GAMEPAD_AXIS_LEFT_X` = 0, `GAMEPAD_AXIS_LEFT_Y` = 1, `GAMEPAD_AXIS_RIGHT_X` = 2, `GAMEPAD_AXIS_RIGHT_Y` = 3, `GAMEPAD_AXIS_LEFT_TRIGGER` = 4, `GAMEPAD_AXIS_RIGHT_TRIGGER` = 5.
+Axis constants (also available as globals): `GAMEPAD_AXIS_LEFT_X` = 0, `GAMEPAD_AXIS_LEFT_Y` = 1, `GAMEPAD_AXIS_RIGHT_X` = 2, `GAMEPAD_AXIS_RIGHT_Y` = 3, `GAMEPAD_AXIS_LEFT_TRIGGER` = 4, `GAMEPAD_AXIS_RIGHT_TRIGGER` = 5. Face buttons: `GAMEPAD_BUTTON_RIGHT_FACE_DOWN`, `GAMEPAD_BUTTON_RIGHT_FACE_RIGHT`, `GAMEPAD_BUTTON_RIGHT_FACE_LEFT`, `GAMEPAD_BUTTON_RIGHT_FACE_UP`, and left-face variants — see [INPUT.md](INPUT.md).
 
----
+Runnable 2D demo: [`examples/gamepad/main.mb`](../../examples/gamepad/main.mb) (`INPUT.ISGAMEPADAVAILABLE`, stick movement, **`INPUT.JOYDOWN`**).
 
 ## Commands
 

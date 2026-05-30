@@ -1,6 +1,6 @@
 # Audit artifacts
 
-This directory groups **generated inventories**, **manual implementation logs**, and **historical / baseline dumps** so the repository root stays readable on GitHub.
+This directory groups **generated inventories**, **manual implementation logs**, and **baseline dumps** so the repository root stays readable on GitHub.
 
 ## Layout
 
@@ -8,14 +8,12 @@ This directory groups **generated inventories**, **manual implementation logs**,
 |---------|----------|
 | *(this folder)* | **`MASTER_AUDIT*.txt`**, **`manifest_keys.txt`**, **`runtime_keys.txt`**, **`COMMAND_AUDIT.txt`** (hand-maintained implementation log), **`REFERENCE_KEY_COVERAGE.txt`**, QOL audit `QOL_AUDIT*.txt`, **`raylib_symbol_gap.txt`**. |
 | **`baselines/`** | Optional regression captures (race detector, gccheckmark, escape analysis, Valgrind/Dr. Memory placeholders, etc.) — see [`docs/MEMORY.md`](../MEMORY.md). |
-| **`archives/`** | Large one-off exports and scratch audits (raw doc dumps, grep captures, legacy notes). Not required to build or run the project. |
 
 ## Regeneration
 
 - **`python tools/diff_manifest_runtime.py --write`** — canonical refresh of **`manifest_keys.txt`**, **`runtime_keys.txt`**, and **`docs/MISSING_COMMANDS_AUDIT.md`** (CI runs **`--check`** on Linux).
 - **`python tools/manifest_gap_summary.py`** — same gap as the markdown report, summarized **by namespace**; **`--list PREFIX`** lists keys (e.g. **`--list JOLT`**, **`--list global`** for flat globals).
 - **`python tools/gen_master_audit.py`** (from repo root) — updates **`MASTER_AUDIT*.txt`** and **`REFERENCE_KEY_COVERAGE.txt`**.
-- **`tools/audit_manifest.ps1`** / **`extract_runtime_keys.ps1`** / **`diff_keys.ps1`** — Windows-oriented equivalents; prefer the Python script for parity with CI.
 - **`go run ./tools/cmdaudit`** — updates **`docs/COMMAND_AUDIT.md`** (separate from **`COMMAND_AUDIT.txt`** here).
 
 ## QOL / built-in audit

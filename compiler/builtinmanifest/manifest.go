@@ -157,6 +157,43 @@ func NormalizeCommand(name string) string {
 	return strings.Join(parts, ".")
 }
 
+// Overloads returns all manifest overloads for a canonical key.
+func (t *Table) Overloads(key string) []Command {
+	if t == nil || t.Commands == nil {
+		return nil
+	}
+	return append([]Command(nil), t.Commands[key]...)
+}
+
+// LookupGlobalArity returns the overload for a non-dotted built-in name and argc.
+func (t *Table) LookupGlobalArity(name string, argc int) (Command, bool) {
+	if t == nil || t.Commands == nil {
+		return Command{}, false
+	}
+	ovs := t.Commands[NormalizeCommand(name)]
+	for _, c := range ovs {
+		if len(c.Args) == argc {
+			return c, true
+		}
+	}
+	return Command{}, false
+}
+
+// HasNamespace reports whether any manifest command lives under the given namespace prefix.
+func (t *Table) HasNamespace(ns string) bool {
+	if t == nil || t.Commands == nil {
+		return false
+	}
+	ns = strings.ToUpper(strings.TrimSpace(ns))
+	prefix := ns + "."
+	for k := range t.Commands {
+		if strings.HasPrefix(k, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
 // DeprecationReplacement returns canonical replacement for a deprecated command alias.
 // The returned replacement is fully-qualified (e.g. "CAMERA.CREATE"), if known.
 func (t *Table) DeprecationReplacement(ns, method string) (string, bool) {

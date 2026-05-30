@@ -12,17 +12,21 @@ import (
 	"moonbasic/compiler/pipeline"
 	"moonbasic/internal/version"
 	"moonbasic/lsp"
+	"moonbasic/vm"
 )
 
 func main() {
 	var (
 		checkOnly        = flag.Bool("check", false, "parse and type-check only")
 		strictDeprecated = flag.Bool("strict-deprecated", false, "with --check: treat deprecated MAKE/SETPOSITION aliases as errors")
-		showVer   = flag.Bool("version", false, "print version and exit")
-		lspMode   = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
-		disasm    = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
-		runMode   = flag.Bool("run", false, "compile and run the program")
-		debugInfo = flag.Bool("info", false, "enable debug diagnostics and FPS graph")
+		showVer          = flag.Bool("version", false, "print version and exit")
+		lspMode          = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
+		disasm           = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
+		runMode          = flag.Bool("run", false, "compile and run the program")
+		watchMode        = flag.Bool("watch", false, "recompile and rerun when the source file changes")
+		debugInfo        = flag.Bool("info", false, "enable debug diagnostics and FPS graph")
+		profileMode      = flag.Bool("profile", false, "with --run: print top hot source lines (ops + wall ms)")
+		profileOut       = flag.String("profile-out", "", "with --profile: write HTML profile report to path")
 	)
 
 	flag.Usage = func() {
@@ -31,6 +35,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  moonbasic [flags] <source.mb>     compile to .mbc\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --check <source.mb>     parse and type-check only\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --lsp                   language server on stdio\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic --run <source.mb>        compile and run\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic --run --profile <source.mb>   instruction-count profile\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic --watch <source.mb>       recompile and rerun on save\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --disasm <file.mbc>     disassemble bytecode\n")
 		fmt.Fprintf(os.Stderr, "Flags:\n")
 		flag.PrintDefaults()
@@ -81,19 +88,39 @@ func main() {
 		return
 	}
 
+	opts := pipeline.Options{
+		Debug: *debugInfo,
+		Out:   os.Stderr,
+	}
+
+	if *watchMode {
+		os.Exit(runWatch(path, opts))
+	}
+
 	if *runMode {
-		opts := pipeline.Options{
-			Debug: *debugInfo,
-			Out:   os.Stdout,
-		}
 		prog, err := pipeline.CompileFile(path)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(2)
 		}
+		var rec *vm.ProfileRecorder
+		if *profileMode || *profileOut != "" {
+			rec = vm.NewProfileRecorder()
+			opts.ProfileRecorder = rec
+		}
 		if err := pipeline.RunProgram(prog, opts); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(2)
+		}
+		if rec != nil {
+			pipeline.PrintProfileReport(rec, path, os.Stderr, 10)
+			if *profileOut != "" {
+				if err := pipeline.WriteProfileHTML(rec, path, *profileOut); err != nil {
+					fmt.Fprintf(os.Stderr, "profile-out: %v\n", err)
+					os.Exit(2)
+				}
+				fmt.Fprintf(os.Stderr, "profile: wrote %s\n", *profileOut)
+			}
 		}
 		return
 	}

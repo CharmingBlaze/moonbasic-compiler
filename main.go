@@ -10,16 +10,21 @@ import (
 	"strings"
 
 	"moonbasic/compiler/pipeline"
+	"moonbasic/dap"
 	"moonbasic/internal/version"
 	"moonbasic/lsp"
 )
 
 func main() {
+	if handled, code := dispatchSubcommand(); handled {
+		os.Exit(code)
+	}
 	var (
 		checkOnly       = flag.Bool("check", false, "parse and type-check only")
 		strictDeprecated = flag.Bool("strict-deprecated", false, "with --check: treat deprecated MAKE/SETPOSITION aliases as errors")
 		showVer   = flag.Bool("version", false, "print version and exit")
 		lspMode   = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
+		dapMode   = flag.Bool("dap", false, "run Debug Adapter Protocol (stdio) for editors")
 		disasm    = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
 		runMode   = flag.Bool("run", false, "compile and run (requires building with -tags fullruntime)")
 	)
@@ -27,6 +32,8 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "moonBASIC Compiler %s\n", version.Version)
 		fmt.Fprintf(os.Stderr, "Usage:\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic new <name>            scaffold a new game project\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic playground            local compile-check web UI\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic [flags] <source.mb>     compile to .mbc\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --check <source.mb>     parse and type-check only\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --lsp                   language server on stdio\n")
@@ -44,6 +51,14 @@ func main() {
 	if *lspMode {
 		if err := lsp.Serve(); err != nil {
 			fmt.Fprintf(os.Stderr, "lsp: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	if *dapMode {
+		if err := dap.ServeStdio(); err != nil {
+			fmt.Fprintf(os.Stderr, "dap: %v\n", err)
 			os.Exit(1)
 		}
 		return

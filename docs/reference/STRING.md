@@ -61,6 +61,20 @@ Splits a string into a list handle.
 
 ## Interpolation
 
+### Interpolated string literals — `$"..."`
+
+Embed expressions directly in a string literal:
+
+```basic
+PRINT($"Score: {score}  Health: {hp}")
+PRINT($"FPS: {fps:.0f}")
+```
+
+- **`{expression}`** → **`STR(expression)`**
+- **`{expression:fmt}`** → **`FORMAT(expression, "%fmt")`**
+
+Prefer this for HUD lines and debug output in new code.
+
 ### `STRING.INTERP(template, arg0 [, arg1 … arg9])` / `STRING.INTERP$(…)`
 
 Fills `"{0}"` … `"{9}"` placeholders in `template` with the supplied arguments. Supports 1–10 argument overloads. `STRING.INTERP$` is the string-returning alias (same behaviour).

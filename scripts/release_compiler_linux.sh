@@ -20,9 +20,11 @@ go build -trimpath -ldflags="$LDFLAGS" -o "${DIR}/moonbasic" "${ROOT}/cmd/moonba
 cat > "${DIR}/README-COMPILER.txt" <<'EOF'
 MoonBASIC compiler (Linux amd64)
 
-Toolchain only: .mb -> .mbc, --check, --lsp, --disasm. Built with CGO_ENABLED=0.
+Toolchain only: .mb -> .mbc, --check, --lsp, --disasm, moonbasic new.
+Built with CGO_ENABLED=0.
 
   ./moonbasic --version
+  ./moonbasic new MyGame
   ./moonbasic game.mb
   ./moonbasic --check game.mb
 

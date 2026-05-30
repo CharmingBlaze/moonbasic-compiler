@@ -115,7 +115,6 @@ Optional regression artifacts (see **`ARCHITECTURE.md`** for optional Valgrind/g
 
 - **`RACE_BASELINE.txt`** — `go test -race ./...`
 - **`GCCHECK_BASELINE.txt`** — `GODEBUG=gccheckmark=1 go test ./...`
-- **`ESCAPE_ANALYSIS.txt`** — `go build -gcflags="-m -m"` (main package; CLI-heavy escapes are expected)
 - **`CGO_ALLOCS.txt`** — grep of raylib/Jolt/ENet allocation sites to cross-check **`Free()`**
 - **`HEAP_AUDIT.txt`** — HeapObject contract checklist
 - **`VALGRIND_BASELINE.txt`**, **`DRMEM_BASELINE.txt`** — placeholders on Windows; run on Linux or with Dr. Memory locally

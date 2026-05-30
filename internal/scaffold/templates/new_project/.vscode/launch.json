@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "moonbasic",
+      "request": "launch",
+      "name": "Debug moonBASIC",
+      "program": "${workspaceFolder}/main.mb"
+    }
+  ]
+}

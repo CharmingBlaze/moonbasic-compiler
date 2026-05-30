@@ -15,6 +15,8 @@ package pipeline
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"moonbasic/compiler/arena"
 	"moonbasic/compiler/codegen"
@@ -87,6 +89,9 @@ func CompileSourceWithOptions(name, src string, opts CompileOptions) (*opcode.Pr
 	for _, w := range an.DeprecationWarnings() {
 		fmt.Fprintf(os.Stderr, "[moonBASIC] Warning: %s\n", w)
 	}
+	for _, w := range an.Warnings() {
+		fmt.Fprintf(os.Stderr, "[moonBASIC] Warning: %s\n", w.String())
+	}
 
 	// 4. Code Generation (passing symbol table if using implicit declaration)
 	g := codegen.NewWithSymbols(name, lines, symbols)
@@ -126,26 +131,26 @@ func CheckFileWithOptions(path string, opts CheckOptions) error {
 	return CheckSourceWithOptions(path, string(data), opts)
 }
 
-// CheckSourceWithNotices runs the same analysis as CheckSource and returns deprecation notices.
-// If semantic analysis fails, err is non-nil; notices may still contain entries from code analyzed before the failure.
-func CheckSourceWithNotices(name, src string, opts CheckOptions) ([]semantic.DeprecationNotice, error) {
+// CheckSourceWithNotices runs the same analysis as CheckSource and returns deprecation notices and warnings.
+// If semantic analysis fails, err is non-nil; notices/warnings may still contain entries from code analyzed before the failure.
+func CheckSourceWithNotices(name, src string, opts CheckOptions) ([]semantic.DeprecationNotice, []semantic.SemanticWarning, error) {
 	SyncPackageIncludeRoots()
 	ar := arena.NewArena()
 	defer ar.Reset()
 	prog, err := parser.ParseSourceWithArena(name, src, ar)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	prog, err = include.ExpandWithArena(name, prog, ar)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	an := semantic.DefaultAnalyzer(name, parser.SplitLines(src))
 	an.StrictDeprecated = opts.StrictDeprecated
 	if err := an.Run(prog); err != nil {
-		return an.DeprecationNotices(), err
+		return an.DeprecationNotices(), an.Warnings(), err
 	}
-	return an.DeprecationNotices(), nil
+	return an.DeprecationNotices(), an.Warnings(), nil
 }
 
 // CheckSource performs parsing and semantic analysis only.
@@ -155,12 +160,15 @@ func CheckSource(name, src string) error {
 
 // CheckSourceWithOptions is CheckSource with semantic options.
 func CheckSourceWithOptions(name, src string, opts CheckOptions) error {
-	notices, err := CheckSourceWithNotices(name, src, opts)
+	notices, warnings, err := CheckSourceWithNotices(name, src, opts)
 	if opts.StrictDeprecated {
 		return err
 	}
 	for _, n := range notices {
 		fmt.Fprintf(os.Stderr, "[moonBASIC] Warning: %s\n", n.String())
+	}
+	for _, w := range warnings {
+		fmt.Fprintf(os.Stderr, "[moonBASIC] Warning: %s\n", w.String())
 	}
 	return err
 }
@@ -181,5 +189,15 @@ func DecodeMOONFromFile(path string) (*opcode.Program, error) {
 	if err != nil {
 		return nil, err
 	}
-	return DecodeMOON(data)
+	prog, err := DecodeMOON(data)
+	if err != nil {
+		return nil, err
+	}
+	if prog.SourcePath == "" && strings.EqualFold(filepath.Ext(path), ".mbc") {
+		mb := strings.TrimSuffix(path, filepath.Ext(path)) + ".mb"
+		if st, err := os.Stat(mb); err == nil && !st.IsDir() {
+			prog.SourcePath = mb
+		}
+	}
+	return prog, nil
 }

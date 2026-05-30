@@ -57,6 +57,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("BOX2D.FIXTUREBOX", "physics2d", runtime.AdaptLegacy(m.bdAddRect))
 	r.Register("BOX2D.FIXTURECIRCLE", "physics2d", runtime.AdaptLegacy(m.bdAddCircle))
 
+	m.registerCollisionCallbacks(r)
+
 	// Easy Mode flat aliases
 	r.Register("CREATEBODY2D", "physics2d", runtime.AdaptLegacy(m.bdMake))
 }

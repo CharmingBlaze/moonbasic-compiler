@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -17,9 +16,10 @@ type Index struct {
 
 // IndexEntry describes one downloadable package.
 type IndexEntry struct {
-	Version string `json:"version"`
-	URL     string `json:"url"`
-	SHA256  string `json:"sha256,omitempty"`
+	Version     string `json:"version"`
+	URL         string `json:"url"`
+	SHA256      string `json:"sha256,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 // Registry resolves package names to download URLs.
@@ -88,16 +88,4 @@ func (r *FileRegistry) Lookup(name string) (IndexEntry, error) {
 		return IndexEntry{}, fmt.Errorf("registry: unknown package %q", name)
 	}
 	return e, nil
-}
-
-// DefaultRegistryFromEnv returns a registry from MOONBASIC_REGISTRY (URL or file path).
-func DefaultRegistryFromEnv() Registry {
-	raw := strings.TrimSpace(os.Getenv("MOONBASIC_REGISTRY"))
-	if raw == "" {
-		return &HTTTPRegistry{IndexURL: ""}
-	}
-	if strings.HasPrefix(raw, "http://") || strings.HasPrefix(raw, "https://") {
-		return &HTTTPRegistry{IndexURL: raw}
-	}
-	return &FileRegistry{Path: raw}
 }

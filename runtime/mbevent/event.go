@@ -67,19 +67,19 @@ func (m *Module) Shutdown() {
 }
 
 func (m *Module) evOn(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("EVENT.ON expects (eventName$, functionName$)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("EVENT.ON expects (eventName$, callback)")
 	}
 	en, err := rt.ArgString(args, 0)
 	if err != nil {
 		return value.Nil, err
 	}
-	fn, err := rt.ArgString(args, 1)
+	fn, err := rt.ArgCallback(args, 1)
 	if err != nil {
 		return value.Nil, err
 	}
 	name := normEvent(en)
-	fnU := strings.ToUpper(strings.TrimSpace(fn))
+	fnU := strings.ToLower(strings.TrimSpace(fn))
 	if name == "" || fnU == "" {
 		return value.Nil, fmt.Errorf("EVENT.ON: names must be non-empty")
 	}
@@ -90,19 +90,19 @@ func (m *Module) evOn(rt *runtime.Runtime, args ...value.Value) (value.Value, er
 }
 
 func (m *Module) evOnce(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("EVENT.ONCE expects (eventName$, functionName$)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("EVENT.ONCE expects (eventName$, callback)")
 	}
 	en, err := rt.ArgString(args, 0)
 	if err != nil {
 		return value.Nil, err
 	}
-	fn, err := rt.ArgString(args, 1)
+	fn, err := rt.ArgCallback(args, 1)
 	if err != nil {
 		return value.Nil, err
 	}
 	name := normEvent(en)
-	fnU := strings.ToUpper(strings.TrimSpace(fn))
+	fnU := strings.ToLower(strings.TrimSpace(fn))
 	if name == "" || fnU == "" {
 		return value.Nil, fmt.Errorf("EVENT.ONCE: names must be non-empty")
 	}
@@ -113,19 +113,19 @@ func (m *Module) evOnce(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 }
 
 func (m *Module) evOff(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("EVENT.OFF expects (eventName$, functionName$)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("EVENT.OFF expects (eventName$, callback)")
 	}
 	en, err := rt.ArgString(args, 0)
 	if err != nil {
 		return value.Nil, err
 	}
-	fn, err := rt.ArgString(args, 1)
+	fn, err := rt.ArgCallback(args, 1)
 	if err != nil {
 		return value.Nil, err
 	}
 	name := normEvent(en)
-	fnU := strings.ToUpper(strings.TrimSpace(fn))
+	fnU := strings.ToLower(strings.TrimSpace(fn))
 	if name == "" || fnU == "" {
 		return value.Nil, fmt.Errorf("EVENT.OFF: names must be non-empty")
 	}

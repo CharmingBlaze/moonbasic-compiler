@@ -58,6 +58,7 @@ It is built with CGO disabled so you do not need raylib.dll or other native libr
 
 Commands (examples):
   moonbasic --version
+  moonbasic new MyGame
   moonbasic game.mb
   moonbasic --check game.mb
   moonbasic --lsp

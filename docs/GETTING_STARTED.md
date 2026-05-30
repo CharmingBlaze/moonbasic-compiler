@@ -10,7 +10,7 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 
 ## 1. Installation
 
-Use the **compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** — official Windows/Linux archives with **`moonbasic`** and (for the full runtime) **`moonrun`**. That is the supported way to run games and use the compiler: **no Go, no GCC, no local build** of the engine.
+Use the **compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** — official Windows/Linux archives with **`moonbasic`** and (for the full runtime) **`moonrun`**. That is the supported way to run games and use the compiler: **no Go, no GCC, no local build** of the engine.
 
 You only need a **clone or ZIP of this repo** if you want example `.mb` sources or documentation; everyday play and compile use **only** the extracted release binaries.
 
@@ -18,26 +18,48 @@ Pick the file that matches what you need (replace `<tag>` with the release versi
 
 | Your goal | Download |
 |-----------|----------|
-| **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` |
+| **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
 | **Compile / check / LSP only** (CI, tooling, no `moonrun`) | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
 
 **Full runtime** includes **`moonbasic`** and **`moonrun`** plus `README-RELEASE.txt`. **Compiler only** ships in a folder such as **`MoonBasic-compiler/`** with **`moonbasic`** (or **`moonbasic.exe`**) and a short readme — there is **no** `moonrun` in that bundle.
 
 Extract the archive somewhere permanent — on **Windows**, keep the **full-runtime** zip contents together (both `.exe` files from the **same** release; do not mix executables from different builds). On **Windows**, use `moonbasic.exe` in the examples below; on **Linux**, use `./moonbasic` if the binary is not on your `PATH`.
 
-More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic#download-and-use-recommended)** on GitHub.
+More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic-compiler#download-and-use-recommended)** on GitHub.
 
 To **build moonbasic from source** (contributors), see **[BUILDING.md](BUILDING.md)**.
 
 ### VS Code: syntax and LSP
 
-After you install **`moonbasic`** from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest), you can add editor support **without cloning the repo** or installing Node.js:
+After you install **`moonbasic`** from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest), you can add editor support **without cloning the repo** or installing Node.js:
 
 1. On the **same release page**, download **`moonbasic-<tag>-vscode.vsix`** (listed next to the platform zips).
 2. In Visual Studio Code: **Extensions** → **⋯** → **Install from VSIX…** and select that file.
 3. If **`moonbasic`** is not on your system **`PATH`**, open **Settings** → search **`moonbasic.languageServerPath`** → set it to the full path of **`moonbasic`** or **`moonbasic.exe`** (for example, the folder where you extracted the zip).
 
 That gives you **syntax highlighting**, **snippets**, and **LSP** (completions and diagnostics) while you edit **`.mb`** files. Optional: clone the repo and use the workspace [`.vscode`](../.vscode/) tasks for **check / compile / moonrun** — see **[DEVELOPER.md — moonBASIC in VS Code](DEVELOPER.md#moonbasic-in-vs-code)** (contributors).
+
+### VS Code: debugging (full runtime)
+
+The **`moonbasic-<tag>-vscode.vsix`** extension can **debug** `.mb` games when you have **`moonrun`** from a **full runtime** archive (not compiler-only):
+
+1. Install the VSIX (above) and the **full runtime** zip/tarball for your OS.
+2. Open **Settings** → **`moonbasic.moonrunPath`** → set the full path to **`moonrun`** / **`moonrun.exe`** if it is not on **`PATH`**.
+3. Open a **`.mb`** file, set breakpoints in the gutter, then **Run and Debug** → **Debug moonBASIC** (or use the **`.vscode/launch.json`** in a project created with **`moonbasic new`**).
+
+Debugging uses **`moonrun --dap`** under the hood. Breakpoints pause the game; the **Globals** scope shows live variables.
+
+### Start a new project (`moonbasic new`)
+
+From any folder where **`moonbasic`** is on **`PATH`** (full runtime or compiler-only):
+
+```bash
+moonbasic new MyGame
+cd MyGame
+moonrun main.mb
+```
+
+This creates **`main.mb`**, **`assets/`**, **`.vscode/launch.json`**, and a short **`README.md`**. Edit **`main.mb`**, then run with **`moonrun`**.
 
 ---
 
@@ -46,7 +68,7 @@ That gives you **syntax highlighting**, **snippets**, and **LSP** (completions a
 You can share games in two straightforward ways:
 
 **A — Minimal install for players (recommended)**  
-Ship your **`.mb`** source and/or **`.mbc`** bytecode, plus any **assets** (images, sounds, data files) using the **paths your scripts expect** (working directory when they run `moonrun`, or paths you set with **`RES.PATH`** and similar APIs). Tell players to install the **same [full runtime](#1-installation) archive** for their OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) — **not** the **compiler-only** download (that bundle has no `moonrun` and cannot open a game window). Prefer the **same moonBASIC release tag** you used to build and test: bytecode and engine behavior stay aligned across patch versions.
+Ship your **`.mb`** source and/or **`.mbc`** bytecode, plus any **assets** (images, sounds, data files) using the **paths your scripts expect** (working directory when they run `moonrun`, or paths you set with **`RES.PATH`** and similar APIs). Tell players to install the **same [full runtime](#1-installation) archive** for their OS from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest) — **not** the **compiler-only** download (that bundle has no `moonrun` and cannot open a game window). Prefer the **same moonBASIC release tag** you used to build and test: bytecode and engine behavior stay aligned across patch versions.
 
 **B — Folder bundle (one zip per game)**  
 Ship a folder that contains **`moonrun`** (and optionally **`moonbasic`**) next to your game and assets so players extract and double-click or run from that folder. On **Windows**, use an official **`moonrun.exe`** from the full-runtime zip or a packager aligned with release builds — see **[`docs/BUILDING.md`](BUILDING.md)** (**Windows full-runtime PE link model**): official Windows builds avoid MinGW / Raylib companion DLLs beside the executables. On **Linux**, the full-runtime tarball links against the usual **glibc**, OpenGL, and desktop libraries on the build OS — **fully static Linux binaries are not the goal**; target common distros with a normal GPU stack, or build your own layout / AppImage / `.deb` from source using **[`docs/BUILDING.md`](BUILDING.md)** and maintainer notes in **[`dist/README.md`](../dist/README.md)**.
@@ -55,7 +77,27 @@ Packaging helpers (maintainers / power users): **[`scripts/package_release_style
 
 ---
 
-## 3. Using the moonbasic compiler
+## 3. Run your first game (`moonrun`)
+
+After extracting the **full runtime**, use **`moonrun`** as your main entry point — it compiles `.mb` in-process when needed and starts the engine (same as BlitzBASIC's single-exe workflow).
+
+```bash
+moonrun --version
+moonrun path/to/game.mb
+```
+
+On Windows:
+
+```bat
+moonrun.exe --version
+moonrun.exe path\to\game.mb
+```
+
+You do **not** need a separate compile step for everyday development. Use **`moonbasic`** when you want lint/CI (`--check`), editor LSP (`--lsp`), or standalone `.mbc` files — see the next section.
+
+---
+
+## 4. Using the moonbasic compiler (optional tooling)
 
 Open a terminal in the directory that contains **`moonbasic`** (on **compiler-only** installs, that is usually inside **`MoonBasic-compiler/`**).
 
@@ -113,7 +155,7 @@ If you only installed the **compiler-only** archive, use **`moonbasic`** to prod
 
 ---
 
-## 4. Your First Program
+## 5. Your First Program
 
 Create a file named `hello.mb`:
 
@@ -129,7 +171,7 @@ moonrun hello.mb
 
 ---
 
-## 5. Opening a Window
+## 6. Opening a Window
 
 MoonBASIC makes window management effortless. Create `display.mb`:
 
@@ -148,7 +190,7 @@ WINDOW.CLOSE()
 
 ---
 
-## 6. Modern 3D with Method Chaining
+## 7. Modern 3D with Method Chaining
 
 MoonBASIC supports **Method Chaining** (Fluent API), allowing you to configure objects in a single, readable line.
 
@@ -172,7 +214,7 @@ WEND
 
 ---
 
-## 7. Modern Blitz-Style (High Fidelity)
+## 8. Modern Blitz-Style (High Fidelity)
 
 For advanced users, MoonBASIC provides a "High Fidelity" path with PBR materials, dynamic lighting, and SSAO.
 
@@ -201,6 +243,21 @@ WEND
 
 ---
 
+## Language features (2026)
+
+Recent syntax additions (full detail in [LANGUAGE.md](LANGUAGE.md)):
+
+| Feature | Example |
+|---------|---------|
+| String interpolation | `PRINT($"Score: {score}")` |
+| Multi-return | `RETURN x, y, z` then `a, b, c = GetPos()` |
+| Enums | `ENUM State … ENDENUM`, `IF s = State.IDLE` |
+| Array loops | `FOR EACH e IN enemies … NEXT` |
+
+Runnable demos: [examples/tilemap](../examples/tilemap/README.md), [examples/gamepad](../examples/gamepad/README.md). Roadmap: [ROADMAP.md](ROADMAP.md).
+
+---
+
 ## Next Steps
 
 Explore the specialized documentation to master every aspect of the engine:
@@ -208,7 +265,9 @@ Explore the specialized documentation to master every aspect of the engine:
 | Topic | Reference |
 |-------|-----------|
 | **Core Workflow** | [Programming Guide](PROGRAMMING.md) |
-| **Language Syntax** | [Language Reference](LANGUAGE.md) |
+| **Language Syntax** | [Language Reference](LANGUAGE.md) — includes **`$"..."`**, **`ENUM`**, multi-return |
+| **Roadmap** | [ROADMAP.md](ROADMAP.md) — shipped vs planned language work |
+| **Examples** | [examples/README.md](../examples/README.md) — tilemap, gamepad, platformer, … |
 | **3D Entities** | [Entity Reference](reference/ENTITY.md) |
 | **Physics** | [Physics 3D Reference](reference/PHYSICS3D.md) |
 | **Atmosphere** | [Camera & Render Reference](reference/CAMERA_LIGHT_RENDER.md) |

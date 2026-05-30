@@ -6,6 +6,7 @@ import (
 	"fmt"
 	goruntime "runtime"
 	"os"
+	"path/filepath"
 
 	"moonbasic/runtime"
 	"moonbasic/vm"
@@ -39,6 +40,14 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	machine.Trace = opts.Trace
 	machine.TraceOut = opts.Out
 	machine.Profiler = opts.ProfileRecorder
+
+	if prog.SourcePath != "" {
+		if abs, err := filepath.Abs(prog.SourcePath); err == nil {
+			reg.SetSourceFile(abs)
+		} else {
+			reg.SetSourceFile(prog.SourcePath)
+		}
+	}
 
 	defer reg.Shutdown() // Raylib + heap cleanup on success or VM error
 

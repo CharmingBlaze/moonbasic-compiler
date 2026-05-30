@@ -13,6 +13,7 @@ const (
 	INT
 	FLOAT
 	STRING
+	INTERP_STRING // $"literal {expr} ..." (Lit holds segment payload; see parser)
 
 	NEWLINE
 
@@ -35,6 +36,7 @@ const (
 	STAR
 	SLASH
 	CARET
+	AT // @ function reference prefix
 	EQ  // = in comparisons (same lexeme as ASSIGN; parser disambiguates)
 	NEQ // <>
 	LT
@@ -79,6 +81,9 @@ const (
 	NEW
 	DELETE
 	EACH
+	IN
+	ENUM
+	ENDENUM
 	GOTO
 	GOSUB
 	AND
@@ -97,11 +102,15 @@ const (
 	SWAP
 	ERASE
 	INCLUDE
+	IMPORT
 	TRUE
 	FALSE
 	NULL
 	END   // program termination (bare END)
 	PRINT // global built-in kept as keyword for fast recognition
+	YIELD // coroutine yield point
+	COROUTINE
+	ENDCOROUTINE
 )
 
 // Token is one lexical unit with source position.
@@ -145,6 +154,9 @@ var keywords = map[string]TokenType{
 	"NEW":         NEW,
 	"DELETE":      DELETE,
 	"EACH":        EACH,
+	"IN":          IN,
+	"ENUM":        ENUM,
+	"ENDENUM":     ENDENUM,
 	"GOTO":        GOTO,
 	"GOSUB":       GOSUB,
 	"AND":         AND,
@@ -163,10 +175,14 @@ var keywords = map[string]TokenType{
 	"SWAP":        SWAP,
 	"ERASE":       ERASE,
 	"INCLUDE":     INCLUDE,
+	"IMPORT":      IMPORT,
 	"TRUE":        TRUE,
 	"FALSE":       FALSE,
 	"NULL":        NULL,
 	"END":         END,
+	"YIELD":       YIELD,
+	"COROUTINE":   COROUTINE,
+	"ENDCOROUTINE": ENDCOROUTINE,
 }
 
 // LookupKeyword returns the keyword token type for an uppercase ident, or IDENT.
@@ -192,6 +208,8 @@ func (t TokenType) String() string {
 		return "FLOAT"
 	case STRING:
 		return "STRING"
+	case INTERP_STRING:
+		return "INTERP_STRING"
 	case NEWLINE:
 		return "NEWLINE"
 	case LPAREN:
@@ -222,6 +240,8 @@ func (t TokenType) String() string {
 		return "SLASH"
 	case CARET:
 		return "CARET"
+	case AT:
+		return "@"
 	case EQ:
 		return "EQ"
 	case NEQ:
@@ -306,6 +326,12 @@ func (t TokenType) String() string {
 		return "DELETE"
 	case EACH:
 		return "EACH"
+	case IN:
+		return "IN"
+	case ENUM:
+		return "ENUM"
+	case ENDENUM:
+		return "ENDENUM"
 	case GOTO:
 		return "GOTO"
 	case GOSUB:
@@ -342,6 +368,8 @@ func (t TokenType) String() string {
 		return "ERASE"
 	case INCLUDE:
 		return "INCLUDE"
+	case IMPORT:
+		return "IMPORT"
 	case TRUE:
 		return "TRUE"
 	case FALSE:
@@ -350,6 +378,12 @@ func (t TokenType) String() string {
 		return "NULL"
 	case END:
 		return "END"
+	case YIELD:
+		return "YIELD"
+	case COROUTINE:
+		return "COROUTINE"
+	case ENDCOROUTINE:
+		return "ENDCOROUTINE"
 	default:
 		return "UNKNOWN"
 	}

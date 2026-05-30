@@ -7,7 +7,7 @@ This page maps a practical split: **numeric / boolean string APIs** vs **string-
 ## Core Workflow
 
 - **Hot path (numeric result):** use `LEN`, `INSTR`, `VAL`, `CONTAINS`, `STARTSWITH` — no string allocation.
-- **Cold path (display/logging):** use `STR`, `INTERP`, `FORMAT`, string `+` — fine for HUD updates and one-off prints.
+- **Cold path (display/logging):** use **`$"..."`**, `STR`, `INTERP`, `FORMAT`, string `+` — fine for HUD updates and one-off prints.
 - **Color tuples:** `COLOR.TOHSV(col)` returns a 3-float tuple; use `COLOR.TOHSVX/Y/Z` in physics loops.
 
 ---
@@ -39,7 +39,8 @@ These **produce new string or tuple handles** intended for **HUD, labels, logs, 
 
 | # | Commands | Notes |
 |---|----------|--------|
-| 11 | `INTERP` / `STRING.INTERP` / `STRING.INTERP$` | Fill `"{0}"` … `"{9}"` placeholders (1–10 arg overloads). `STRING.INTERP$` is the string-returning alias. See [STRING.md](STRING.md). |
+| 11 | `$"text {expr}"` | Compile-time string interpolation → `STR` / `FORMAT` + concat. See [STRING.md](STRING.md). |
+| 12 | `INTERP` / `STRING.INTERP` / `STRING.INTERP$` | Fill `"{0}"` … `"{9}"` placeholders (1–10 arg overloads). `STRING.INTERP$` is the string-returning alias. See [STRING.md](STRING.md). |
 | 12 | `COLOR.TOHSV(color)` | Returns **`(h, s, v)`** tuple (three floats) in one call — pairs with `COLOR.FROMHSV` / `COLOR.HSV`; see [COLOR.md](COLOR.md). |
 
 Also treat as “cold path”: `STR`, string `+`, `FORMAT`, `LEFT` / `MID` / `REPLACE`, `SPLIT` / `JOIN`, `COLOR.TOHEX`, etc.
@@ -64,8 +65,11 @@ END IF
 hp = 100.0
 IF hp < 0.01 THEN PRINT "dead"         ; no string built in physics tick
 
-; --- INTERP for formatted output ---
-msg = INTERP("Player {0} scored {1} points!", "Alice", STR(score))
+; --- Interpolated HUD (preferred) ---
+msg = $"Player {name} scored {score} points!"
+
+; --- Positional INTERP (legacy style) ---
+msg2 = INTERP("Player {0} scored {1} points!", "Alice", STR(score))
 PRINT msg
 ```
 

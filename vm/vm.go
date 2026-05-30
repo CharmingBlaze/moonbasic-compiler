@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
+	moonerrors "moonbasic/compiler/errors"
 	"moonbasic/lineprof"
 	"moonbasic/runtime"
 	"moonbasic/vm/callstack"
@@ -28,8 +30,27 @@ type VM struct {
 	Trace    bool      // If true, dump machine state after each instruction
 	TraceOut io.Writer // Destination for trace output (default os.Stderr)
 
+	// Debugger: break on these 1-based source lines (when DebugMode is true).
+	DebugMode      bool
+	BreakLines     map[int]bool
+	debugContinue  chan struct{}
+	debugStepOnce  bool
+	debugPauseReason string // "step" or "breakpoint" for DAP
+	// OnPaused is invoked when the VM hits a breakpoint (before waiting for continue).
+	OnPaused func(*VM)
+
 	// Profiler when non-nil receives one tick per instruction executed (by source line).
 	Profiler lineprof.LineProfiler
+
+	// typeInstances tracks live user TYPE instances for FOR var = EACH(Type).
+	typeInstances map[string][]heap.Handle
+
+	// Coroutines (YIELD / COROUTINE.START).
+	coroutines         map[int32]*coroutineState
+	activeCoroutines   []heap.Handle
+	curCoID            int32
+	nextCoID           int32
+	yieldPending       bool
 
 	// PhysicsScratch holds the last Jolt/WASM SoA float payload (host-filled before [OpSyncPhysics]).
 	PhysicsScratch []float64
@@ -50,8 +71,8 @@ func New(reg *runtime.Registry, h *heap.Store) *VM {
 func (v *VM) runtimeError(msg string) error {
 	frame := v.CallStack.Top()
 	line := -1
-	if frame != nil && frame.IP < len(frame.Chunk.SourceLines) {
-		line = int(frame.Chunk.SourceLines[frame.IP])
+	if frame != nil && frame.IP > 0 && frame.IP-1 < len(frame.Chunk.SourceLines) {
+		line = int(frame.Chunk.SourceLines[frame.IP-1])
 	}
 	where := "unknown source"
 	if v.Program != nil && v.Program.SourcePath != "" {
@@ -59,14 +80,19 @@ func (v *VM) runtimeError(msg string) error {
 	} else if frame != nil && frame.Chunk != nil && frame.Chunk.Name != "" {
 		where = frame.Chunk.Name
 	}
-	var err error
-	if line >= 1 {
-		err = fmt.Errorf("[moonBASIC] Error in %s line %d:\n  %s", where, line, msg)
-	} else {
-		err = fmt.Errorf("[moonBASIC] Error in %s:\n  %s", where, msg)
+	sourceLine := ""
+	if line >= 1 && v.Program != nil && v.Program.SourcePath != "" {
+		if lines, err := os.ReadFile(v.Program.SourcePath); err == nil {
+			parts := strings.Split(strings.ReplaceAll(string(lines), "\r\n", "\n"), "\n")
+			if line <= len(parts) {
+				sourceLine = parts[line-1]
+			}
+		}
 	}
-	fmt.Printf("DEBUG: VM.runtimeError: %v\n", err)
-	return err
+	if line >= 1 {
+		return moonerrors.NewRuntimeError(where, line, 1, msg, sourceLine, "")
+	}
+	return fmt.Errorf("[moonBASIC] Runtime Error in %s:\n  %s", where, msg)
 }
 
 // reg returns a register from the current frame.
@@ -148,6 +174,12 @@ func (v *VM) Execute(prog *opcode.Program) (err error) {
 
 		if err := v.step(instr); err != nil {
 			return err
+		}
+
+		if v.DebugMode && v.shouldBreak(frame) {
+			if err := v.waitDebugContinue(); err != nil {
+				return err
+			}
 		}
 
 		if v.Profiler != nil {

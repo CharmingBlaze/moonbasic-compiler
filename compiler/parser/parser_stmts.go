@@ -5,6 +5,7 @@ import (
 	"moonbasic/compiler/ast"
 	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/compiler/token"
+	"moonbasic/compiler/types"
 )
 
 func containsStop(stop []token.TokenType, t token.TokenType) bool {
@@ -55,6 +56,8 @@ func (p *Parser) parseStmt() (ast.Stmt, error) {
 		return p.parseGlobal()
 	case token.CONST:
 		return p.parseConst()
+	case token.ENUM:
+		return p.parseEnum()
 	case token.STATIC:
 		return p.parseStatic()
 	case token.SWAP:
@@ -69,6 +72,12 @@ func (p *Parser) parseStmt() (ast.Stmt, error) {
 		return p.parseReturn()
 	case token.INCLUDE:
 		return p.parseInclude()
+	case token.IMPORT:
+		return p.parseImport()
+	case token.YIELD:
+		line, col := p.cur().Line, p.cur().Col
+		p.advance()
+		return arena.Make(p.ar, ast.YieldStmt{Line: line, Col: col}), nil
 	case token.DELETE:
 		line, col := p.cur().Line, p.cur().Col
 		p.advance()
@@ -269,6 +278,10 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 		if err != nil {
 			return nil, err
 		}
+		if p.sym.IsFuncRef(name) {
+			recv := arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col})
+			return arena.Make(p.ar, ast.CallRefStmt{Receiver: recv, Args: args, Line: line, Col: col}), nil
+		}
 		return arena.Make(p.ar, ast.CallStmtNode{Name: name, Args: args, Line: line, Col: col}), nil
 	}
 	if p.cur().Type == token.EQ {
@@ -278,6 +291,7 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 			return nil, err
 		}
 		p.defineAssignedName(name)
+		p.noteAssignType(name, e)
 		return arena.Make(p.ar, ast.AssignNode{Name: name, Expr: e, Line: line, Col: col}), nil
 	}
 	if p.cur().Type == token.PLUSEQ || p.cur().Type == token.MINUSEQ || p.cur().Type == token.STAREQ || p.cur().Type == token.SLASHEQ {
@@ -520,6 +534,7 @@ func (p *Parser) parseDim() (ast.Stmt, error) {
 		return nil, err
 	}
 	p.defineAssignedName(name)
+	p.sym.SetVarType(name, types.Array)
 	return arena.Make(p.ar, ast.DimNode{
 		Name: name, TypeName: typeName, Dims: args, Line: line, Col: col,
 		IsRedim: isRedim, Preserve: preserve,
@@ -651,6 +666,44 @@ func (p *Parser) parseConst() (ast.Stmt, error) {
 	return arena.Make(p.ar, ast.ConstDeclNode{Name: name, Expr: e, Line: line, Col: col}), nil
 }
 
+func (p *Parser) parseEnum() (ast.Stmt, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance()
+	name, err := p.expectIdent()
+	if err != nil {
+		return nil, err
+	}
+	if p.cur().Type != token.NEWLINE {
+		return nil, p.failf("expected newline after ENUM %s", name)
+	}
+	p.advance()
+	var members []string
+	for p.cur().Type != token.ENDENUM && p.cur().Type != token.EOF {
+		if p.cur().Type == token.NEWLINE {
+			p.advance()
+			continue
+		}
+		m, err := p.expectIdent()
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, m)
+		if p.cur().Type == token.NEWLINE {
+			p.advance()
+		}
+	}
+	if err := p.expect(token.ENDENUM); err != nil {
+		return nil, err
+	}
+	if len(members) == 0 {
+		return nil, p.failf("ENUM %s requires at least one member", name)
+	}
+	for _, m := range members {
+		p.sym.DefineConst(enumMemberName(name, m))
+	}
+	return arena.Make(p.ar, ast.EnumDeclNode{Name: name, Members: members, Line: line, Col: col}), nil
+}
+
 func (p *Parser) parseGoto() (ast.Stmt, error) {
 	line, col := p.cur().Line, p.cur().Col
 	p.advance()
@@ -678,26 +731,38 @@ func (p *Parser) parseReturn() (ast.Stmt, error) {
 		p.advance()
 		if p.cur().Type == token.RPAREN {
 			p.advance()
-			return arena.Make(p.ar, ast.ReturnNode{Expr: nil, Line: line, Col: col}), nil
+			return arena.Make(p.ar, ast.ReturnNode{Exprs: nil, Line: line, Col: col}), nil
 		}
 		e, err := p.parseExpr()
 		if err != nil {
 			return nil, err
 		}
+		var exprs []ast.Expr
+		if p.cur().Type == token.COMMA {
+			exprs, err = p.parseReturnExprs(e, line, col)
+		} else {
+			exprs = []ast.Expr{e}
+		}
 		if err := p.expect(token.RPAREN); err != nil {
 			return nil, err
 		}
-		return arena.Make(p.ar, ast.ReturnNode{Expr: e, Line: line, Col: col}), nil
+		return arena.Make(p.ar, ast.ReturnNode{Exprs: exprs, Line: line, Col: col}), nil
 	}
-	var e ast.Expr
-	var err error
-	if p.cur().Type != token.NEWLINE && p.cur().Type != token.EOF && p.cur().Type != token.ENDIF && p.cur().Type != token.ENDFUNCTION {
-		e, err = p.parseExpr()
+	if p.cur().Type == token.NEWLINE || p.cur().Type == token.EOF || p.cur().Type == token.ENDIF || p.cur().Type == token.ENDFUNCTION {
+		return arena.Make(p.ar, ast.ReturnNode{Exprs: nil, Line: line, Col: col}), nil
+	}
+	e, err := p.parseExpr()
+	if err != nil {
+		return nil, err
+	}
+	if p.cur().Type == token.COMMA {
+		exprs, err := p.parseReturnExprs(e, line, col)
 		if err != nil {
 			return nil, err
 		}
+		return arena.Make(p.ar, ast.ReturnNode{Exprs: exprs, Line: line, Col: col}), nil
 	}
-	return arena.Make(p.ar, ast.ReturnNode{Expr: e, Line: line, Col: col}), nil
+	return arena.Make(p.ar, ast.ReturnNode{Exprs: []ast.Expr{e}, Line: line, Col: col}), nil
 }
 
 func (p *Parser) parseInclude() (ast.Stmt, error) {
@@ -710,4 +775,16 @@ func (p *Parser) parseInclude() (ast.Stmt, error) {
 	}
 	p.advance()
 	return arena.Make(p.ar, ast.IncludeNode{Path: t.Lit, Line: line, Col: col}), nil
+}
+
+func (p *Parser) parseImport() (ast.Stmt, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance()
+	p.skipNewlines()
+	t := p.cur()
+	if t.Type != token.STRING {
+		return nil, p.failf("IMPORT requires string package name")
+	}
+	p.advance()
+	return arena.Make(p.ar, ast.ImportNode{Package: t.Lit, Line: line, Col: col}), nil
 }

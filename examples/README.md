@@ -2,11 +2,23 @@
 
 Runnable sample programs. Work from the **repository root** so working-directory defaults (e.g. `rpg_save.json`) match the comments in each file.
 
+### New project (no clone required)
+
+If you have **`moonbasic`** from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest):
+
+```bash
+moonbasic new MyGame
+cd MyGame
+moonrun main.mb
+```
+
+To run the samples below, clone this repo or download the source ZIP — release archives do not include `examples/`.
+
 ---
 
 ## Run examples (compiled distribution only)
 
-Use the **official compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** — not `go run`, not a locally built `moonrun`. Extract the **full runtime** zip/tar.gz so you have **`moonbasic`** and **`moonrun`** next to each other.
+Use the **official compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** — not `go run`, not a locally built `moonrun`. Extract the **full runtime** zip/tar.gz so you have **`moonbasic`** and **`moonrun`** next to each other.
 
 1. Download and extract the **full runtime** archive for your OS (Windows or Linux x64).
 2. Get the **`examples/`** folder: **clone** this repo or **download the repository ZIP** from GitHub (release archives do not include `examples/`).
@@ -51,6 +63,8 @@ More: **[docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)** (including **Shi
 | [sphere_drop](sphere_drop/main.mb) | **Jolt `PHYSICS3D`**: click to spawn colored spheres on a platform, orbit camera, cull fallen balls (desktop full runtime; building from source on Windows may need [JOLT_WINDOWS_PARITY](../docs/JOLT_WINDOWS_PARITY.md)) |
 | [pong](pong/main.mb) | 2D rectangles + default-font HUD |
 | [platformer](platformer/main.mb) | Simple platform collision |
+| [tilemap](tilemap/README.md) | Tiled TMX load, draw, collision layer |
+| [gamepad](gamepad/README.md) | Controller axes + buttons |
 | [fps](fps/main.mb) | Top-down arena + moving targets |
 | [racing](racing/main.mb) | Top-down car + checkpoints / lap counter |
 | [rpg](rpg/main.mb) | Tile-style movement + JSON save on exit |

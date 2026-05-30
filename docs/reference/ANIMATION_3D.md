@@ -10,7 +10,9 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 **Model path (manual):** load with `MODEL.LOADANIMATIONS`, play with `MODEL.PLAYIDX`, advance with `MODEL.UPDATEANIM(dt)`.
 
-No built-in cross-fade — switching clips snaps to the new pose.
+**Cross-fade (dual-pose blend):** **`ENTITY.CROSSFADE(entity, nextIndex, durationSec)`** and **`ENTITY.TRANSITION(entity, name, durationSec)`** blend bone matrices between clips over **`durationSec`** seconds (software lerp — Raylib has no built-in clip cross-fade). Duration defaults to **0.1s** when zero or omitted.
+
+No built-in cross-fade before v1.3 — switching clips used to snap instantly.
 
 ---
 

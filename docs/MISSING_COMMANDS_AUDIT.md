@@ -7,7 +7,7 @@ These commands appear as string literals in `.Register("…")` but have no entry
 The compiler will reject .mb scripts that try to use them.
 
 
-## In Manifest but Missing from Runtime (339)
+## In Manifest but Missing from Runtime (337)
 These commands are declared in commands.json but have no runtime registration.
 Scripts compile but will fail at runtime with 'unknown command'.
 
@@ -189,8 +189,6 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `PARTICLE3D.SETVELOCITY`
 - `PARTICLE3D.STOP`
 - `PARTICLE3D.UPDATE`
-- `PHYSICS2D.ONCOLLISION`
-- `PHYSICS2D.PROCESSCOLLISIONS`
 - `PLAYER.GETVX`
 - `PLAYER.GETVY`
 - `PLAYER.GETVZ`

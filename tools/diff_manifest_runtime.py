@@ -1,6 +1,5 @@
 """Regenerate or verify manifest vs runtime Register() key lists and MISSING_COMMANDS_AUDIT.md.
 
-Cross-platform equivalent of tools/diff_keys.ps1 + audit_manifest.ps1 + extract_runtime_keys.ps1.
 Run from repo root:
 
   python tools/diff_manifest_runtime.py --write   # refresh docs/audit/*.txt + docs/MISSING_COMMANDS_AUDIT.md
@@ -22,7 +21,7 @@ MANIFEST_TXT = AUDIT_DIR / "manifest_keys.txt"
 RUNTIME_TXT = AUDIT_DIR / "runtime_keys.txt"
 MISSING_MD = ROOT / "docs" / "MISSING_COMMANDS_AUDIT.md"
 
-# Literal `.Register("KEY"` (same as extract_runtime_keys.ps1).
+# Literal `.Register("KEY"` scan (wide runtime key extraction).
 REGISTER_RE = re.compile(r'\.Register\("([^"]+)"')
 # Helpers that register two string keys without repeating `.Register("...")` in source.
 REG_FLAT = re.compile(r'regFlat\(\s*"([^"]+)"\s*,\s*"([^"]+)"')

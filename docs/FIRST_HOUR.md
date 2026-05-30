@@ -8,6 +8,18 @@ Welcome to the future of rapid game development. MoonBASIC is designed to be the
 
 MoonBASIC isn't your grandfather's BASIC. It's a high-performance, object-oriented engine designed for the modern era.
 
+### Your first project (30 seconds)
+
+After installing the **full runtime** from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest):
+
+```bash
+moonbasic new MyFirstGame
+cd MyFirstGame
+moonrun main.mb
+```
+
+You get a window, a starter loop, and an **`assets/`** folder. Open the folder in VS Code with the **`moonbasic-*-vscode.vsix`** extension for syntax, completions, and debugging.
+
 > [!IMPORTANT]
 > **Why MoonBASIC?**
 > - **Zero Boilerplate:** No complex project setup. One `.mb` file is a complete game.
@@ -41,6 +53,33 @@ WHILE isAlive
     ; The game loop runs here
 WEND
 ```
+
+### Modern syntax (2026)
+
+```basic
+; HUD text without concatenation
+PRINT($"Health: {hp}  Score: {score}")
+
+; Named state sets
+ENUM State
+    IDLE
+    WALK
+ENDENUM
+IF mode = State.WALK THEN ...
+
+; Return multiple values
+FUNCTION GetPos()
+    RETURN x, y, z
+ENDFUNCTION
+px, py, pz = GetPos()
+
+; Loop over an array
+FOR EACH enemy IN enemies
+    enemy.Update()
+NEXT
+```
+
+Full details: [LANGUAGE.md](LANGUAGE.md).
 
 ---
 

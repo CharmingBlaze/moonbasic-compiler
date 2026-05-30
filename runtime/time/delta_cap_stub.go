@@ -11,7 +11,7 @@ func applyDeltaCap(dt float64) float64 { return dt }
 
 func DeltaSeconds(rt *runtime.Runtime) float64 {
 	_ = rt
-	return 0
+	return applyLoopMode(0)
 }
 
 func registerDeltaCapCommands(reg runtime.Registrar) {

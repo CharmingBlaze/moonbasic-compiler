@@ -184,6 +184,8 @@ For cross-platform physics, start from [Physics 2D](reference/PHYSICS2D.md) inst
 |------|------|--------|
 | Pong | `examples/pong/main.mb` | Ball + paddles + score HUD (`DRAW.TEXT`) |
 | Platformer | `examples/platformer/main.mb` | Gravity, ground, one platform |
+| Tilemap | `examples/tilemap/main.mb` | Tiled TMX load, **`TILEMAP.DRAW`**, **`TILEMAP.ISSOLID`** — [TILEMAP.md](reference/TILEMAP.md) |
+| Gamepad | `examples/gamepad/main.mb` | Controller stick + **`INPUT.JOYDOWN`** — [INPUT.md](reference/INPUT.md) |
 | Arena | `examples/fps/main.mb` | WASD + oscillating targets + `TIME.GET` |
 | Racing | `examples/racing/main.mb` | Steer / accelerate + lap line |
 | Mini RPG | `examples/rpg/main.mb` | Move in a room, gold counter, `JSON` + `FILE` save on exit |

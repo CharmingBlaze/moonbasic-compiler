@@ -22,6 +22,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("FONT.LOADBDF", "font", stub("FONT.LOADBDF"))
 	r.Register("FONT.FREE", "font", stub("FONT.FREE"))
 	r.Register("FONT.DRAWDEFAULT", "font", stub("FONT.DRAWDEFAULT"))
+	m.registerJamHooks(r)
 }
 
 // Shutdown implements runtime.Module.

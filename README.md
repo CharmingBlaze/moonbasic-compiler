@@ -8,30 +8,36 @@
 
 ## Download and use (recommended)
 
-The **compiled distribution** ships only from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (Windows and Linux **x64**): official **`moonbasic`** / **`moonrun`** binaries — use these for play and compile; building the engine from source is optional.
+The **compiled distribution** ships only from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** (Windows and Linux **x64**): official **`moonbasic`** / **`moonrun`** binaries — use these for play and compile; building the engine from source is optional.
 
-**Optional static page** (direct archive links, no repo browser): [charmingblaze.github.io/moonbasic](https://charmingblaze.github.io/moonbasic/) — use **Releases** if that URL is not live yet. Setup: `.github/workflows/github-pages.yml`.
+**Optional static page** (direct archive links, no repo browser): [charmingblaze.github.io/moonbasic-compiler](https://charmingblaze.github.io/moonbasic-compiler/) — use **Releases** if that URL is not live yet. Setup: `.github/workflows/github-pages.yml`.
 
 | Your goal | Download (replace `<tag>` with the release, e.g. `v1.2.20`) |
 |-----------|-------------------------------------------------------------|
-| **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` |
+| **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
 | **Compile** `.mb` → `.mbc`, **`--check`**, **`--lsp`** only (CI, tooling, no game window) | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
-| **VS Code** (syntax + LSP for `.mb`) | **`moonbasic-<tag>-vscode.vsix`** — [install from VSIX](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) (same release as your binaries; no repo clone) |
+| **VS Code** (syntax + LSP + debugger) | **`moonbasic-<tag>-vscode.vsix`** — [install from VSIX](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) (same release as your binaries; no repo clone) |
 
 - **Full runtime** includes **`moonbasic`** + **`moonrun`** (+ `README-RELEASE.txt`). Use this if you want to play or develop games with a window.
 - **Compiler only** is a small folder with **`moonbasic`** only (no `moonrun`). Same command names for `--check` / compile / LSP as the full build — see **[`dist/README.md`](dist/README.md)** for the full picture.
 
-### First steps after you extract
+### First steps after you extract (full runtime)
 
-1. Open a terminal in the folder that contains **`moonbasic`** (on **compiler-only** builds, that is usually inside **`MoonBasic-compiler/`**).
-2. **Check it works:** `moonbasic --version` (on Windows: `moonbasic.exe --version`).
-3. **Lint a file:** `moonbasic --check path/to/game.mb`
-4. **Compile:** `moonbasic path/to/game.mb` → writes **`game.mbc`** next to the source.
-5. **Run a game** (full runtime only): `moonrun path/to/game.mb` or `moonrun path/to/game.mbc`
+**Use `moonrun` — one command to compile and play.** The full-runtime archive includes both `moonbasic` (compiler/LSP) and `moonrun` (game engine). For your first window you only need `moonrun`.
+
+**New project:** `moonbasic new MyGame` → `cd MyGame` → `moonrun main.mb` (creates `main.mb`, `assets/`, and VS Code debug config).
+
+1. Open a terminal in the folder that contains **`moonrun`** (and **`moonbasic`**) from the **full runtime** zip/tarball.
+2. **Check it works:** `moonrun --version` (Windows: `moonrun.exe --version`).
+3. **Run a game:** `moonrun path/to/game.mb` — compiles in-process if needed, then opens the engine window.
+4. **Optional — lint only:** `moonbasic --check path/to/game.mb` (no window).
+5. **Optional — compile to bytecode:** `moonbasic path/to/game.mb` → writes **`game.mbc`** next to the source.
+
+**Compiler-only** installs (CI/tooling) ship **`moonbasic`** without **`moonrun`** — use those for `--check`, `--lsp`, and `.mbc` output only; install the **full runtime** to run games with a window.
 
 **Release `moonrun` does not require Go, GCC, or Clang on your machine** — it compiles `.mb` in-process, then runs the engine. You may still need a normal GPU stack (Linux) or the [VC++ x64 redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist) on some Windows setups if a DLL is missing; see **`README-RELEASE.txt`** inside the full-runtime archive.
 
-**Editor:** run **`moonbasic --lsp`** and attach your LSP client (stdio). **VS Code:** download **`moonbasic-<tag>-vscode.vsix`** from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) and **Install from VSIX…** — [quick steps](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp). Repo contributors: [DEVELOPER.md — moonBASIC in VS Code](docs/DEVELOPER.md#moonbasic-in-vs-code) (workspace tasks).
+**Editor:** run **`moonbasic --lsp`** and attach your LSP client (stdio). **VS Code:** download **`moonbasic-<tag>-vscode.vsix`** from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest) and **Install from VSIX…** — [quick steps](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp). Repo contributors: [DEVELOPER.md — moonBASIC in VS Code](docs/DEVELOPER.md#moonbasic-in-vs-code) (workspace tasks).
 
 More detail on what each zip contains: **[`dist/README.md`](dist/README.md)** · step-by-step install, first window, and **how to ship your game to players**: **[`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)** (section **Ship your game**)
 
@@ -100,9 +106,12 @@ Full sample with grid and text: **[`examples/spin_cube`](examples/spin_cube/main
 
 | Document | What it covers |
 |----------|----------------|
-| [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | Install, first window, mental model |
+| [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | Install, first window, **`moonbasic new`**, debugging |
+| [docs/FIRST_HOUR.md](docs/FIRST_HOUR.md) | Friendly intro for beginners |
+| [docs/reference/MIGRATION.md](docs/reference/MIGRATION.md) | BlitzBASIC porting; compile-time stub list |
 | [docs/PROGRAMMING.md](docs/PROGRAMMING.md) | Game loop, modules, 2D/3D |
-| [docs/LANGUAGE.md](docs/LANGUAGE.md) | Variables, control flow, functions |
+| [docs/LANGUAGE.md](docs/LANGUAGE.md) | Variables, control flow, functions, **`$"..."`**, **`ENUM`**, multi-return |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Language roadmap — shipped vs planned |
 | [docs/COMMANDS.md](docs/COMMANDS.md) | Built-in command index |
 | [examples/README.md](examples/README.md) | Runnable sample programs |
 | [dist/README.md](dist/README.md) | Release artifacts explained |
@@ -134,7 +143,7 @@ The GitHub file tree is for **engine development**. End users who only download 
 Building from source requires **Go** and a **C toolchain**. Full graphical programs need the **`fullruntime`** build tag and **`moonrun`** (or **`moonbasic --run`** from a full-runtime build). See **[docs/BUILDING.md](docs/BUILDING.md)**, **[CONTRIBUTING.md](CONTRIBUTING.md)**, and **[AGENTS.md](AGENTS.md)**.
 
 ```bash
-git clone https://github.com/CharmingBlaze/moonbasic
+git clone https://github.com/CharmingBlaze/moonbasic-compiler
 cd moonbasic
 # Windows (example): set CGO_ENABLED=1 and a working gcc, then:
 go build -o moonbasic.exe .

@@ -42,6 +42,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITECOLLIDE", "sprite", stub("SPRITECOLLIDE"))
 	reg.Register("SPRITE.POINTHIT", "sprite", stub("SPRITE.POINTHIT"))
 	reg.Register("SPRITE.FREE", "sprite", stub("SPRITE.FREE"))
+	reg.Register("SPRITE.BUILTIN", "sprite", stub("SPRITE.BUILTIN"))
 	reg.Register("ATLAS.LOAD", "sprite", stub("ATLAS.LOAD"))
 	reg.Register("ATLAS.FREE", "sprite", stub("ATLAS.FREE"))
 	reg.Register("ATLAS.GETSPRITE", "sprite", stub("ATLAS.GETSPRITE"))

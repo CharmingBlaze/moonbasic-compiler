@@ -172,6 +172,7 @@ func (m *Module) tmLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err != nil {
 		return value.Nil, err
 	}
+	path = rt.ResolveAssetPath(path)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return value.Nil, fmt.Errorf("TILEMAP.LOAD: %w", err)

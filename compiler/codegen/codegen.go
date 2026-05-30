@@ -31,6 +31,8 @@ type CodeGen struct {
 	loopStack   []loopFrame
 	nextReg     uint8 // next available temporary register
 	baseReg     uint8 // start of temporary registers for the current statement
+	enumValues  map[string]int64 // STATE.IDLE -> 0
+	anonFnSeq   int              // synthetic names for FuncLitNode
 }
 
 // New creates a code generator.
@@ -45,10 +47,11 @@ func NewWithSymbols(file string, lines []string, symbols *symtable.Table) *CodeG
 		symbols = symtable.New()
 	}
 	return &CodeGen{
-		File:    file,
-		Lines:   lines,
-		Prog:    opcode.NewProgram(),
-		Symbols: symbols,
+		File:       file,
+		Lines:      lines,
+		Prog:       opcode.NewProgram(),
+		Symbols:    symbols,
+		enumValues: make(map[string]int64),
 	}
 }
 
@@ -124,6 +127,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 	}
 
 	// 2. Main program
+	g.collectAllEnums(tree)
 	g.loopStack = nil
 	g.baseReg = uint8(g.Symbols.NextLocal())
 	g.nextReg = g.baseReg

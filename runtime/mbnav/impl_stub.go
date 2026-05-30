@@ -171,6 +171,10 @@ func (m *Module) btAddCondition(args []value.Value) (value.Value, error) {
 func (m *Module) btAddAction(args []value.Value) (value.Value, error) {
 	return navStub("BTREE.ADDACTION")(args)
 }
+
+func (m *Module) btAddActionReg(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return m.btAddAction(args)
+}
 func (m *Module) btRun(args []value.Value) (value.Value, error) {
 	return navStub("BTREE.RUN")(args)
 }

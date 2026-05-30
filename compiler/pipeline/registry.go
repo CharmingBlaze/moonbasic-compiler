@@ -4,6 +4,7 @@ package pipeline
 
 import (
 	"strings"
+	"time"
 
 	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/drivers/video/null"
@@ -18,6 +19,8 @@ import (
 	mbcsv "moonbasic/runtime/csvmod"
 	mbdb "moonbasic/runtime/dbmod"
 	mbblitz "moonbasic/runtime/blitzengine"
+	mbasset "moonbasic/runtime/mbasset"
+	mbcoroutine "moonbasic/runtime/mbcoroutine"
 	mbdraw "moonbasic/runtime/draw"
 	mbfile "moonbasic/runtime/file"
 	mbfont "moonbasic/runtime/font"
@@ -115,6 +118,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbdata.NewModule())
 	reg.RegisterModule(mbrand.NewModule())
 	reg.RegisterModule(mbutil.NewModule())
+	reg.RegisterModule(mbasset.NewModule())
 	reg.RegisterModule(mbdraw.NewModule())
 	reg.RegisterModule(texture.NewModule())
 	reg.RegisterModule(mbimage.NewModule())
@@ -127,6 +131,8 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbpool.NewModule())
 	reg.RegisterModule(mbtween.NewModule())
 	reg.RegisterModule(mbevent.NewModule())
+	coMod := mbcoroutine.NewModule()
+	reg.RegisterModule(coMod)
 	reg.RegisterModule(mbnav.NewModule())
 	reg.RegisterModule(mbgrid.NewModule())
 	reg.RegisterModule(mblight2d.NewModule())
@@ -287,6 +293,7 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 	var tweenMod *mbtween.Module
 	var eventMod *mbevent.Module
 	var navMod *mbnav.Module
+	var coMod *mbcoroutine.Module
 
 	for _, m := range reg.Modules {
 		switch mod := m.(type) {
@@ -300,6 +307,8 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 			eventMod = mod
 		case *mbnav.Module:
 			navMod = mod
+		case *mbcoroutine.Module:
+			coMod = mod
 		}
 	}
 
@@ -328,6 +337,11 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 	if navMod != nil {
 		navMod.SetUserInvoker(machine.CallUserFunction)
 	}
+	if coMod != nil {
+		coMod.BindVM(machine)
+	}
+
+	wirePerFrameHooks(reg, machine)
 
 	// Dynamic wiring for optional modules
 	wirePhysicsCallbacks(reg, machine)
@@ -342,4 +356,30 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 	mbmatrix.SeedColorGlobals(h, machine.Globals)
 	texture.SeedTextureGlobals(machine.Globals)
 	mbgui.SeedGUIGlobals(machine.Globals)
+}
+
+func wirePerFrameHooks(reg *runtime.Registry, machine *vm.VM) {
+	var winMod *window.Module
+	var inputMod *input.Module
+	for _, m := range reg.Modules {
+		switch mod := m.(type) {
+		case *window.Module:
+			winMod = mod
+		case *input.Module:
+			inputMod = mod
+		}
+	}
+	if inputMod != nil {
+		inputMod.SetUserInvoker(machine.CallUserFunction)
+	}
+	if winMod == nil {
+		return
+	}
+	winMod.AppendFrameDrawHook(func() {
+		if inputMod != nil {
+			inputMod.PollGamepadEvents()
+		}
+		now := float64(time.Now().UnixNano()) / 1e9
+		machine.TickCoroutines(now)
+	})
 }

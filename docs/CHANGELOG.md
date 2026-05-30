@@ -4,6 +4,50 @@ This document tracks the recent development history of moonBASIC.
 
 ---
 
+## Unreleased (May 2026)
+
+### Language
+
+- **`$"..."` string interpolation** — `{expr}` and `{expr:fmt}` desugar to **`STR`** / **`FORMAT`** + concatenation. Documented in [LANGUAGE.md](LANGUAGE.md) and [STRING.md](reference/STRING.md).
+- **Multi-value `RETURN`** — `RETURN a, b, c` with **`x, y, z = fn()`** unpacking (1-based temporary array; no caller **`ERASE`**). Replaces the old “pack into **`DIM`** and **`ERASE`**” workaround as the preferred style in [LANGUAGE.md](LANGUAGE.md).
+- **`ENUM` … `ENDENUM`** — grouped integer constants; members as **`State.IDLE`** or **`STATE_IDLE`**. See [LANGUAGE.md](LANGUAGE.md).
+- **`FOR EACH var IN array … NEXT`** — array iteration.
+- **`FOR var = EACH(Type) … NEXT`** — iterate live **`NEW(Type)`** instances (VM type registry).
+- **`@FunctionName`** and anonymous **`FUNCTION() … ENDFUNCTION`** — first-class refs; **`cb(args)`** calls stored refs.
+- **`WINDOW.SETLOOPMODE(mode, hz)`** — variable / fixed / semi-fixed **`TIME.DELTA()`** behavior.
+- **`TIME.PHYSICSSTEPS()` / `TIME.PHYSICSSTEP()`** — fixed-step accumulator for multi-update physics loops.
+- **`INPUT.ONGAMEPAD(pad, @callback)`** — gamepad connect/disconnect events **`(padIndex, connected)`**.
+- **`TEXTURE.LOAD` / `TILEMAP.LOAD`** — paths resolved via **`ASSET.RESOLVE`**.
+- **Coroutine auto-tick** — **`COROUTINE.START`** coroutines resume each frame without a manual **`RESUME`** loop.
+- **`COROUTINE … ENDCOROUTINE`** block syntax — auto-starts a coroutine handle variable.
+- **`FUNCTION f(x AS FLOAT) AS INT`** — optional typed signatures with static arity/return checks and **variable type inference** across assignments and calls.
+- **`SPRITE.BUILTIN(name$)`** — game-jam placeholder sprites (`player`, `enemy`, `bullet`, …).
+- **Profiler function view** — wall time per user **`FUNCTION`** in **`--profile`** output.
+- **`SOUND.BUILTIN` / `FONT.BUILTIN`** — game-jam synthesized SFX and default font handle.
+- **`moonbasic playground`** — local compile-check web UI with **Run** (headless VM + `PRINT` output); bytecode preview (`web/playground/`).
+- **Default package registry** — `moonbasic install demo_extra` without `MOONBASIC_REGISTRY`.
+- **`examples/gamejam/`** — zero-asset jam demo.
+- **LSP function signatures** — hover + signature help for typed `FUNCTION` headers.
+- **Hosted registry fallback** — remote index URL with offline bundled fallback.
+- **Playground bytecode preview** — first lines of main chunk disassembly after compile.
+- **`EVENT.ON/OFF/ONCE`** — callbacks accept string or `@func` ref.
+- **Parser error recovery** — multiple syntax errors reported in one compile pass.
+- **`ASSET.PATH` / `ASSET.RESOLVE`** — asset paths relative to the `.mb` file; **`MODEL.LOAD`** uses resolution.
+- **`moonbasic pack game.mb`** — zip bundle with `.mbc` + `assets/` + bundled **`moonbasic`** executable (`-no-runtime` to omit).
+- **Profiler wall time** — **`--profile`** / **`--profile-out`** include milliseconds per source line.
+- **Command browser** — `web/command-browser.html` searchable API reference.
+- **Coroutines (initial)** — **`YIELD`**, **`COROUTINE.START/RESUME/WAIT/DONE`**.
+- **`IMPORT "package"`** — load packages from configured roots (`pkg/main.mb`, `pkg/index.mb`, or `pkg.mb`).
+
+### Examples and docs
+
+- **`examples/tilemap/`** — runnable Tiled map demo with collision layer.
+- **`examples/gamepad/`** — controller axes and buttons with **`GAMEPAD_*`** constants.
+- [ROADMAP.md](ROADMAP.md) — forward-looking feature tracker.
+- [TILEMAP.md](reference/TILEMAP.md) — corrected **`TILEMAP.DRAW`** arity (handle only).
+
+---
+
 ## Version 0.1 (April 2026)
 
 ### April 20, 2026 (release hygiene)

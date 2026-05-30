@@ -140,9 +140,13 @@ For a **custom** font, `Font.Load(path)` returns a handle; draw with **`DRAW.TEX
 
 - **`DIM a(10)`** — numeric array; indices `1` … `10`.
 - **`enemies AS Enemy(100)`** (preferred) or **`DIM enemies AS Enemy(100)`** (compatible) — typed array from **`TYPE` … `ENDTYPE`** (see [LANGUAGE.md](LANGUAGE.md)).
+- **`FOR EACH e IN arr … NEXT`** — iterate array elements without a manual index (see [LANGUAGE.md](LANGUAGE.md)).
 - Some builtins return **handles** to heap arrays (e.g. `MEASURETEXTEX`, `GUI.GETCOLOR`). Index with the same `arr(i)` syntax as `DIM` arrays.
 - **`arr.length`** returns the first dimension size (for multidimensional arrays this is dimension 1).
-- **Destructuring**: `a, b = expr` and `x, y, z = expr` unpack tuple-like array returns.
+- **Destructuring**: `a, b = expr` and `x, y, z = expr` unpack multi-value returns from user **`FUNCTION`**s and tuple-like builtin results.
+- **Multi-return functions**: `RETURN x, y, z` inside a **`FUNCTION`**, then `a, b, c = MyFunc()` at the call site — see [LANGUAGE.md](LANGUAGE.md).
+- **String interpolation**: `$"Score: {score}"` and `$"{hp:.1f}"` for HUD text — see [STRING.md](reference/STRING.md).
+- **Enums**: `ENUM State … ENDENUM` and `State.IDLE` — see [LANGUAGE.md](LANGUAGE.md).
 - Convenience tuple-return helpers:
   - **`VEC2.NORMALIZE(x, y)`** -> `(x, y)`
   - **`VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist)`** -> `(x, y)`

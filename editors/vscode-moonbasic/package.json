@@ -1,8 +1,8 @@
 {
   "name": "vscode-moonbasic",
   "displayName": "moonBASIC",
-  "description": "Syntax highlighting, snippets, and LSP for moonBASIC (.mb / .mbc).",
-  "version": "0.1.0",
+  "description": "Syntax highlighting, snippets, LSP, and debugger for moonBASIC (.mb / .mbc).",
+  "version": "0.2.0",
   "publisher": "moonbasic",
   "license": "MIT",
   "engines": {
@@ -49,13 +49,49 @@
           "type": "string",
           "default": "",
           "description": "Path to the moonbasic executable. When empty, the server is started as `moonbasic` from PATH."
+        },
+        "moonbasic.moonrunPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the moonrun executable for debugging. When empty, uses `moonrun` from PATH."
         }
       }
-    }
+    },
+    "debuggers": [
+      {
+        "type": "moonbasic",
+        "label": "moonBASIC",
+        "languages": ["moonbasic"],
+        "configurationAttributes": {
+          "launch": {
+            "required": ["program"],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Path to the .mb source file to debug",
+                "default": "${file}"
+              },
+              "moonrunPath": {
+                "type": "string",
+                "description": "Override moonrun executable path (defaults to moonbasic.moonrunPath setting)"
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "moonbasic",
+            "request": "launch",
+            "name": "Debug moonBASIC",
+            "program": "${file}"
+          }
+        ]
+      }
+    ]
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/CharmingBlaze/moonbasic.git",
+    "url": "https://github.com/CharmingBlaze/moonbasic-compiler.git",
     "directory": "editors/vscode-moonbasic"
   },
   "scripts": {
