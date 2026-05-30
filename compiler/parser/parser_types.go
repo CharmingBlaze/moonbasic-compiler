@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 
 	"moonbasic/compiler/arena"
@@ -9,46 +10,82 @@ import (
 	"moonbasic/compiler/token"
 )
 
-// parseFunctionDef parses: FUNCTION name(params) body ENDFUNCTION
-func (p *Parser) parseFunctionDef() (*ast.FunctionDef, error) {
-	line, col := p.cur().Line, p.cur().Col
-	p.advance() // consume FUNCTION
-	name, err := p.expectIdent()
-	if err != nil {
-		return nil, err
+func (p *Parser) parseTypeName() (string, error) {
+	p.skipNewlines()
+	switch p.cur().Type {
+	case token.FLOAT:
+		p.advance()
+		return "FLOAT", nil
+	case token.INT:
+		p.advance()
+		return "INTEGER", nil
+	case token.STRING:
+		p.advance()
+		return "STRING", nil
+	default:
+		name, err := p.expectIdent()
+		if err != nil {
+			return "", err
+		}
+		return strings.ToUpper(name), nil
 	}
-	if err := p.expect(token.LPAREN); err != nil {
-		return nil, err
-	}
+}
+
+func (p *Parser) parseParamList() ([]ast.Param, error) {
 	var params []ast.Param
 	p.skipNewlines()
-	if p.cur().Type != token.RPAREN {
-		for {
-			pname, err2 := p.expectIdent()
+	if p.cur().Type == token.RPAREN {
+		return params, nil
+	}
+	for {
+		pname, err := p.expectIdent()
+		if err != nil {
+			return nil, err
+		}
+		par := ast.Param{Name: pname}
+		if p.cur().Type == token.AS {
+			p.advance()
+			th, err2 := p.parseTypeName()
 			if err2 != nil {
 				return nil, err2
 			}
-			params = append(params, ast.Param{Name: pname})
-			p.skipNewlines()
-			if p.cur().Type == token.COMMA {
-				p.advance()
-				p.skipNewlines()
-				continue
-			}
-			break
+			par.TypeHint = th
 		}
+		params = append(params, par)
+		p.skipNewlines()
+		if p.cur().Type == token.COMMA {
+			p.advance()
+			p.skipNewlines()
+			continue
+		}
+		break
 	}
-	if err := p.expect(token.RPAREN); err != nil {
-		return nil, err
-	}
-	if p.cur().Type != token.NEWLINE {
-		return nil, p.failf("expected newline after FUNCTION header")
+	return params, nil
+}
+
+func (p *Parser) parseReturnTypes() ([]string, error) {
+	if p.cur().Type != token.AS {
+		return nil, nil
 	}
 	p.advance()
+	var types []string
+	for {
+		tn, err := p.parseTypeName()
+		if err != nil {
+			return nil, err
+		}
+		types = append(types, tn)
+		if p.cur().Type == token.COMMA {
+			p.advance()
+			p.skipNewlines()
+			continue
+		}
+		break
+	}
+	return types, nil
+}
 
-	// Enter a fresh scope for the function body.
-	// We preserve predeclared funcs/types for forward references.
-	savedSym := p.sym
+func (p *Parser) parseFunctionBody(savedSym *symtable.Table, name string, params []ast.Param) ([]ast.Stmt, error) {
 	p.sym = symtable.New()
 	for k := range savedSym.Funcs() {
 		p.sym.PredeclareFunction(k)
@@ -94,12 +131,125 @@ func (p *Parser) parseFunctionDef() (*ast.FunctionDef, error) {
 			}
 		}
 	}
-	p.advance() // consume ENDFUNCTION
+	p.advance() // ENDFUNCTION
 	p.sym.PopScope()
 	p.sym = savedSym
 	p.sym.DefineFunction(name)
+	return body, nil
+}
 
-	return arena.Make(p.ar, ast.FunctionDef{Name: name, Params: params, Body: body, Line: line, Col: col}), nil
+// parseFunctionDef parses: FUNCTION name(params) [AS rettype] body ENDFUNCTION
+func (p *Parser) parseFunctionDef() (*ast.FunctionDef, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance() // consume FUNCTION
+	name, err := p.expectIdent()
+	if err != nil {
+		return nil, err
+	}
+	if err := p.expect(token.LPAREN); err != nil {
+		return nil, err
+	}
+	params, err := p.parseParamList()
+	if err != nil {
+		return nil, err
+	}
+	if err := p.expect(token.RPAREN); err != nil {
+		return nil, err
+	}
+	returnTypes, err := p.parseReturnTypes()
+	if err != nil {
+		return nil, err
+	}
+	if p.cur().Type != token.NEWLINE {
+		return nil, p.failf("expected newline after FUNCTION header")
+	}
+	p.advance()
+
+	savedSym := p.sym
+	body, err := p.parseFunctionBody(savedSym, name, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return arena.Make(p.ar, ast.FunctionDef{
+		Name: name, Params: params, ReturnTypes: returnTypes, Body: body, Line: line, Col: col,
+	}), nil
+}
+
+// parseCoroutineDef parses: COROUTINE varName body ENDCOROUTINE
+// Lowers to a synthetic function plus varName = COROUTINE.START(@synthetic).
+func (p *Parser) parseCoroutineDef() (*ast.FunctionDef, ast.Stmt, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance() // COROUTINE
+	varName, err := p.expectIdent()
+	if err != nil {
+		return nil, nil, err
+	}
+	if p.cur().Type != token.NEWLINE {
+		return nil, nil, p.failf("expected newline after COROUTINE %s", varName)
+	}
+	p.advance()
+
+	internalName := fmt.Sprintf("__co_%s_%d", strings.ToLower(varName), line)
+	savedSym := p.sym
+
+	p.sym = symtable.New()
+	for k := range savedSym.Funcs() {
+		p.sym.PredeclareFunction(k)
+	}
+	for k := range savedSym.Types() {
+		p.sym.PredeclareType(k)
+	}
+	p.sym.PushScope()
+	p.sym.DefineFunction(internalName)
+
+	savedFn := p.FuncName
+	p.FuncName = strings.ToUpper(internalName)
+	defer func() { p.FuncName = savedFn }()
+
+	var body []ast.Stmt
+	for {
+		p.skipNewlines()
+		if p.cur().Type == token.ENDCOROUTINE {
+			break
+		}
+		if p.cur().Type == token.EOF {
+			return nil, nil, p.failf("unexpected EOF inside COROUTINE %s", varName)
+		}
+		s, err2 := p.parseStmt()
+		if err2 != nil {
+			return nil, nil, err2
+		}
+		if s != nil {
+			body = append(body, s)
+		}
+		for p.cur().Type == token.COLON {
+			p.advance()
+			p.skipNewlines()
+			s2, err3 := p.parseStmt()
+			if err3 != nil {
+				return nil, nil, err3
+			}
+			if s2 != nil {
+				body = append(body, s2)
+			}
+		}
+	}
+	p.advance() // ENDCOROUTINE
+	p.sym.PopScope()
+	p.sym = savedSym
+	p.sym.DefineFunction(internalName)
+
+	fn := arena.Make(p.ar, ast.FunctionDef{
+		Name: internalName, Body: body, Line: line, Col: col,
+	})
+	start := arena.Make(p.ar, ast.NamespaceCallExpr{
+		NS: "COROUTINE", Method: "START",
+		Args: []ast.Expr{arena.Make(p.ar, ast.FuncRefNode{Name: internalName, Line: line, Col: col})},
+		Line: line, Col: col,
+	})
+	assign := arena.Make(p.ar, ast.AssignNode{Name: varName, Expr: start, Line: line, Col: col})
+	return fn, assign, nil
 }
 
 // parseTypeDef parses: TYPE name FIELD ... ENDTYPE

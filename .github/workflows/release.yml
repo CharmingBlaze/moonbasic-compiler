@@ -101,6 +101,12 @@ jobs:
           tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
             -C dist moonbasic moonrun README-RELEASE.txt
 
+      - name: Build AppImage (optional tooling)
+        continue-on-error: true
+        run: |
+          chmod +x scripts/build_appimage.sh
+          ./scripts/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
+
       - uses: actions/upload-artifact@v5
         with:
           name: moonbasic-linux-amd64
@@ -182,6 +188,56 @@ jobs:
         with:
           name: moonbasic-windows-amd64
           path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
+
+  macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Install system dependencies
+        run: brew install enet cmake
+
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v5
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (macOS arm64)
+        env:
+          JOLT_SRC: ${{ github.workspace }}/JoltPhysics
+        run: |
+          set -e
+          cd third_party/jolt-go
+          chmod +x scripts/build-libs.sh
+          ./scripts/build-libs.sh darwin_arm64
+
+      - name: Build moonbasic + moonrun
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          set -e
+          mkdir -p dist
+          VER="${GITHUB_REF_NAME}"
+          LD="-s -w -X moonbasic/internal/version.Version=${VER}"
+          go build -trimpath -ldflags="${LD}" -o dist/moonbasic .
+          go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
+          cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Package (tar.gz)
+        run: |
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" \
+            -C dist moonbasic moonrun README-RELEASE.txt
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-macos-arm64
+          path: moonbasic-${{ github.ref_name }}-macos-arm64.tar.gz
 
   compiler-only-linux:
     runs-on: ubuntu-latest
@@ -267,7 +323,7 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-vscode.vsix
 
   github-release:
-    needs: [linux-amd64, windows-amd64, compiler-only-linux, compiler-only-windows, vscode-extension]
+    needs: [linux-amd64, windows-amd64, macos-arm64, compiler-only-linux, compiler-only-windows, vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -289,13 +345,15 @@ jobs:
           files: upload/*
           generate_release_notes: true
           body: |
-            **Builtin catalog:** The compiler always uses the full `commands.json` manifest — every release has the **same command names** for `--check`, `--lsp`, and `.mbc` output. See [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/dist/README.md) (“All commands”).
+            **Builtin catalog:** The compiler always uses the full `commands.json` manifest — every release has the **same command names** for `--check`, `--lsp`, and `.mbc` output. See [dist/README.md](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/dist/README.md) (“All commands”).
 
-            **Full runtime (run games — graphics, physics, audio):** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**.
+            **Full runtime (run games — graphics, physics, audio):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Use **`moonrun game.mb`** as the primary entry point.
 
             **Compiler only** (tooling / CI — `.mb` → `.mbc`, `--check`, `--lsp`, no engine DLLs beside `moonbasic`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
 
-            **VS Code** (optional): `moonbasic-<tag>-vscode.vsix` — install with **Extensions → … → Install from VSIX…**; point **`moonbasic.languageServerPath`** at your `moonbasic` / `moonbasic.exe` if it is not on `PATH`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
+            **VS Code** (optional): `moonbasic-<tag>-vscode.vsix` — syntax, LSP, and **debugger** (needs full-runtime **`moonrun`**). Install with **Extensions → … → Install from VSIX…**; set **`moonbasic.languageServerPath`** and **`moonbasic.moonrunPath`** if binaries are not on `PATH`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
+
+            **Scaffold a game:** `moonbasic new MyGame` then `moonrun main.mb` (full runtime or compiler + moonrun on PATH).
 
             | File | Contents |
             |------|----------|
@@ -303,6 +361,6 @@ jobs:
             | `moonrun` / `moonrun.exe` | Full runtime — run `.mb` / `.mbc` games |
             | `moonbasic-<tag>-vscode.vsix` | VS Code extension (grammar + LSP client) — optional |
 
-            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [Build from source](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/BUILDING.md) · [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/dist/README.md)
+            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md) · [Build from source](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/BUILDING.md) · [dist/README.md](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/dist/README.md)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

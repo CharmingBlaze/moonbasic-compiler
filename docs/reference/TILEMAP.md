@@ -31,13 +31,14 @@ Loads a Tiled `.tmx` map and its tileset texture.
 
 ---
 
-### `TILEMAP.DRAW(handle, ox, oy)`
-Renders the tilemap with a pixel offset (scrolling).
+### `TILEMAP.DRAW(handle)`
+Renders all tile layers at the map origin (no scroll offset parameter).
 
 - **Arguments**:
     - `handle`: (Handle) The tilemap.
-    - `ox, oy`: (Float) Pixel offsets.
 - **Returns**: (None)
+
+For a scrolling view, offset your player/sprites with **`Camera2D`**, draw the map, then draw entities in screen space — or keep the map small enough to fit the window. Runnable sample: [`examples/tilemap/main.mb`](../../examples/tilemap/main.mb).
 
 ---
 
@@ -60,61 +61,43 @@ Releases the tilemap and its texture from memory.
 
 ---
 
-## Full Example: Scrolling Platformer Map
+## Full Example
+
+See **[`examples/tilemap/main.mb`](../../examples/tilemap/main.mb)** (TMX + collision layer + player square). Minimal loop:
 
 ```basic
-WINDOW.OPEN(960, 540, "Tilemap Demo")
-WINDOW.SETFPS(60)
-
-map = TILEMAP.LOAD("assets/maps/level1.tmx")
-
-px = 100
-py = 100
-pvx = 0
-pvy = 0
-on_ground = 0
-TILE_SIZE = 16
+map = TILEMAP.LOAD("examples/tilemap/assets/level1.tmx")
+TILEMAP.SETTILESIZE(map, 16, 16)
 
 WHILE NOT WINDOW.SHOULDCLOSE()
-    dt = TIME.DELTA()
-
-    IF INPUT.KEYDOWN(KEY_A) THEN pvx = pvx - 400 * dt
-    IF INPUT.KEYDOWN(KEY_D) THEN pvx = pvx + 400 * dt
-    pvx = pvx * 0.85
-
-    IF on_ground AND INPUT.KEYPRESSED(KEY_SPACE) THEN pvy = -500
-
-    pvy = pvy + 900 * dt
-    px = px + pvx * dt
-    py = py + pvy * dt
-
-    on_ground = 0
-
-    tx = INT(px / TILE_SIZE)
-    ty = INT((py + 24) / TILE_SIZE)
-    IF TILEMAP.ISSOLID(map, tx, ty) THEN
-        py = ty * TILE_SIZE - 24
-        pvy = 0
-        on_ground = 1
+    ; move player, then:
+    tileX = INT(px / 16)
+    tileY = INT(py / 16)
+    IF NOT TILEMAP.ISSOLID(map, tileX, tileY) THEN
+        ; apply movement
     ENDIF
 
-    ty_top = INT((py - 16) / TILE_SIZE)
-    IF TILEMAP.ISSOLID(map, tx, ty_top) THEN
-        py = (ty_top + 1) * TILE_SIZE + 16
-        pvy = 0
-    ENDIF
-
-    cam_x = INT(px) - 480
-    cam_y = INT(py) - 270
-
-    RENDER.CLEAR(40, 60, 80)
-    TILEMAP.DRAW(map, -cam_x, -cam_y)
-    DRAW.RECTANGLE(INT(px) - cam_x - 8, INT(py) - cam_y - 16, 16, 28, 255, 200, 80, 255)
+    RENDER.CLEAR(20, 24, 32)
+    TILEMAP.DRAW(map)
+    DRAW.RECTANGLE(INT(px) - 6, INT(py) - 6, 12, 12, 255, 220, 80, 255)
     RENDER.FRAME()
 WEND
 
 TILEMAP.FREE(map)
-WINDOW.CLOSE()
+```
+
+### Platformer-style collision (manual)
+
+For jumping and floor snaps, sample tile coordinates from pixel position (same idea as a platformer):
+
+```basic
+tx = INT(px / TILE_SIZE)
+ty = INT((py + 24) / TILE_SIZE)
+IF TILEMAP.ISSOLID(map, tx, ty) THEN
+    py = ty * TILE_SIZE - 24
+    pvy = 0
+    on_ground = 1
+ENDIF
 ```
 
 ---
@@ -134,7 +117,7 @@ WINDOW.CLOSE()
 
 | Command | Description |
 |--------|-------------|
-| `TILEMAP.DRAWLAYER(map, layer, ox, oy)` | Draw a specific layer by index. |
+| `TILEMAP.DRAWLAYER(map, layerIndex)` | Draw a single layer by index (no scroll offset). |
 
 ### Collision
 

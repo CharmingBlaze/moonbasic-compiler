@@ -61,7 +61,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     
     RENDER.CLEAR(40, 44, 52)
     cam.BEGIN()
-    PHYSICS3D.DEBUGDRAW(1)
+    ; PHYSICS3D.DEBUGDRAW unavailable in this release — omit debug overlay
     ; UI info
     gnd = char.ISGROUNDED()
     IF gnd THEN

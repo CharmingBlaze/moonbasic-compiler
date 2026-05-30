@@ -129,11 +129,34 @@ func (b *Builder) collectGlobalFromStmt(stmt ast.Stmt) {
 		for _, st := range s.Body {
 			b.collectGlobalFromStmt(st)
 		}
-		// The loop variable itself is implicitly declared
 		loopVar := strings.ToUpper(s.Var)
 		if !b.Symbols.IsVar(loopVar) {
 			sym := b.Symbols.DefineGlobalVar(s.Var)
-			sym.Type = types.Int // FOR loop variables are always int
+			sym.Type = types.Int
+			sym.Persistent = true
+			b.implicitGlobals[loopVar] = true
+		}
+
+	case *ast.ForInStmt:
+		for _, st := range s.Body {
+			b.collectGlobalFromStmt(st)
+		}
+		loopVar := strings.ToUpper(s.Var)
+		if !b.Symbols.IsVar(loopVar) {
+			sym := b.Symbols.DefineGlobalVar(s.Var)
+			sym.Type = types.Float
+			sym.Persistent = true
+			b.implicitGlobals[loopVar] = true
+		}
+
+	case *ast.EachStmt:
+		for _, st := range s.Body {
+			b.collectGlobalFromStmt(st)
+		}
+		loopVar := strings.ToUpper(s.Var)
+		if !b.Symbols.IsVar(loopVar) {
+			sym := b.Symbols.DefineGlobalVar(s.Var)
+			sym.Type = types.Handle
 			sym.Persistent = true
 			b.implicitGlobals[loopVar] = true
 		}
@@ -248,11 +271,32 @@ func (b *Builder) collectLocalFromStmt(stmt ast.Stmt, funcName string) {
 		for _, st := range s.Body {
 			b.collectLocalFromStmt(st, funcName)
 		}
-		// Loop variable
 		loopVar := strings.ToUpper(s.Var)
 		if b.Symbols.Resolve(loopVar) == nil {
 			sym := b.Symbols.DefineLocal(s.Var)
 			sym.Type = types.Int
+			b.implicitLocals[funcName][loopVar] = true
+		}
+
+	case *ast.ForInStmt:
+		for _, st := range s.Body {
+			b.collectLocalFromStmt(st, funcName)
+		}
+		loopVar := strings.ToUpper(s.Var)
+		if b.Symbols.Resolve(loopVar) == nil {
+			sym := b.Symbols.DefineLocal(s.Var)
+			sym.Type = types.Float
+			b.implicitLocals[funcName][loopVar] = true
+		}
+
+	case *ast.EachStmt:
+		for _, st := range s.Body {
+			b.collectLocalFromStmt(st, funcName)
+		}
+		loopVar := strings.ToUpper(s.Var)
+		if b.Symbols.Resolve(loopVar) == nil {
+			sym := b.Symbols.DefineLocal(s.Var)
+			sym.Type = types.Handle
 			b.implicitLocals[funcName][loopVar] = true
 		}
 
@@ -328,6 +372,9 @@ func (b *Builder) inferFromExprImplicit(expr ast.Expr) types.Tag {
 
 	case *ast.CallExprNode:
 		return types.FromSuffix(e.Name)
+
+	case *ast.FuncRefNode, *ast.FuncLitNode:
+		return types.FuncRef
 
 	case *ast.UnaryNode:
 		return b.inferFromExprImplicit(e.Expr)

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"moonbasic/compiler/pipeline"
+	"moonbasic/dap"
 	"moonbasic/internal/driver"
 	"moonbasic/internal/version"
 	mbphysics3d "moonbasic/runtime/physics3d"
@@ -27,9 +28,10 @@ func init() {
 
 func main() {
 	var (
-		debug     = flag.Bool("info", false, "print runtime banner + bytecode disassembly")
-		trace     = flag.Bool("trace", false, "VM state trace")
-		showVer   = flag.Bool("version", false, "print version")
+		debug   = flag.Bool("info", false, "print runtime banner + bytecode disassembly")
+		trace   = flag.Bool("trace", false, "VM state trace")
+		showVer = flag.Bool("version", false, "print version")
+		dapMode = flag.Bool("dap", false, "run Debug Adapter Protocol on stdio (for VS Code)")
 	)
 
 	flag.Usage = func() {
@@ -37,6 +39,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage:\n")
 		fmt.Fprintf(os.Stderr, "  moonrun [flags] <file.mbc>        run MOON bytecode\n")
 		fmt.Fprintf(os.Stderr, "  moonrun [flags] <source.mb>       compile and run source\n")
+		fmt.Fprintf(os.Stderr, "  moonrun --dap                     debug adapter on stdio (VS Code)\n")
 		fmt.Fprintf(os.Stderr, "Flags:\n")
 		flag.PrintDefaults()
 	}
@@ -45,6 +48,14 @@ func main() {
 	if *showVer {
 		fmt.Printf("moonBASIC Engine %s\n", version.Version)
 		fmt.Fprintln(os.Stdout, "Runtime: raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3")
+		return
+	}
+
+	if *dapMode {
+		if err := dap.ServeStdio(); err != nil {
+			fmt.Fprintf(os.Stderr, "dap: %v\n", err)
+			os.Exit(1)
+		}
 		return
 	}
 

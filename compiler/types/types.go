@@ -14,12 +14,13 @@ const (
 	Array
 	Handle
 	UserType // For TYPE ... ENDTYPE definitions
+	FuncRef  // First-class @function reference
 )
 
 // String returns the human-readable name of the type.
 func (t Tag) String() string {
 	names := []string{
-		"unknown", "int", "float", "string", "bool", "array", "handle", "usertype",
+		"unknown", "int", "float", "string", "bool", "array", "handle", "usertype", "funcref",
 	}
 	if int(t) < len(names) {
 		return names[t]

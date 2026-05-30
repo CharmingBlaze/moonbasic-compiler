@@ -46,7 +46,9 @@ func (v *VM) doCallBuiltin(i opcode.Instruction) error {
 	}
 
 	// Call the native registry
+	v.Registry.ActiveChunkNames = frame.Chunk.Names
 	res, err := v.Registry.Call(name, args)
+	v.Registry.ActiveChunkNames = nil
 	if err != nil {
 		return v.runtimeError(err.Error())
 	}
@@ -76,6 +78,7 @@ func (v *VM) doCallUser(i opcode.Instruction) error {
 
 	// Push the new frame, saving i.Dst as the register to receive the result
 	v.CallStack.Push(targetChunk, 0, i.Dst)
+	v.profileEnterFunc(name)
 	newFrame := v.CallStack.Top()
 
 	// Parameters go into R0, R1, ... in the NEW frame
@@ -95,7 +98,11 @@ func (v *VM) doReturn(i opcode.Instruction) error {
 	}
 
 	// Exit the current frame
+	hadCaller := v.CallStack.Depth() > 1
 	oldFrame := v.CallStack.Pop()
+	if hadCaller {
+		v.profileLeaveFunc()
+	}
 	
 	// If there's a caller frame, set the return register
 	parent := v.CallStack.Top()

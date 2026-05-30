@@ -86,6 +86,12 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 	case *ast.CallStmtNode:
 		g.emitCallStmt(ch, n)
 
+	case *ast.CallRefStmt:
+		g.emitCallRefStmt(ch, n.Receiver, n.Args, n.Line, n.Col)
+
+	case *ast.YieldStmt:
+		ch.Emit(opcode.OpYield, 0, 0, 0, 0, n.Line)
+
 	case *ast.IfNode:
 		g.emitIf(ch, n)
 
@@ -192,13 +198,16 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 		ch.Emit(opcode.OpArraySet, valReg, arrReg, dimStart, int32(len(n.Index)), n.Line)
 
 	case *ast.ReturnNode:
-		g.nextReg = g.baseReg
-		if n.Expr != nil {
-			r := g.emitExpr(ch, n.Expr)
-			ch.Emit(opcode.OpReturn, 0, r, 0, 1, n.Line)
-		} else {
-			ch.Emit(opcode.OpReturnVoid, 0, 0, 0, 0, n.Line)
-		}
+		g.emitReturn(ch, n)
+
+	case *ast.EnumDeclNode:
+		g.emitEnumDecl(ch, n)
+
+	case *ast.ForInStmt:
+		g.emitForIn(ch, n)
+
+	case *ast.EachStmt:
+		g.emitEach(ch, n)
 
 	case *ast.EndProgramStmt:
 		ch.Emit(opcode.OpHalt, 0, 0, 0, 0, n.Line)

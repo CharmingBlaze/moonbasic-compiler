@@ -110,6 +110,12 @@ const (
 	OpEntityPropGet
 	// OpEntityPropSet: SrcA (EntityID), SrcB (Value), Operand (PropID)
 	OpEntityPropSet
+
+	// Function references (@MyFunc) and typed-object iteration (FOR x = EACH(Type))
+	OpPushFuncRef   // Dst = KindFunc; Operand = function name index in Chunk.Names
+	OpCallRef       // Flags = arg count; SrcA = func ref reg; SrcB = arg start reg
+	OpTypeInstances // Dst = handle array; Operand = TYPE name index in Chunk.Names
+	OpYield         // Suspend current coroutine (no operands)
 )
 
 // Instruction is a fixed-width VM decoded unit (8 bytes, IR v3).
@@ -143,6 +149,7 @@ func (op OpCode) String() string {
 		"NEW", "DELETE", "FIELD_GET", "FIELD_SET", "HALT",
 		"SWAP", "ARRAY_REDIM", "ARRAY_MAKE_TYPED", "NEW_FILLED", "ERASE_ALL",
 		"SYNC_PHYSICS", "ARRAY_LEN", "ENTITY_PROP_GET", "ENTITY_PROP_SET",
+		"PUSH_FUNC_REF", "CALL_REF", "TYPE_INSTANCES", "YIELD",
 	}
 	if int(op) < 0 || int(op) >= len(names) {
 		return fmt.Sprintf("OP_%d", int(op))

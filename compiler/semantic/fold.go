@@ -101,8 +101,8 @@ func foldStmt(s ast.Stmt) {
 			foldStmt(t)
 		}
 	case *ast.ReturnNode:
-		if n.Expr != nil {
-			n.Expr = foldExpr(n.Expr)
+		for i, e := range n.Exprs {
+			n.Exprs[i] = foldExpr(e)
 		}
 	case *ast.DimNode:
 		for i := range n.Dims {
@@ -121,6 +121,11 @@ func foldStmt(s ast.Stmt) {
 	case *ast.DeleteStmt:
 		n.Expr = foldExpr(n.Expr)
 	case *ast.EachStmt:
+		for _, t := range n.Body {
+			foldStmt(t)
+		}
+	case *ast.ForInStmt:
+		n.Array = foldExpr(n.Array)
 		for _, t := range n.Body {
 			foldStmt(t)
 		}

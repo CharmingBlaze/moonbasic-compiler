@@ -109,4 +109,5 @@ const (
 	TagKinematicBody
 	TagStaticBody
 	TagTriggerBody
+	TagCoroutine // COROUTINE.START handle
 )

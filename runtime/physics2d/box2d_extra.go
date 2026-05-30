@@ -76,6 +76,7 @@ func syncContactsAfterStep(m *Module) {
 		contact2d[ha] = coll2d{hit: true, other: hb, nx: nx, ny: ny, px: px, py: py}
 		contact2d[hb] = coll2d{hit: true, other: ha, nx: -nx, ny: -ny, px: px, py: py}
 	}
+	queueCollisionCallbacks2d(m)
 	if debug2dMode > 0 {
 		collectDebugSegments()
 	}

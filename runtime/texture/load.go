@@ -64,6 +64,7 @@ func (m *Module) texLoad(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	if err != nil {
 		return value.Nil, err
 	}
+	path = rt.ResolveAssetPath(path)
 	flags := int32(1)
 	if len(args) == 2 {
 		if fi, ok := args[1].ToInt(); ok {
@@ -129,6 +130,7 @@ func (m *Module) texLoadAsync(rt *runtime.Runtime, args ...value.Value) (value.V
 	if err != nil {
 		return value.Nil, err
 	}
+	path = rt.ResolveAssetPath(path)
 	obj := &TextureObject{isLoading: true}
 	obj.setFinalizer()
 	id, err := m.h.Alloc(obj)

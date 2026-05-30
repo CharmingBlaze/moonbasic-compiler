@@ -108,6 +108,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 
 	registerWallClock(reg)
 	registerDeltaCapCommands(reg)
+	registerLoopModeCommands(reg)
 	registerRaylibTiming(reg)
 	registerMilliSecs(m, reg)
 

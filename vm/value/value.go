@@ -27,6 +27,7 @@ const (
 	KindString
 	KindBool
 	KindHandle
+	KindFunc // @function reference (IVal = Chunk.Names index of lowercase function name)
 )
 
 // Value is the core tagged union (24 bytes on amd64).
@@ -67,6 +68,9 @@ func Int(v int64) Value       { return FromInt(v) }
 func Float(v float64) Value   { return FromFloat(v) }
 func Bool(v bool) Value       { return FromBool(v) }
 func Handle(h int32) Value    { return FromHandle(h) }
+func FuncRef(nameIdx int32) Value {
+	return Value{Kind: KindFunc, IVal: int64(nameIdx)}
+}
 
 // StringIndex returns the pool index for KindString, or 0 otherwise.
 func (v Value) StringIndex() int32 {
@@ -107,6 +111,8 @@ func Truthy(v Value, strPool []string, heap StringGetter) bool {
 		return StringAt(v, strPool, heap) != ""
 	case KindBool:
 		return v.IVal != 0
+	case KindFunc:
+		return true
 	default:
 		return false
 	}
@@ -135,6 +141,8 @@ func (v Value) String() string {
 		return "FALSE"
 	case KindHandle:
 		return fmt.Sprintf("<handle %d>", v.IVal)
+	case KindFunc:
+		return fmt.Sprintf("@func{%d}", int32(v.IVal))
 	default:
 		return "?"
 	}
@@ -155,6 +163,8 @@ func (v Value) TypeName() string {
 		return "BOOL"
 	case KindHandle:
 		return "HANDLE"
+	case KindFunc:
+		return "FUNC"
 	default:
 		return "UNKNOWN"
 	}

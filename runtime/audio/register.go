@@ -96,4 +96,5 @@ func (m *Module) Register(r runtime.Registrar) {
 	// Compound
 	r.Register("SOUND.FROMWAVE", "audio", runtime.AdaptLegacy(m.soundFromWave))
 	r.Register("SOUND.FREE", "audio", m.soundFree)
+	m.registerJamHooks(r)
 }

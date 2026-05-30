@@ -192,8 +192,8 @@ func (m *Module) twOnComplete(rt *runtime.Runtime, args ...value.Value) (value.V
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
-	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("TWEEN.ONCOMPLETE expects (tween, functionName$)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("TWEEN.ONCOMPLETE expects (tween, callback)")
 	}
 	o, err := m.getTween(args, 0, "TWEEN.ONCOMPLETE")
 	if err != nil {
@@ -202,13 +202,13 @@ func (m *Module) twOnComplete(rt *runtime.Runtime, args ...value.Value) (value.V
 	if o.running {
 		return value.Nil, fmt.Errorf("TWEEN.ONCOMPLETE: cannot change while running")
 	}
-	fn, err := rt.ArgString(args, 1)
+	fn, err := rt.ArgCallback(args, 1)
 	if err != nil {
 		return value.Nil, err
 	}
-	fn = strings.ToUpper(strings.TrimSpace(fn))
+	fn = strings.ToLower(strings.TrimSpace(fn))
 	if fn == "" {
-		return value.Nil, fmt.Errorf("TWEEN.ONCOMPLETE: empty function name")
+		return value.Nil, fmt.Errorf("TWEEN.ONCOMPLETE: empty callback")
 	}
 	o.onDone = fn
 	return args[0], nil

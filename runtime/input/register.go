@@ -65,6 +65,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("INPUT.SETMOUSEPOS", "input", runtime.AdaptLegacy(m.inSetMousePos))
 	r.Register("INPUT.CHARPRESSED", "input", runtime.AdaptLegacy(m.inCharPressed))
 	r.Register("INPUT.ISGAMEPADAVAILABLE", "input", runtime.AdaptLegacy(m.inIsGamepadAvailable))
+	r.Register("INPUT.GAMEPADCONNECTED", "input", runtime.AdaptLegacy(m.inIsGamepadAvailable))
+	r.Register("INPUT.ONGAMEPAD", "input", m.inOnGamepad)
 	r.Register("INPUT.GETGAMEPADAXISVALUE", "input", runtime.AdaptLegacy(m.inGetGamepadAxisValue))
 
 	// Gestures (gesture_cgo.go)

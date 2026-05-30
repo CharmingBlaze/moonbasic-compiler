@@ -100,6 +100,8 @@ func (l *Lexer) expandEndKeyword(startLine, startCol int) (token.Token, error) {
 		return token.Token{Type: token.ENDSELECT, Lit: internLit(l, "endselect"), Line: startLine, Col: startCol}, nil
 	case "TYPE":
 		return token.Token{Type: token.ENDTYPE, Lit: internLit(l, "endtype"), Line: startLine, Col: startCol}, nil
+	case "COROUTINE":
+		return token.Token{Type: token.ENDCOROUTINE, Lit: internLit(l, "endcoroutine"), Line: startLine, Col: startCol}, nil
 	default:
 		l.restore(saved)
 		return token.Token{Type: token.END, Lit: internLit(l, "end"), Line: startLine, Col: startCol}, nil

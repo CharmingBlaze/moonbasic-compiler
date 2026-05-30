@@ -5,7 +5,9 @@ package mbnav
 import (
 	"fmt"
 	"math"
+	"strings"
 
+	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
@@ -1205,24 +1207,35 @@ func (m *Module) btAddCondition(args []value.Value) (value.Value, error) {
 	return args[0], nil
 }
 
-func (m *Module) btAddAction(args []value.Value) (value.Value, error) {
+func (m *Module) btAddAction(rt *runtime.Runtime, args []value.Value) (value.Value, error) {
 	h, err := m.requireHeap()
 	if err != nil {
 		return value.Nil, err
 	}
-	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("BTREE.ADDACTION expects (btreeOrSeq, functionName$)")
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BTREE.ADDACTION expects (btreeOrSeq, callback)")
 	}
 	b, err := heap.Cast[*btObj](h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
-	fn := args[1].String()
+	fn, err := rt.ArgCallback(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	fn = strings.ToLower(strings.TrimSpace(fn))
+	if fn == "" {
+		return value.Nil, fmt.Errorf("BTREE.ADDACTION: empty callback")
+	}
 	if b.root == nil {
 		b.root = &btNode{kind: btKindSeq}
 	}
 	b.root.kids = append(b.root.kids, &btNode{kind: btKindAct, fn: fn})
 	return args[0], nil
+}
+
+func (m *Module) btAddActionReg(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return m.btAddAction(rt, args)
 }
 
 func tickBT(n *btNode, agent value.Value, inv func(string, []value.Value) (value.Value, error)) (bool, error) {

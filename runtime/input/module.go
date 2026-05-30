@@ -2,14 +2,16 @@
 package input
 
 import "moonbasic/vm/heap"
+import "moonbasic/vm/value"
 
 // Module registers INPUT.* handlers into the runtime Registry command map.
 type Module struct {
 	h *heap.Store
 	// Singleton handles for object-style MOUSE()/KEY()/GAMEPAD() facades.
 	mouseH, keyH, gamepadH heap.Handle
-	
+
 	lastInteraction float64
+	invoke          func(string, []value.Value) (value.Value, error)
 }
 
 // NewModule returns a new input module.

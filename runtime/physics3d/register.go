@@ -19,7 +19,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PHYSICS3D.SETTIMESTEP", "physics3d", runtime.AdaptLegacy(m.phSetTimeStep))
 	reg.Register("PHYSICS3D.GETMATRIXBUFFER", "physics3d", runtime.AdaptLegacy(m.phGetMatrixBuffer))
 	reg.Register("PHYSICS3D.SETSUBSTEPS", "physics3d", runtime.AdaptLegacy(m.phSetSubsteps))
-	reg.Register("PHYSICS3D.ONCOLLISION", "physics3d", runtime.AdaptLegacy(m.phOnCollision))
+	reg.Register("PHYSICS3D.ONCOLLISION", "physics3d", m.phOnCollision)
 	reg.Register("PHYSICS3D.PROCESSCOLLISIONS", "physics3d", runtime.AdaptLegacy(m.phProcessCollisions))
 	reg.Register("PHYSICS3D.RAYCAST", "physics3d", runtime.AdaptLegacy(m.phRaycast))
 	reg.Register("PHYSICS3D.SYNCWASMTOPHYSREGS", "physics3d", runtime.AdaptLegacy(m.phSyncWasmToPhysRegs))
@@ -175,11 +175,14 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("SETGRAVITY", "physics3d", runtime.AdaptLegacy(m.phSetGravity))
 }
 
-func (m *Module) phOnCollision(args []value.Value) (value.Value, error) {
-	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindHandle || args[2].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("PHYSICS3D.ONCOLLISION expects (handle, handle, string)")
+func (m *Module) phOnCollision(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("PHYSICS3D.ONCOLLISION expects (handle, handle, callback)")
 	}
-	cb := args[2].String()
+	cb, err := rt.ArgCallback(args, 2)
+	if err != nil {
+		return value.Nil, err
+	}
 	return phSetOnCollision(m, args[0], args[1], cb)
 }
 

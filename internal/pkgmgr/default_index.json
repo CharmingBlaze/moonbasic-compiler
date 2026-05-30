@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "demo_extra": {
+      "version": "0.1.0",
+      "url": "moonbasic-builtin://demo_extra",
+      "description": "Sample math helpers (Double, Triple) for package manager demos"
+    }
+  }
+}

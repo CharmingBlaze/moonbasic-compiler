@@ -77,6 +77,18 @@ NEXT i
 
 For multidimensional arrays, `.length` returns dimension 1 size.
 
+### `FOR EACH … IN`
+
+Prefer this when you only need each element, not the index:
+
+```basic
+FOR EACH e IN enemies
+    IF e.health <= 0 THEN ...
+NEXT
+```
+
+See [LANGUAGE.md](../LANGUAGE.md).
+
 ---
 
 ## Memory Management

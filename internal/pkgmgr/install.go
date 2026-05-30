@@ -43,6 +43,9 @@ func Install(target string, reg Registry) error {
 	if err != nil {
 		return err
 	}
+	if strings.HasPrefix(entry.URL, builtinURLPrefix) {
+		return installFromBuiltin(strings.TrimPrefix(entry.URL, builtinURLPrefix))
+	}
 	return installFromURL(entry.URL, entry.SHA256)
 }
 

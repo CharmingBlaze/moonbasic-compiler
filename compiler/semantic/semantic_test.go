@@ -191,3 +191,60 @@ func readReference(t *testing.T) string {
 	}
 	return string(b)
 }
+
+func TestUnavailableStubRejectedAtCompileTime(t *testing.T) {
+	src := "PHYSICS3D.DEBUGDRAW(1)\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	runErr := a.Run(prog)
+	if runErr == nil {
+		t.Fatal("expected compile error for stub command PHYSICS3D.DEBUGDRAW")
+	}
+	if !strings.Contains(runErr.Error(), "not yet available") {
+		t.Fatalf("unexpected error: %v", runErr)
+	}
+}
+
+func TestNamespaceShadowWarning(t *testing.T) {
+	src := "time = 0.0\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	if err := a.Run(prog); err != nil {
+		t.Fatal(err)
+	}
+	ws := a.Warnings()
+	if len(ws) == 0 {
+		t.Fatal("expected namespace shadow warning for variable time")
+	}
+	if !strings.Contains(ws[0].Message, "TIME") {
+		t.Fatalf("unexpected warning: %q", ws[0].Message)
+	}
+}
+
+func TestNotOrPrecedenceWarning(t *testing.T) {
+	src := "WHILE NOT INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE()\nWEND\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	if err := a.Run(prog); err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, w := range a.Warnings() {
+		if strings.Contains(w.Message, "NOT x OR y") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected NOT/OR precedence warning")
+	}
+}

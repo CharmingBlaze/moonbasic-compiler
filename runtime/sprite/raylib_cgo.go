@@ -145,6 +145,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	m.registerAtlas(reg)
 	m.registerAnim(reg)
 	m.registerSpriteExtras(reg)
+	registerJamCommands(reg, m)
 }
 
 func (m *Module) spFree(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

@@ -19,12 +19,18 @@ func registerPhysicsModules(reg *runtime.Registry) {
 }
 
 func wirePhysicsCallbacks(reg *runtime.Registry, machine *vm.VM) {
+	var p2 *mbphysics2d.Module
 	var p3 *mbphysics3d.Module
 	for _, m := range reg.Modules {
+		if mod, ok := m.(*mbphysics2d.Module); ok {
+			p2 = mod
+		}
 		if mod, ok := m.(*mbphysics3d.Module); ok {
 			p3 = mod
-			break
 		}
+	}
+	if p2 != nil {
+		p2.SetUserInvoker(machine.CallUserFunction)
 	}
 	if p3 != nil {
 		p3.SetUserInvoker(machine.CallUserFunction)

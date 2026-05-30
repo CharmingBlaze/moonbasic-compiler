@@ -60,7 +60,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     
     RENDER.CLEAR(40, 44, 52)
     cam.BEGIN()
-    PHYSICS3D.DEBUGDRAW(1)
+    ; PHYSICS3D.DEBUGDRAW unavailable in this release — omit debug overlay
     ; Water indicator
     IF py < 2 THEN
         DRAW.RECTANGLE(0, 0, 1280, 720, 0, 80, 255, 51)

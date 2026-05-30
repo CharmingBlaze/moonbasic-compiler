@@ -35,5 +35,4 @@ debug_output*.txt
 output.txt
 moonbasic.exe~
 test_error.mb
-scratch/render_test.mb
 editors/vscode-moonbasic/vscode-moonbasic-*.vsix

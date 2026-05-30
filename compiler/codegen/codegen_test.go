@@ -93,3 +93,66 @@ func TestImplicitGlobalSelfAssignUsesLoadStoreGlobal(t *testing.T) {
 		t.Fatalf("expected at least 1 LOAD_GLOBAL (x+1 rhs) and 2 STORE_GLOBAL (x=0, x=x+1), loads=%d stores=%d\n%s", loads, stores, d)
 	}
 }
+
+func TestCompileRoadmapFeatures(t *testing.T) {
+	src := "ENUM State\nIDLE\nWALK\nENDENUM\nDIM xs(2)\nxs(1) = 10\nFUNCTION Pair()\nRETURN 1, 2\nENDFUNCTION\na, b = Pair()\nFOR EACH v IN xs\nPRINT(v)\nNEXT\nPRINT(State.WALK)\n"
+	lines := parser.SplitLines(src)
+	tree, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	g := New("t.mb", lines)
+	out, err := g.Compile(tree)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := out.Main.Disassemble()
+	for _, want := range []string{"ARRAY_LEN", "ARRAY_GET", "ARRAY_MAKE"} {
+		if !strings.Contains(d, want) {
+			t.Fatalf("disassembly missing %s:\n%s", want, d)
+		}
+	}
+}
+
+func TestCompileFuncRefAndEachType(t *testing.T) {
+	src := "TYPE Enemy\nFIELD hp\nENDTYPE\nFUNCTION OnHit(a, b)\nENDFUNCTION\nFUNCTION Main()\nPHYSICS3D.ONCOLLISION(0, 0, @OnHit)\nFOR e = EACH(Enemy)\nDELETE e\nNEXT\nENDFUNCTION\n"
+	lines := parser.SplitLines(src)
+	tree, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	g := New("t.mb", lines)
+	out, err := g.Compile(tree)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := out.Functions["main"].Disassemble()
+	for _, want := range []string{"PUSH_FUNC_REF", "TYPE_INSTANCES", "ARRAY_GET"} {
+		if !strings.Contains(d, want) {
+			t.Fatalf("disassembly missing %s:\n%s", want, d)
+		}
+	}
+}
+
+func TestCompileFuncLitAndCallRef(t *testing.T) {
+	src := "FUNCTION Main()\ncb = FUNCTION(x)\nRETURN x + 1\nENDFUNCTION\ny = cb(2)\nENDFUNCTION\n"
+	lines := parser.SplitLines(src)
+	tree, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	g := New("t.mb", lines)
+	out, err := g.Compile(tree)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := out.Functions["main"].Disassemble()
+	for _, want := range []string{"PUSH_FUNC_REF", "CALL_REF"} {
+		if !strings.Contains(d, want) {
+			t.Fatalf("disassembly missing %s:\n%s", want, d)
+		}
+	}
+	if _, ok := out.Functions["__anon_1"]; !ok {
+		t.Fatal("expected synthetic __anon_1 function chunk")
+	}
+}

@@ -63,6 +63,6 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("BTREE.FREE", "btree", runtime.AdaptLegacy(m.btFree))
 	reg.Register("BTREE.SEQUENCE", "btree", runtime.AdaptLegacy(m.btSequence))
 	reg.Register("BTREE.ADDCONDITION", "btree", runtime.AdaptLegacy(m.btAddCondition))
-	reg.Register("BTREE.ADDACTION", "btree", runtime.AdaptLegacy(m.btAddAction))
+	reg.Register("BTREE.ADDACTION", "btree", m.btAddActionReg)
 	reg.Register("BTREE.RUN", "btree", runtime.AdaptLegacy(m.btRun))
 }

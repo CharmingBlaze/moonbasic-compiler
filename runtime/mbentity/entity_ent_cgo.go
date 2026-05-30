@@ -103,6 +103,13 @@ type entExt struct {
 	animClip0  int32
 	animClip1  int32
 
+	// Skeletal cross-fade (dual-pose blend between clips).
+	animBlendFrom     int32
+	animBlendFromTime float32
+	animBlendT        float32
+	animBlendDur      float32
+	blendBoneScratch  []rl.Matrix
+
 	// Bone / Attachment Data
 	boneHostID     int64
 	boneIndex      int32

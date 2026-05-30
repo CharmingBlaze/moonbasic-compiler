@@ -217,9 +217,12 @@ func (p *Parser) parsePostfixChain(base ast.Expr) (ast.Expr, error) {
 				return nil, err
 			}
 			if id, ok := base.(*ast.IdentNode); ok {
-				if openBracket || (p.sym.IsVar(id.Name) && !p.sym.IsFunction(id.Name)) {
+				switch {
+				case p.sym.IsFuncRef(id.Name):
+					base = arena.Make(p.ar, ast.CallRefExpr{Receiver: base, Args: args, Line: id.Line, Col: id.Col})
+				case openBracket || (p.sym.IsVar(id.Name) && !p.sym.IsFunction(id.Name)):
 					base = arena.Make(p.ar, ast.IndexExpr{Base: id, Index: args, Line: id.Line, Col: id.Col})
-				} else {
+				default:
 					base = arena.Make(p.ar, ast.CallExprNode{Name: id.Name, Args: args, Line: id.Line, Col: id.Col})
 				}
 			} else {
@@ -286,6 +289,9 @@ func (p *Parser) parsePrimary() (ast.Expr, error) {
 	case token.STRING:
 		p.advance()
 		return arena.Make(p.ar, ast.StringLitNode{Value: t.Lit, Line: t.Line, Col: t.Col}), nil
+	case token.INTERP_STRING:
+		p.advance()
+		return p.parseInterpString(t.Lit, t.Line, t.Col)
 	case token.TRUE:
 		p.advance()
 		return arena.Make(p.ar, ast.BoolLitNode{Value: true, Line: t.Line, Col: t.Col}), nil
@@ -295,6 +301,15 @@ func (p *Parser) parsePrimary() (ast.Expr, error) {
 	case token.NULL:
 		p.advance()
 		return arena.Make(p.ar, ast.NullLitNode{Line: t.Line, Col: t.Col}), nil
+	case token.AT:
+		p.advance()
+		name, err := p.expectIdent()
+		if err != nil {
+			return nil, err
+		}
+		return arena.Make(p.ar, ast.FuncRefNode{Name: name, Line: t.Line, Col: t.Col}), nil
+	case token.FUNCTION:
+		return p.parseFuncLit(t.Line, t.Col)
 	case token.NEW:
 		p.advance()
 		if err := p.expect(token.LPAREN); err != nil {

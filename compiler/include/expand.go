@@ -59,55 +59,78 @@ func expandProgram(hostAbs string, prog *ast.Program, stack []string, seen map[s
 func expandStmtSlice(hostAbs string, stmts []ast.Stmt, stack []string, seen map[string]struct{}, prefT *[]*ast.TypeDef, prefF *[]*ast.FunctionDef, ar *arena.Arena) ([]ast.Stmt, error) {
 	var out []ast.Stmt
 	for _, s := range stmts {
-		inc, ok := s.(*ast.IncludeNode)
-		if !ok {
-			out = append(out, s)
-			continue
-		}
-		childPath, err := Resolve(hostAbs, inc.Path)
-		if err != nil {
-			return nil, err
-		}
-		childAbs, err := filepath.Abs(childPath)
-		if err != nil {
-			return nil, err
-		}
-
-		data, err := os.ReadFile(childPath)
-		childAbsFinal := childAbs
-		if err != nil {
-			altPath, altData, altErr := TryOpenInclude(inc.Path)
-			if altErr != nil {
-				return nil, fmt.Errorf("INCLUDE %q: %w", inc.Path, err)
-			}
-			childPath = altPath
-			childAbsFinal, err = filepath.Abs(altPath)
+		var childPath string
+		var err error
+		switch n := s.(type) {
+		case *ast.IncludeNode:
+			childPath, err = Resolve(hostAbs, n.Path)
 			if err != nil {
 				return nil, err
 			}
-			data = altData
-		}
-		if stackContains(stack, childAbsFinal) {
-			return nil, fmt.Errorf("[moonBASIC] Error: circular INCLUDE detected: %s", formatCircularChain(stack, childAbsFinal))
-		}
-		if _, already := seen[childAbsFinal]; already {
-			// Include-guard: same file requested again (e.g. multiple modules INCLUDE "game.mb").
-			// Skip re-parse and re-merge — statements were inlined on first occurrence.
+			merged, err := mergeIncludedFile(childPath, n.Path, stack, seen, prefT, prefF, ar)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, merged...)
+			continue
+		case *ast.ImportNode:
+			childPath, err = ResolvePackage(n.Package)
+			if err != nil {
+				return nil, fmt.Errorf("IMPORT %q: %w", n.Package, err)
+			}
+		default:
+			out = append(out, s)
 			continue
 		}
-		seen[childAbsFinal] = struct{}{}
-
-		sub, err := parser.ParseSourceWithArena(childPath, string(data), ar)
+		merged, err := mergeIncludedFile(childPath, "", stack, seen, prefT, prefF, ar)
 		if err != nil {
 			return nil, err
 		}
-		sub, err = expandProgram(childAbsFinal, sub, stack, seen, ar)
-		if err != nil {
-			return nil, err
-		}
-		*prefT = append(*prefT, sub.Types...)
-		*prefF = append(*prefF, sub.Functions...)
-		out = append(out, sub.Stmts...)
+		out = append(out, merged...)
 	}
 	return out, nil
+}
+
+func mergeIncludedFile(childPath, altIncludePath string, stack []string, seen map[string]struct{}, prefT *[]*ast.TypeDef, prefF *[]*ast.FunctionDef, ar *arena.Arena) ([]ast.Stmt, error) {
+	childAbs, err := filepath.Abs(childPath)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(childPath)
+	childAbsFinal := childAbs
+	if err != nil {
+		if altIncludePath == "" {
+			return nil, fmt.Errorf("include %q: %w", childPath, err)
+		}
+		altPath, altData, altErr := TryOpenInclude(altIncludePath)
+		if altErr != nil {
+			return nil, fmt.Errorf("INCLUDE %q: %w", altIncludePath, err)
+		}
+		childPath = altPath
+		childAbsFinal, err = filepath.Abs(altPath)
+		if err != nil {
+			return nil, err
+		}
+		data = altData
+	}
+	if stackContains(stack, childAbsFinal) {
+		return nil, fmt.Errorf("[moonBASIC] Error: circular INCLUDE detected: %s", formatCircularChain(stack, childAbsFinal))
+	}
+	if _, already := seen[childAbsFinal]; already {
+		return nil, nil
+	}
+	seen[childAbsFinal] = struct{}{}
+
+	sub, err := parser.ParseSourceWithArena(childPath, string(data), ar)
+	if err != nil {
+		return nil, err
+	}
+	sub, err = expandProgram(childAbsFinal, sub, stack, seen, ar)
+	if err != nil {
+		return nil, err
+	}
+	*prefT = append(*prefT, sub.Types...)
+	*prefF = append(*prefF, sub.Functions...)
+	return sub.Stmts, nil
 }

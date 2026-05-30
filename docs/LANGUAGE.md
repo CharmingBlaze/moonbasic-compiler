@@ -66,6 +66,43 @@ Read and write fields with **dot notation** on an indexed element: `arr(i).field
 
 **`ERASE ALL`** (the identifier **`ALL`**, case-insensitive) frees **every** VM heap object (arrays, cameras, textures, models, etc.), then sets **all** global and operand-stack values that held a handle to **null**. Equivalent callable form: **`FREE.ALL`**. Use at shutdown or scene resets — not in the middle of an expression. Does **not** replace **`ENTITY.CLEARSCENE`** / **`ENTITY.FREE`** for numeric entity IDs. Avoid naming a variable **`ALL`** if you need per-variable **`ERASE`**. Details: [MEMORY.md](MEMORY.md).
 
+### Constants and enums
+
+**`CONST`** declares a compile-time constant at module scope:
+
+```basic
+CONST MAX_HP = 100
+```
+
+**`ENUM`** groups related integer constants that auto-increment from `0`:
+
+```basic
+ENUM State
+    IDLE
+    WALK
+    RUN
+    JUMP
+ENDENUM
+
+IF playerState = State.IDLE THEN ...
+```
+
+Each member becomes a global constant named **`EnumName_MEMBER`** (for example **`STATE_IDLE`**, **`STATE_WALK`**). You can also read members as **`State.IDLE`**, **`State.WALK`**, and so on — the compiler resolves these to the same integer values.
+
+### String interpolation
+
+Use **`$"..."`** for inline expressions in string literals (similar to C# / Swift):
+
+```basic
+PRINT($"Score: {score}  Health: {hp}")
+PRINT($"Angle: {yaw:.2f}")
+```
+
+- **`{expr}`** is converted with **`STR(expr)`** and concatenated.
+- **`{expr:fmt}`** uses **`FORMAT(expr, "%fmt")`** (for example **`{hp:.1f}`**).
+
+This is compile-time desugaring — no new runtime opcode. For positional placeholders, **`STRING.INTERP("Hi {0}", name)`** still works; see [STRING.md](reference/STRING.md).
+
 ---
 
 ## Control Flow
@@ -116,6 +153,35 @@ FOR i = 10 TO 1 STEP -2
     PRINT i
 NEXT
 ```
+
+### FOR EACH … IN
+
+Iterate every element of a **`DIM`** array (1-based indices internally):
+
+```basic
+DIM enemies(10)
+FOR EACH e IN enemies
+    IF e.hp <= 0 THEN ENTITY.FREE(e.mesh)
+NEXT
+```
+
+The loop variable **`e`** is assigned each element in order. This works with typed arrays (`DIM arr AS Type(n)`) and untyped numeric arrays.
+
+### FOR … = EACH(Type)
+
+Iterate every live **`NEW(Type)`** instance (tracked by the VM at runtime):
+
+```basic
+TYPE Enemy
+    FIELD hp
+ENDTYPE
+
+FOR e = EACH(Enemy)
+    IF e.hp <= 0 THEN DELETE e
+NEXT
+```
+
+The loop variable is a handle to each instance. Instances are registered when created with **`NEW`** and removed when **`DELETE`**d.
 
 ### WHILE / WEND
 
@@ -195,31 +261,109 @@ PRINT result ; Outputs 15
 
 Use the `RETURN` keyword to send a value back from a function. The type of the returned value is determined by the value itself (e.g., `RETURN 5` returns an integer, `RETURN "hello"` returns a string).
 
-### Multiple results with a float array
+### Multiple return values
 
-There is no multi-value `RETURN` tuple yet. For landing on a box top from a sphere, **`BOXTOPLAND`** returns a **single float** (landing centre Y or `0.0`) — see [GAMEHELPERS.md](reference/GAMEHELPERS.md). For other cases where you need two or more numbers, pack them into a **small array** and return that handle. The caller reads `result(0)`, `result(1)`, then **`ERASE(result)`** when done.
+Return several values with a comma-separated **`RETURN`**, then unpack them with comma-separated assignment:
 
 ```basic
-FUNCTION PlatformSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
-    DIM r(2)
-    r(0) = 0.0
-    r(1) = py
-    landY = BOXTOPLAND(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
-    IF landY > 0.0 THEN
-        r(0) = 1.0
-        r(1) = landY
-    ENDIF
-    RETURN r
+FUNCTION GetPlayerPos()
+    RETURN px, py, pz
 ENDFUNCTION
 
-h = PlatformSnap(px, py, pz, pvy, pr, 0.0, 1.5, 6.0, 4.0, 0.4, 4.0)
-IF h(0) THEN
-    py = h(1)
-ENDIF
-ERASE h
+x, y, z = GetPlayerPos()
+```
+
+The compiler packs multiple values into a temporary **1-based array** for the caller; **`a, b, c = expr`** unpacks that array into separate variables. You do **not** need to **`ERASE`** the temporary — only **`ERASE`** handles you explicitly stored in a **`DIM`** variable.
+
+For helpers that still return a **single float** (for example **`BOXTOPLAND`**), assign to one variable — see [GAMEHELPERS.md](reference/GAMEHELPERS.md).
+
+**Legacy pattern (still valid):** return a **`DIM`** array handle yourself when you need a long-lived tuple on the heap:
+
+```basic
+FUNCTION PlatformSnap(...)
+    DIM r(2)
+    r(0) = 1.0
+    r(1) = landY
+    RETURN r
+ENDFUNCTION
+h = PlatformSnap(...)
+; read h(1), then ERASE h when done
 ```
 
 Use **`LOCAL`** inside `FUNCTION` for temporaries so names do not collide with globals.
+
+### Function references
+
+Pass callbacks without fragile string names using **`@FunctionName`** or an anonymous function literal:
+
+```basic
+FUNCTION OnHit(a, b)
+    PRINT "hit!"
+ENDFUNCTION
+
+PHYSICS3D.ONCOLLISION(bodyA, bodyB, @OnHit)
+TWEEN.ONCOMPLETE(tw, @OnDone)
+
+; Anonymous callback
+onHit = FUNCTION(a, b)
+    PRINT "hit!"
+ENDFUNCTION
+
+; Call a stored reference
+cb = @OnHit
+cb(bodyA, bodyB)
+```
+
+The compiler emits a first-class function-reference value (`KindFunc`). APIs that accept callbacks accept either a **string name** (legacy) or **`@func`** / a **`FUNCTION() … ENDFUNCTION`** expression assigned to a variable.
+
+### Coroutines
+
+Use block syntax or **`COROUTINE.START`**:
+
+```basic
+COROUTINE patrol
+    WHILE TRUE
+        PRINT "step"
+        COROUTINE.WAIT(1.0)
+        YIELD
+    WEND
+ENDCOROUTINE
+
+; patrol handle is started automatically; resumes each frame
+```
+
+Or the explicit form:
+
+```basic
+FUNCTION Patrol()
+    WHILE TRUE
+        PRINT "step"
+        COROUTINE.WAIT(1.0)
+        YIELD
+    WEND
+ENDFUNCTION
+
+co = COROUTINE.START(@Patrol)
+```
+
+### Typed function signatures (optional)
+
+Add **`AS type`** on parameters and return values for compile-time checks:
+
+```basic
+FUNCTION Add(a AS FLOAT, b AS FLOAT) AS FLOAT
+    RETURN a + b
+ENDFUNCTION
+```
+
+Supported types: **`INTEGER`**, **`FLOAT`**, **`STRING`**, **`BOOL`**, or a user **`TYPE`** name. Multi-return: **`AS INT, INT`**.
+
+Set asset roots before loading files:
+
+```basic
+ASSET.PATH("assets/")
+model = MODEL.LOAD("player.glb")
+```
 
 ### Exiting Functions
 
@@ -237,8 +381,10 @@ ENDFUNCTION
 
 ---
 
-## INCLUDE (splitting programs across files)
+## INCLUDE and IMPORT (splitting programs across files)
 
 **`INCLUDE "path.mb"`** merges another **`.mb`** file at **compile time** (not **`.md`** — docs under `docs/` are reference only). Full behavior: path resolution, include-once, cycles, shared globals/functions, and **`MOONBASIC_PATH`**: see the WAVE reference **[INCLUDE.md](reference/INCLUDE.md)**.
+
+**`IMPORT "package"`** loads a package entry file from configured package roots (for example `physics_helper/main.mb`). Search paths are set via **`MOONBASIC_PKG`** / **`SetPackageRoots`** — same infrastructure as shared libraries. Use **`INCLUDE`** for files next to your game; use **`IMPORT`** for reusable packages installed under a packages folder. See [ROADMAP.md](ROADMAP.md) for the full package manifest story.
 
 Quick facts: case-insensitive keyword; paths resolve relative to the **including** file, then optional package roots; duplicate includes of the same file are skipped; circular includes error at compile time; **no** per-frame runtime cost (merge is compile-time only).

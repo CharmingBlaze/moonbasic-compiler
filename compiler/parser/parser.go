@@ -11,6 +11,7 @@ import (
 	"moonbasic/compiler/errors"
 	"moonbasic/compiler/symtable"
 	"moonbasic/compiler/token"
+	"moonbasic/compiler/types"
 )
 
 // Parser consumes a token slice produced by the lexer.
@@ -24,6 +25,7 @@ type Parser struct {
 	ar      *arena.Arena
 	// FuncName is the enclosing FUNCTION name (canonical lowercase from lexer), or "" at module scope.
 	FuncName string
+	errs     []error
 }
 
 // NewParser creates a parser. lines are raw source lines for error context (1-based indexing optional).
@@ -56,19 +58,30 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 		case token.FUNCTION:
 			f, err := p.parseFunctionDef()
 			if err != nil {
-				return nil, err
+				p.syncStatement()
+				continue
 			}
 			prog.Functions = append(prog.Functions, f)
 		case token.TYPE:
 			td, err := p.parseTypeDef()
 			if err != nil {
-				return nil, err
+				p.syncStatement()
+				continue
 			}
 			prog.Types = append(prog.Types, td)
+		case token.COROUTINE:
+			f, assign, err := p.parseCoroutineDef()
+			if err != nil {
+				p.syncStatement()
+				continue
+			}
+			prog.Functions = append(prog.Functions, f)
+			prog.Stmts = append(prog.Stmts, assign)
 		default:
 			s, err := p.parseStmt()
 			if err != nil {
-				return nil, err
+				p.syncStatement()
+				continue
 			}
 			if s != nil {
 				prog.Stmts = append(prog.Stmts, s)
@@ -79,13 +92,17 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 				p.skipNewlines()
 				s2, err2 := p.parseStmt()
 				if err2 != nil {
-					return nil, err2
+					p.syncStatement()
+					break
 				}
 				if s2 != nil {
 					prog.Stmts = append(prog.Stmts, s2)
 				}
 			}
 		}
+	}
+	if len(p.errs) > 0 {
+		return prog, errors.Join(p.errs...)
 	}
 	return prog, nil
 }
@@ -172,7 +189,7 @@ func isKeywordUsableAsIdent(tt token.TokenType) bool {
 		token.AND, token.OR, token.NOT, token.XOR, token.MOD,
 		token.DIM, token.AS, token.REDIM, token.PRESERVE, token.LOCAL, token.GLOBAL, token.CONST,
 		token.STATIC, token.SWAP, token.ERASE,
-		token.INCLUDE, token.TRUE, token.FALSE, token.NULL, token.END:
+		token.INCLUDE, token.IMPORT, token.ENUM, token.ENDENUM, token.YIELD, token.TRUE, token.FALSE, token.NULL, token.END:
 		return true
 	}
 	return false
@@ -188,8 +205,8 @@ func (p *Parser) sourceLine(line int) string {
 func (p *Parser) failf(format string, args ...interface{}) error {
 	t := p.cur()
 	msg := fmt.Sprintf(format, args...)
-	me := errors.NewParseError(p.file, t.Line, t.Col, msg, p.sourceLine(t.Line),
-		"")
+	me := errors.NewParseError(p.file, t.Line, t.Col, msg, p.sourceLine(t.Line), "")
+	p.recordParseError(me)
 	return me
 }
 
@@ -198,6 +215,13 @@ func (p *Parser) defineAssignedName(name string) {
 		p.sym.DefineLocal(name)
 	} else {
 		p.sym.DefineGlobalVar(name)
+	}
+}
+
+func (p *Parser) noteAssignType(name string, expr ast.Expr) {
+	switch expr.(type) {
+	case *ast.FuncRefNode, *ast.FuncLitNode:
+		p.sym.SetVarType(name, types.FuncRef)
 	}
 }
 

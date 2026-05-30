@@ -31,7 +31,18 @@ mylib/
 
 ## Registry index (remote `install <name>`)
 
-When `MOONBASIC_REGISTRY` points to a JSON URL (default unset), `moonbasic install <name>` downloads that index and resolves `packages[name].url` to a zip or tarball.
+When `MOONBASIC_REGISTRY` is unset, `moonbasic install <name>` tries the **public index** at:
+
+`https://raw.githubusercontent.com/CharmingBlaze/moonbasic-compiler/main/internal/pkgmgr/default_index.json`
+
+If the network is unavailable, the same entries are served from the **bundled index** embedded in the compiler.
+
+List available packages:
+
+```bash
+moonbasic list --remote
+moonbasic install demo_extra
+```
 
 Index shape:
 

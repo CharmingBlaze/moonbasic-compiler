@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	"moonbasic/compiler/builtinmanifest"
 	moonerrors "moonbasic/compiler/errors"
@@ -71,6 +72,10 @@ func Serve() error {
 type server struct {
 	docs  map[string]string // uri -> full text
 	table *builtinmanifest.Table
+
+	muSig        sync.Mutex
+	funcSigCache map[string]map[string]pipeline.FunctionSignature
+	funcSigSrc   map[string]string
 }
 
 type reqResult struct {
@@ -92,6 +97,7 @@ func (s *server) handleNotify(method string, params json.RawMessage) {
 		_ = json.Unmarshal(params, &p)
 		if p.TextDocument.URI != "" {
 			s.docs[p.TextDocument.URI] = p.TextDocument.Text
+			s.invalidateFuncSig(p.TextDocument.URI)
 			s.publishDiagnostics(p.TextDocument.URI, p.TextDocument.Text)
 		}
 	case "textDocument/didChange":
@@ -107,6 +113,7 @@ func (s *server) handleNotify(method string, params json.RawMessage) {
 		if p.TextDocument.URI != "" && len(p.ContentChanges) > 0 {
 			t := p.ContentChanges[len(p.ContentChanges)-1].Text
 			s.docs[p.TextDocument.URI] = t
+			s.invalidateFuncSig(p.TextDocument.URI)
 			s.publishDiagnostics(p.TextDocument.URI, t)
 		}
 	case "textDocument/didClose":
@@ -136,6 +143,9 @@ func (s *server) handleRequest(method string, params json.RawMessage) reqResult 
 				},
 				"documentSymbolProvider": true,
 				"definitionProvider":     true,
+				"signatureHelpProvider": map[string]any{
+					"triggerCharacters": []string{"(", ","},
+				},
 			},
 			"serverInfo": map[string]string{"name": "moonbasic-lsp", "version": "0.2"},
 		}}
@@ -143,6 +153,8 @@ func (s *server) handleRequest(method string, params json.RawMessage) reqResult 
 		return reqResult{result: nil}
 	case "textDocument/hover":
 		return reqResult{result: s.hover(params)}
+	case "textDocument/signatureHelp":
+		return reqResult{result: s.signatureHelp(params)}
 	case "textDocument/completion":
 		return reqResult{result: s.completion(params)}
 	case "textDocument/documentSymbol":
@@ -193,7 +205,7 @@ func (s *server) publishDiagnostics(uri, text string) {
 		name = "buffer.mb"
 		path = name
 	}
-	notices, err := pipeline.CheckSourceWithNotices(path, text, pipeline.CheckOptions{})
+	notices, warnings, err := pipeline.CheckSourceWithNotices(path, text, pipeline.CheckOptions{})
 	var diags []any
 	var me *moonerrors.MoonError
 	if err != nil && errors.As(err, &me) {
@@ -219,6 +231,9 @@ func (s *server) publishDiagnostics(uri, text string) {
 	}
 	for _, n := range notices {
 		diags = append(diags, deprecationDiagnostic(n))
+	}
+	for _, w := range warnings {
+		diags = append(diags, semanticWarningDiagnostic(w))
 	}
 	notif := map[string]any{
 		"jsonrpc": "2.0",
@@ -260,6 +275,32 @@ func deprecationDiagnostic(n semantic.DeprecationNotice) map[string]any {
 	}
 }
 
+func semanticWarningDiagnostic(w semantic.SemanticWarning) map[string]any {
+	line := w.Line - 1
+	if line < 0 {
+		line = 0
+	}
+	startChar := w.Col - 1
+	if startChar < 0 {
+		startChar = 0
+	}
+	endChar := startChar + 20
+	code := w.Code
+	if code == "" {
+		code = "semantic-warning"
+	}
+	return map[string]any{
+		"range": map[string]any{
+			"start": map[string]uint32{"line": uint32(line), "character": uint32(startChar)},
+			"end":   map[string]uint32{"line": uint32(line), "character": uint32(endChar)},
+		},
+		"severity": 2,
+		"code":     code,
+		"source":   "moonbasic",
+		"message":  w.Message,
+	}
+}
+
 func (s *server) hover(params json.RawMessage) any {
 	var p struct {
 		TextDocument struct {
@@ -282,27 +323,109 @@ func (s *server) hover(params json.RawMessage) any {
 	line := lines[p.Position.Line]
 	key, ok := dottedCommandAt(line, p.Position.Character)
 	if !ok {
-		return nil
+		return s.userFunctionHover(text, p.TextDocument.URI, line, p.Position.Character)
 	}
-	cmd, found := s.table.FirstOverload(key)
-	if !found {
-		if alt, ok2 := s.table.BestSimilarKey(key, 3); ok2 {
+	ns, method := splitManifestKey(key)
+	argc := partialArgCount(line, p.Position.Character)
+	var doc string
+	if ns != "" && method != "" {
+		if cmd, ok := s.table.LookupArity(ns, method, argc); ok {
+			doc = formatCommandDoc(key, cmd)
+		} else if ovs := s.table.Overloads(key); len(ovs) > 0 {
+			var b strings.Builder
+			for i, c := range ovs {
+				if i > 0 {
+					b.WriteString("\n---\n\n")
+				}
+				b.WriteString(formatCommandDoc(key, c))
+			}
+			if hint := s.table.ArityHint(ns, method); hint != "" && argc >= 0 {
+				fmt.Fprintf(&b, "\n\n*%s*", hint)
+			}
+			doc = b.String()
+		}
+	}
+	if doc == "" {
+		if cmd, found := s.table.FirstOverload(key); found {
+			doc = formatCommandDoc(key, cmd)
+		} else if alt, ok2 := s.table.BestSimilarKey(key, 3); ok2 {
 			return map[string]any{
 				"contents": map[string]any{
 					"kind":  "markdown",
 					"value": fmt.Sprintf("Unknown command `%s`. Did you mean **`%s`**?", key, alt),
 				},
 			}
+		} else {
+			return nil
 		}
-		return nil
 	}
-	doc := formatCommandDoc(key, cmd)
 	return map[string]any{
 		"contents": map[string]any{
 			"kind":  "markdown",
 			"value": doc,
 		},
 	}
+}
+
+func splitManifestKey(key string) (ns, method string) {
+	parts := strings.SplitN(key, ".", 2)
+	if len(parts) != 2 {
+		return "", ""
+	}
+	return parts[0], parts[1]
+}
+
+func partialArgCount(line string, cursor int) int {
+	key, ok := dottedCommandAt(line, cursor)
+	if !ok {
+		return -1
+	}
+	idx := strings.Index(strings.ToUpper(line), key)
+	if idx < 0 {
+		return -1
+	}
+	open := strings.Index(line[idx:], "(")
+	if open < 0 {
+		return -1
+	}
+	open += idx + 1
+	if cursor < open {
+		return -1
+	}
+	segment := line[open:cursor]
+	depth := 0
+	commas := 0
+	inStr := false
+	for i := 0; i < len(segment); i++ {
+		c := segment[i]
+		if c == '"' {
+			inStr = !inStr
+			continue
+		}
+		if inStr {
+			continue
+		}
+		switch c {
+		case '(', '[':
+			depth++
+		case ')', ']':
+			if depth > 0 {
+				depth--
+			}
+		case ',':
+			if depth == 0 {
+				commas++
+			}
+		}
+	}
+	if depth != 0 {
+		return -1
+	}
+	trimmed := strings.TrimSpace(segment)
+	if trimmed == "" {
+		return commas
+	}
+	return commas + 1
 }
 
 func formatCommandDoc(key string, c builtinmanifest.Command) string {

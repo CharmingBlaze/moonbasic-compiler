@@ -42,6 +42,8 @@ func DeltaSeconds(rt *runtime.Runtime) float64 {
 		return 0
 	}
 	dt := applyDeltaCap(float64(rl.GetFrameTime()))
+	NoteFrameDelta(dt)
+	dt = applyLoopMode(dt)
 	if rt != nil {
 		s := rt.TimeScale
 		if s != 0 && s != 1 {

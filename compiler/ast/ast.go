@@ -34,18 +34,19 @@ type Program struct {
 	Types     []*TypeDef
 }
 
-// FunctionDef defines a user function.
-type FunctionDef struct {
-	Name   string
-	Params []Param
-	Body   []Stmt
-	Line   int
-	Col    int
+type Param struct {
+	Name     string
+	TypeHint string // INTEGER, FLOAT, STRING, BOOL, or user TYPE name; "" = untyped
 }
 
-// Param is a formal parameter.
-type Param struct {
-	Name   string
+// FunctionDef defines a user function.
+type FunctionDef struct {
+	Name        string
+	Params      []Param
+	ReturnTypes []string // optional AS types after header; empty = untyped
+	Body        []Stmt
+	Line        int
+	Col         int
 }
 
 // TypeDef is a user-defined TYPE ... FIELD ... ENDTYPE.
@@ -148,6 +149,18 @@ func (n *CallStmtNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *CallStmtNode) String() string {
 	return fmt.Sprintf("CallStmt(%s(...))", n.Name)
 }
+
+// CallRefStmt is a statement call through a function-reference variable.
+type CallRefStmt struct {
+	Receiver Expr
+	Args     []Expr
+	Line     int
+	Col      int
+}
+
+func (n *CallRefStmt) stmt()            {}
+func (n *CallRefStmt) Accept(v Visitor) { v.VisitStmt(n) }
+func (n *CallRefStmt) String() string   { return "CallRefStmt(...)" }
 
 // NamespaceCallStmt is NS.METHOD(args).
 type NamespaceCallStmt struct {
@@ -320,16 +333,26 @@ func (n *SelectNode) stmt()            {}
 func (n *SelectNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *SelectNode) String() string   { return "Select(...)" }
 
-// ReturnNode is RETURN [expr].
+// ReturnNode is RETURN [expr] or RETURN a, b, c (packed as a 1-based array for multi-assign).
 type ReturnNode struct {
-	Expr Expr
-	Line int
-	Col  int
+	Exprs []Expr
+	Line  int
+	Col   int
 }
 
 func (n *ReturnNode) stmt()            {}
 func (n *ReturnNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ReturnNode) String() string   { return "Return(...)" }
+
+// YieldStmt is YIELD — suspend the active coroutine.
+type YieldStmt struct {
+	Line int
+	Col  int
+}
+
+func (n *YieldStmt) stmt()            {}
+func (n *YieldStmt) Accept(v Visitor) { v.VisitStmt(n) }
+func (n *YieldStmt) String() string   { return "Yield" }
 
 // GotoNode is GOTO label.
 type GotoNode struct {
@@ -389,6 +412,17 @@ type IncludeNode struct {
 func (n *IncludeNode) stmt()            {}
 func (n *IncludeNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *IncludeNode) String() string   { return fmt.Sprintf("Include(%q)", n.Path) }
+
+// ImportNode is IMPORT "package" — loads from package roots (see include.ResolvePackage).
+type ImportNode struct {
+	Package string
+	Line    int
+	Col     int
+}
+
+func (n *ImportNode) stmt()            {}
+func (n *ImportNode) Accept(v Visitor) { v.VisitStmt(n) }
+func (n *ImportNode) String() string   { return fmt.Sprintf("Import(%q)", n.Package) }
 
 // LocalDeclNode is LOCAL name [= expr] or list — simplified as single name per line.
 type LocalDeclNode struct {
@@ -469,6 +503,35 @@ type DeleteStmt struct {
 func (n *DeleteStmt) stmt()            {}
 func (n *DeleteStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *DeleteStmt) String() string   { return "Delete(...)" }
+
+// EnumDeclNode is ENUM Name ... member ... ENDENUM (compile-time integer constants).
+type EnumDeclNode struct {
+	Name    string
+	Members []string
+	Line    int
+	Col     int
+}
+
+func (n *EnumDeclNode) stmt()            {}
+func (n *EnumDeclNode) Accept(v Visitor) { v.VisitStmt(n) }
+func (n *EnumDeclNode) String() string {
+	return fmt.Sprintf("Enum(%s: %v)", n.Name, n.Members)
+}
+
+// ForInStmt is FOR EACH var IN arrayExpr ... NEXT.
+type ForInStmt struct {
+	Var   string
+	Array Expr
+	Body  []Stmt
+	Line  int
+	Col   int
+}
+
+func (n *ForInStmt) stmt()            {}
+func (n *ForInStmt) Accept(v Visitor) { v.VisitStmt(n) }
+func (n *ForInStmt) String() string {
+	return fmt.Sprintf("ForIn(%s in %s)", n.Var, n.Array.String())
+}
 
 // EachNode is FOR var = EACH(Type) ... NEXT (represented as ForEachStmt).
 type EachStmt struct {
@@ -686,6 +749,41 @@ type GroupedExpr struct {
 func (n *GroupedExpr) expr()            {}
 func (n *GroupedExpr) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *GroupedExpr) String() string   { return fmt.Sprintf("(%s)", n.Inner.String()) }
+
+// FuncRefNode is @FunctionName — a first-class function reference value.
+type FuncRefNode struct {
+	Name string
+	Line int
+	Col  int
+}
+
+func (n *FuncRefNode) expr()            {}
+func (n *FuncRefNode) Accept(v Visitor) { v.VisitExpr(n) }
+func (n *FuncRefNode) String() string   { return "@" + n.Name }
+
+// FuncLitNode is an anonymous FUNCTION(params) ... ENDFUNCTION expression.
+type FuncLitNode struct {
+	Params []Param
+	Body   []Stmt
+	Line   int
+	Col    int
+}
+
+func (n *FuncLitNode) expr()            {}
+func (n *FuncLitNode) Accept(v Visitor) { v.VisitExpr(n) }
+func (n *FuncLitNode) String() string   { return "FUNCTION(...) ENDFUNCTION" }
+
+// CallRefExpr calls a function-reference value: cb(args).
+type CallRefExpr struct {
+	Receiver Expr
+	Args     []Expr
+	Line     int
+	Col      int
+}
+
+func (n *CallRefExpr) expr()            {}
+func (n *CallRefExpr) Accept(v Visitor) { v.VisitExpr(n) }
+func (n *CallRefExpr) String() string   { return fmt.Sprintf("CallRef(%s)", n.Receiver.String()) }
 
 // PrettyPrint writes an indented tree for debugging.
 func PrettyPrint(p *Program) string {

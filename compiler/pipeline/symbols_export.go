@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"strings"
 
 	"moonbasic/compiler/arena"
 	"moonbasic/compiler/include"
@@ -43,15 +44,22 @@ func DocumentSymbols(name, src string) ([]map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
+	sigs, _ := FunctionSignatures(name, src)
 	out := make([]map[string]any, 0, 32)
 	t.ForEachGlobal(func(n string, sym *symtable.Symbol) {
 		if sym == nil {
 			return
 		}
+		detail := fmt.Sprintf("%s %s", sym.Kind.String(), sym.Type.String())
+		if sym.Kind == symtable.Func {
+			if sig, ok := sigs[strings.ToLower(n)]; ok {
+				detail = FormatFunctionSignature(sig)
+			}
+		}
 		m := map[string]any{
 			"name":   n,
 			"kind":   lspSymbolKind(sym.Kind),
-			"detail": fmt.Sprintf("%s %s", sym.Kind.String(), sym.Type.String()),
+			"detail": detail,
 		}
 		if sym.Kind == symtable.Var || sym.Kind == symtable.Const {
 			m["persistent"] = sym.Persistent

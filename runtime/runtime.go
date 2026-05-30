@@ -92,6 +92,8 @@ type Registry struct {
 	Modules  []Module
 	// Prog is the bytecode program currently executing (set by vm.VM.Execute); used for string pool resolution.
 	Prog *opcode.Program
+	// ActiveChunkNames is the calling chunk's symbol table during a builtin (for @func callback resolution).
+	ActiveChunkNames []string
 	// DiagOut receives DEBUG.* and similar diagnostics (pipeline sets this to Options.Out).
 	DiagOut io.Writer
 	// StackTraceFn is set by vm.VM.Execute while running; natives can call it for DEBUG.STACKTRACE.
@@ -116,6 +118,11 @@ type Registry struct {
 
 	// loadingMode skips heavy terrain draws (WINDOW.SETLOADINGMODE) so the frame loop can keep polling OS events during mesh builds.
 	loadingMode atomic.Bool
+
+	// SourceFile is the absolute path to the running .mb file (asset path resolution).
+	SourceFile string
+	// AssetRelBase is an optional subdirectory under SourceFile's folder (ASSET.PATH).
+	AssetRelBase string
 
 	// ResolveEntityWorldPos is set by mbentity; used by mbdebug and mbcamera.
 	ResolveEntityWorldPos func(entID int64) (hal.V3, bool)

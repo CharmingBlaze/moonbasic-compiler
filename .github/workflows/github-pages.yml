@@ -2,7 +2,7 @@
 #
 # Pushes do NOT deploy by default (avoids failing when Pages is not configured).
 #
-# To go live at https://<org>.github.io/moonbasic/ :
+# To go live at https://<org>.github.io/moonbasic-compiler/ :
 #   1. Settings → Pages → Build and deployment → Source: GitHub Actions
 #   2. Settings → Variables → Actions → add PUBLISH_DOWNLOADS_SITE = true (auto-deploy on push)
 #   3. Or skip (2) and use Actions → this workflow → "Run workflow" after changing docs/downloads/

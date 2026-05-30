@@ -278,21 +278,44 @@ func (m *Module) entCrossfade(args []value.Value) (value.Value, error) {
 	if !ok || idx < 0 || int(idx) >= len(ext.modelAnims) {
 		return value.Nil, fmt.Errorf("ENTITY.CROSSFADE: invalid animation index")
 	}
-	ext.animIndex = int32(idx)
-	ext.animTime = 0
+	dur := float32(0.1)
+	if f, okf := args[2].ToFloat(); okf && f > 0 {
+		dur = float32(f)
+	}
+	m.beginAnimCrossfade(ext, int32(idx), dur)
 	ext.animSpeed = 1
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) entTransition(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.TRANSITION expects (entity, name, duration): duration reserved; same as PLAYNAME")
+		return value.Nil, fmt.Errorf("ENTITY.TRANSITION expects (entity, name, duration)")
 	}
-	_, err := rt.ArgString(args, 1)
+	name, err := rt.ArgString(args, 1)
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.entPlayName(rt, args[0], args[1])
+	dur := float32(0.1)
+	if f, ok := args[2].ToFloat(); ok && f > 0 {
+		dur = float32(f)
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	ext := e.getExt()
+	for i, anim := range ext.modelAnims {
+		if strings.EqualFold(anim.GetName(), strings.TrimSpace(name)) {
+			m.beginAnimCrossfade(ext, int32(i), dur)
+			ext.animSpeed = 1
+			return args[0], nil
+		}
+	}
+	return value.Nil, fmt.Errorf("ENTITY.TRANSITION: animation %q not found", name)
 }
 
 func (m *Module) boneWorldMatrix(host *ent, boneName string) (rl.Matrix, error) {

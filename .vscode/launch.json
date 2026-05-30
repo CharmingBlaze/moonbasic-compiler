@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "moonbasic",
+      "request": "launch",
+      "name": "Debug current .mb file",
+      "program": "${file}",
+      "moonrunPath": "${workspaceFolder}/moonrun.exe"
+    },
+    {
+      "type": "moonbasic",
+      "request": "launch",
+      "name": "Debug spin_cube example",
+      "program": "${workspaceFolder}/examples/spin_cube/main.mb"
+    }
+  ]
+}

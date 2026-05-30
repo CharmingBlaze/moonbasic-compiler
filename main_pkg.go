@@ -49,11 +49,23 @@ func cmdInstall(argv []string) int {
 func cmdList(argv []string) int {
 	fs := flag.NewFlagSet("list", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
+	remote := fs.Bool("remote", false, "list packages in the registry index (not just installed)")
 	if err := fs.Parse(argv); err != nil {
 		return 2
 	}
+	if *remote {
+		pkgs, err := pkgmgr.ListDefaultPackages()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			return 1
+		}
+		for _, p := range pkgs {
+			fmt.Printf("%s@%s  %s\n", p.Name, p.Version, p.Description)
+		}
+		return 0
+	}
 	if len(fs.Args()) != 0 {
-		fmt.Fprintln(os.Stderr, "usage: moonbasic list")
+		fmt.Fprintln(os.Stderr, "usage: moonbasic list [--remote]")
 		return 2
 	}
 	if err := pkgmgr.ListInstalled(os.Stdout); err != nil {
