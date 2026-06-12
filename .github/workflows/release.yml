@@ -19,6 +19,7 @@ env:
 
 jobs:
   linux-amd64:
+    needs: [vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -96,10 +97,21 @@ jobs:
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: vsix-bundle
+
+      - name: Bundle VS Code extension + installer
+        run: |
+          cp vsix-bundle/*.vsix dist/
+          cp packaging/INSTALL-VSCODE.sh dist/
+          cp packaging/INSTALL-VSCODE.bat dist/
+          chmod +x dist/INSTALL-VSCODE.sh dist/moonbasic dist/moonrun
+
       - name: Package (tar.gz)
         run: |
-          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
-            -C dist moonbasic moonrun README-RELEASE.txt
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" -C dist .
 
       - name: Build AppImage (optional tooling)
         continue-on-error: true
@@ -113,6 +125,7 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
 
   windows-amd64:
+    needs: [vscode-extension]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -167,6 +180,18 @@ jobs:
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: vsix-bundle
+
+      - name: Bundle VS Code extension + installer
+        shell: pwsh
+        run: |
+          Copy-Item vsix-bundle/*.vsix dist/
+          Copy-Item packaging/INSTALL-VSCODE.bat dist/
+          Copy-Item packaging/INSTALL-VSCODE.sh dist/
+
       - name: Verify Windows PE imports (no MinGW/Raylib DLLs)
         shell: pwsh
         run: |
@@ -190,6 +215,7 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
 
   macos-arm64:
+    needs: [vscode-extension]
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -229,10 +255,21 @@ jobs:
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: vsix-bundle
+
+      - name: Bundle VS Code extension + installer
+        run: |
+          cp vsix-bundle/*.vsix dist/
+          cp packaging/INSTALL-VSCODE.sh dist/
+          cp packaging/INSTALL-VSCODE.bat dist/
+          chmod +x dist/INSTALL-VSCODE.sh dist/moonbasic dist/moonrun
+
       - name: Package (tar.gz)
         run: |
-          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" \
-            -C dist moonbasic moonrun README-RELEASE.txt
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" -C dist .
 
       - uses: actions/upload-artifact@v5
         with:
@@ -351,7 +388,7 @@ jobs:
 
             **Compiler only** (tooling / CI — `.mb` → `.mbc`, `--check`, `--lsp`, no engine DLLs beside `moonbasic`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
 
-            **VS Code** (optional): `moonbasic-<tag>-vscode.vsix` — syntax, LSP, and **debugger** (needs full-runtime **`moonrun`**). Install with **Extensions → … → Install from VSIX…**; set **`moonbasic.languageServerPath`** and **`moonbasic.moonrunPath`** if binaries are not on `PATH`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
+            **VS Code / Cursor** (optional): included in full-runtime archives — run **`moonbasic install-vscode`** or double-click **`INSTALL-VSCODE.bat`** (Windows) / **`./INSTALL-VSCODE.sh`**. Standalone: `moonbasic-<tag>-vscode.vsix`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
 
             **Scaffold a game:** `moonbasic new MyGame` then `moonrun main.mb` (full runtime or compiler + moonrun on PATH).
 

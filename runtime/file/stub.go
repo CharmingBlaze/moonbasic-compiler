@@ -30,6 +30,7 @@ var stubNames = []string{
 	"FILE.TELL",
 	"FILE.SIZE",
 	"FILE.EXISTS", "FILE.READALLTEXT", "FILE.WRITEALLTEXT", "FILE.READSTRING",
+	"FILE.DELETE", "FILE.READTEXT", "FILE.WRITETEXT",
 	// Flat aliases (same CGO requirement as FILE.*)
 	"OPENFILE",
 	"CLOSEFILE",

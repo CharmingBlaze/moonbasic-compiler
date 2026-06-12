@@ -8,7 +8,7 @@ The fast path for **`ENTITY.X` / `Y` / `Z` / `P` / `W` / `YAW` / `R`** lowers to
 
 ### Compile time
 
-When the entity index is a **numeric literal** (integer or whole float), the **semantic analyzer** (so **`go run . --check`** catches it) and the **code generator** reject:
+When the entity index is a **numeric literal** (integer or whole float), the **semantic analyzer** (so **`moonbasic --check`** catches it) and the **code generator** reject:
 
 - **Negative** indices.
 - Indices **≥ `runtime.MaxEntitySpatialIndex`** (exclusive cap, currently **2²⁴**).

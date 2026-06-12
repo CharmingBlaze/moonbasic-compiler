@@ -21,6 +21,11 @@ type root struct {
 	} `json:"commands"`
 }
 
+type sig struct {
+	key, ret, desc string
+	args           []string
+}
+
 func main() {
 	path := filepath.Join("compiler", "builtinmanifest", "commands.json")
 	data, err := os.ReadFile(path)
@@ -32,10 +37,6 @@ func main() {
 	if err := json.Unmarshal(data, &r); err != nil {
 		fmt.Fprintf(os.Stderr, "parse: %v\n", err)
 		os.Exit(1)
-	}
-	type sig struct {
-		key, ret, desc string
-		args           []string
 	}
 	byNS := make(map[string][]sig)
 	for _, c := range r.Commands {
@@ -128,4 +129,187 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Fprintf(os.Stderr, "wrote %s\n", out)
+
+	if err := writeSystemsCommandRegistry(byNS, nss); err != nil {
+		fmt.Fprintf(os.Stderr, "systems registry: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+type systemGroup struct {
+	title    string
+	guide    string
+	anchor   string
+	namespaces []string
+}
+
+func writeSystemsCommandRegistry(byNS map[string][]sig, allNS []string) error {
+	groups := []systemGroup{
+		{"Core: window, time, render, scene, entity", "01-CORE.md", "core-window-time", []string{"WINDOW", "TIME", "SYSTEM", "RENDER", "SCENE", "ENTITY"}},
+		{"Camera and light", "02-CAMERA-LIGHT.md", "camera-light", []string{"CAMERA", "CAMERA2D", "LIGHT", "LIGHT2D"}},
+		{"Meshes, models, materials, textures, asset packs", "03-ASSETS.md", "assets", []string{"MESH", "MODEL", "MATERIAL", "TEXTURE", "ASSET", "BBOX", "BSPHERE"}},
+		{"Input and actions", "04-INPUT.md", "input-action", []string{"INPUT", "ACTION", "GAMEPAD", "CURSOR", "GESTURE"}},
+		{"Physics, bodies, collision, picking", "05-PHYSICS.md", "physics", []string{"PHYSICS", "PHYSICS3D", "BODY", "BODY2D", "BODY3D", "BODYREF", "COLLISION", "PICK", "RAY", "RAY2D"}},
+		{"Audio (2D and 3D)", "06-AUDIO.md", "audio", []string{"AUDIO", "AUDIOSTREAM", "SOUND"}},
+		{"2D sprites, tilemaps, terrain, particles, animation", "07-2D-WORLD.md", "2d-world", []string{"SPRITE", "TILEMAP", "TERRAIN", "PARTICLE", "ANIM", "WORLD", "CHUNK"}},
+		{"UI, fonts, and text", "08-UI-TEXT.md", "ui-text", []string{"GUI", "FONT", "DRAW", "TEXT", "COLOR"}},
+		{"Save, files, JSON, math, vectors", "09-DATA.md", "data", []string{"SAVE", "FILE", "JSON", "MATH", "VEC3", "VEC2", "CONFIG", "CSV"}},
+		{"Debug, timers", "10-DEBUG-TIMER.md", "debug-timer", []string{"DEBUG", "TIMER"}},
+	}
+
+	seen := make(map[string]bool)
+	for _, g := range groups {
+		for _, ns := range g.namespaces {
+			seen[ns] = true
+		}
+	}
+
+	var b strings.Builder
+	b.WriteString("# Game systems — complete command registry\n\n")
+	b.WriteString("> Every registered command for the **40 beginner systems** and their related namespaces.\n\n")
+	b.WriteString("Generated from `compiler/builtinmanifest/commands.json` (same source as [API_CONSISTENCY.md](../API_CONSISTENCY.md)).\n\n")
+	b.WriteString("**How to use this page:**\n\n")
+	b.WriteString("- Learn **why** and **when** to call commands in [00-START.md](00-START.md) and the numbered guides (`01-CORE` … `11-TOOLING`).\n")
+	b.WriteString("- Look up **arity** and return types here or in [API_CONSISTENCY.md](../API_CONSISTENCY.md).\n")
+	b.WriteString("- Deep behavior: [COMMAND_AUDIT.md](../COMMAND_AUDIT.md) → `docs/reference/*.md`.\n")
+	b.WriteString("- Validate a script: `moonbasic --check yourgame.mb`.\n")
+	b.WriteString("- In-game help: `HELP(\"ENTITY.SETPOS\")`.\n\n")
+	b.WriteString("**Case:** Command names are **case-insensitive** in source.\n\n")
+	b.WriteString("---\n\n## Table of contents\n\n")
+	for _, g := range groups {
+		b.WriteString("- [")
+		b.WriteString(g.title)
+		b.WriteString("](#")
+		b.WriteString(g.anchor)
+		b.WriteString(")\n")
+	}
+	b.WriteString("- [Globals and language builtins](#globals)\n")
+	b.WriteString("- [All other engine namespaces](#all-other-namespaces)\n\n")
+	b.WriteString("---\n\n")
+
+	total := 0
+	for _, g := range groups {
+		b.WriteString("## ")
+		b.WriteString(g.title)
+		b.WriteString("\n\n")
+		b.WriteString("Guide: [")
+		b.WriteString(g.guide)
+		b.WriteString("](")
+		b.WriteString(g.guide)
+		b.WriteString(")\n\n")
+		groupCount := 0
+		for _, ns := range g.namespaces {
+			entries := byNS[ns]
+			if len(entries) == 0 {
+				continue
+			}
+			sort.Slice(entries, func(i, j int) bool {
+				if entries[i].key != entries[j].key {
+					return entries[i].key < entries[j].key
+				}
+				return len(entries[i].args) < len(entries[j].args)
+			})
+			b.WriteString("### ")
+			b.WriteString(ns)
+			b.WriteString("\n\n")
+			for _, e := range entries {
+				writeSigLine(&b, e)
+				groupCount++
+			}
+			b.WriteString("\n")
+		}
+		total += groupCount
+		b.WriteString("*")
+		b.WriteString(fmt.Sprintf("%d", groupCount))
+		b.WriteString(" overloads in this section.*\n\n---\n\n")
+	}
+
+	b.WriteString("## Globals and language builtins\n\n")
+	b.WriteString("Guide: [11-TOOLING.md](11-TOOLING.md) · [LANGUAGE.md](../LANGUAGE.md)\n\n")
+	globalNS := []string{"PRINT", "HELP", "IMPORT", "ABS", "SIN", "COS", "RAND", "LEN", "STR", "VAL", "CHR", "ASC"}
+	globalCount := 0
+	for _, ns := range globalNS {
+		entries := byNS[ns]
+		if len(entries) == 0 {
+			continue
+		}
+		sort.Slice(entries, func(i, j int) bool { return entries[i].key < entries[j].key })
+		b.WriteString("### ")
+		b.WriteString(ns)
+		b.WriteString("\n\n")
+		for _, e := range entries {
+			writeSigLine(&b, e)
+			globalCount++
+		}
+		b.WriteString("\n")
+	}
+	b.WriteString("Language keywords (`IF`, `WHILE`, `FUNCTION`, `IMPORT \"file.mb\"`, …) are documented in [LANGUAGE.md](../LANGUAGE.md).\n\n")
+	b.WriteString("CLI (`moonbasic new`, `moonrun`, `moonbasic --check`, …): [11-TOOLING.md](11-TOOLING.md).\n\n---\n\n")
+
+	b.WriteString("## All other engine namespaces\n\n")
+	b.WriteString("The full engine registers **")
+	b.WriteString(fmt.Sprintf("%d", len(allNS)))
+	b.WriteString("** dotted namespaces and thousands of overloads. Everything is listed in [API_CONSISTENCY.md](../API_CONSISTENCY.md).\n\n")
+	b.WriteString("Namespace → reference file map: [COMMAND_AUDIT.md](../COMMAND_AUDIT.md).\n\n")
+	b.WriteString("| Namespace | Overloads | Primary reference |\n")
+	b.WriteString("|-------------|----------:|-------------------|\n")
+	// COMMAND_AUDIT has counts; here we only list namespaces not in beginner groups
+	otherCount := 0
+	for _, ns := range allNS {
+		if seen[ns] || ns == "PRINT" || ns == "HELP" {
+			continue
+		}
+		skipGlobal := false
+		for _, g := range globalNS {
+			if ns == g {
+				skipGlobal = true
+				break
+			}
+		}
+		if skipGlobal {
+			continue
+		}
+		n := len(byNS[ns])
+		otherCount += n
+		b.WriteString("| `")
+		b.WriteString(ns)
+		b.WriteString("` | ")
+		b.WriteString(fmt.Sprintf("%d", n))
+		b.WriteString(" | [API_CONSISTENCY.md](../API_CONSISTENCY.md#")
+		b.WriteString(strings.ToLower(ns))
+		b.WriteString(") |\n")
+	}
+	b.WriteString("\n*Beginner-system overloads above: ")
+	b.WriteString(fmt.Sprintf("%d", total+globalCount))
+	b.WriteString(" · Other namespaces: ")
+	b.WriteString(fmt.Sprintf("%d", otherCount))
+	b.WriteString(" · See [API_CONSISTENCY.md](../API_CONSISTENCY.md) for the complete machine-readable list.*\n")
+
+	out := filepath.Join("docs", "systems", "COMMAND_REGISTRY.md")
+	if err := os.WriteFile(out, []byte(b.String()), 0o644); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "wrote %s\n", out)
+	return nil
+}
+
+func writeSigLine(b *strings.Builder, e sig) {
+	b.WriteString("- **`")
+	b.WriteString(e.key)
+	b.WriteString("`**")
+	if len(e.args) > 0 {
+		b.WriteString(" — args: ")
+		b.WriteString(strings.Join(e.args, ", "))
+	} else {
+		b.WriteString(" — args: (none)")
+	}
+	if e.ret != "" {
+		b.WriteString(" → ")
+		b.WriteString(e.ret)
+	}
+	if strings.TrimSpace(e.desc) != "" {
+		b.WriteString(" — ")
+		b.WriteString(strings.TrimSpace(e.desc))
+	}
+	b.WriteString("\n")
 }

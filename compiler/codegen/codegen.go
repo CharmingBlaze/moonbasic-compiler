@@ -111,7 +111,8 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 
 	// 1. Pre-declare functions so we can resolve OpCallUser vs OpCallBuiltin
 	for _, fn := range tree.Functions {
-		g.Prog.Functions[fn.Name] = opcode.NewChunk(fn.Name)
+		key := strings.ToUpper(fn.Name)
+		g.Prog.Functions[key] = opcode.NewChunk(key)
 	}
 
 	// User-defined TYPE metadata (needed when emitting main: constructors use Prog.Types)
@@ -141,7 +142,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 
 	// 3. Function bodies
 	for _, fn := range tree.Functions {
-		ch := g.Prog.Functions[fn.Name]
+		ch := g.Prog.Functions[strings.ToUpper(fn.Name)]
 		g.loopStack = nil
 
 		g.fnDepth = 1

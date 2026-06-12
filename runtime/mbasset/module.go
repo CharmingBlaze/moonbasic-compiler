@@ -2,23 +2,41 @@ package mbasset
 
 import (
 	"fmt"
+	"sync"
 
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-// Module registers ASSET.* path helpers.
-type Module struct{}
+// Module registers ASSET.* path helpers and manifest pack lookup.
+type Module struct {
+	mu   sync.Mutex
+	pack *packState
+}
 
 func NewModule() *Module { return &Module{} }
 
 func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("ASSET.PATH", "asset", m.assetPath)
 	reg.Register("ASSET.RESOLVE", "asset", m.assetResolve)
+	reg.Register("ASSET.LOADPACK", "asset", m.assetLoadPack)
+	reg.Register("ASSET.TEXTURE", "asset", m.assetTexture)
+	reg.Register("ASSET.MODEL", "asset", m.assetModel)
+	reg.Register("ASSET.SOUND", "asset", m.assetSound)
+	reg.Register("ASSET.UNLOAD", "asset", m.assetUnload)
 }
 
-func (m *Module) Reset()     {}
-func (m *Module) Shutdown() {}
+func (m *Module) Reset() {
+	m.mu.Lock()
+	m.pack = nil
+	m.mu.Unlock()
+}
+
+func (m *Module) Shutdown() {
+	m.mu.Lock()
+	m.pack = nil
+	m.mu.Unlock()
+}
 
 func (m *Module) assetPath(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {

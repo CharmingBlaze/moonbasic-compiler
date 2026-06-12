@@ -2,7 +2,6 @@ package vm
 
 import (
 	"fmt"
-	"strings"
 
 	"moonbasic/vm/callstack"
 	"moonbasic/vm/heap"
@@ -83,10 +82,10 @@ func (v *VM) StartCoroutine(fnName string, args []value.Value) (value.Value, err
 	if v.Program == nil {
 		return value.Nil, fmt.Errorf("no program loaded")
 	}
-	key := strings.ToLower(strings.TrimSpace(fnName))
+	key := NormalizeName(fnName)
 	chunk, ok := v.Program.Functions[key]
 	if !ok {
-		return value.Nil, fmt.Errorf("undefined function: %s", key)
+		return value.Nil, fmt.Errorf("undefined function: %s", fnName)
 	}
 	v.ensureCoroutineMap()
 	v.nextCoID++

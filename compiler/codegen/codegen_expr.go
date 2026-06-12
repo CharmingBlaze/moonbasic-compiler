@@ -212,7 +212,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		return g.emitExpr(ch, n.Inner)
 
 	case *ast.FuncRefNode:
-		fnKey := strings.ToLower(n.Name)
+		fnKey := strings.ToUpper(n.Name)
 		if _, ok := g.Prog.Functions[fnKey]; !ok {
 			g.codegenError(n.Line, n.Col, fmt.Sprintf("undefined function: %s", n.Name), "Define the function before taking a reference.")
 			return 0

@@ -25,7 +25,7 @@ Entity system refactor: [ARCHITECTURE_MODULAR_ENTITIES.md](ARCHITECTURE_MODULAR_
 ## Build tags: `fullruntime` vs default (Headless)
 
 - **Default** (`go build .`, `go run .`): builds [`main.go`](../main.go) — **headless compiler** with a **Null** hardware driver. Running `go run . game.mb` **writes `game.mbc`** and validates semantics without needing `raylib.dll` or a GPU. Suitable for CI/CD and servers.
-- **`-tags fullruntime`**: includes [`main_fullruntime.go`](../main_fullruntime.go), links the **Raylib** hardware driver. Use **`moonrun`**, or **`go run -tags fullruntime . --run file.mb`**, to execute graphical programs.
+- **`-tags fullruntime`**: includes [`main_fullruntime.go`](../main_fullruntime.go), links the **Raylib** hardware driver. Use **`moonrun`**, or **`moonrun file.mb`**, to execute graphical programs.
 
 Details: [BUILDING.md](BUILDING.md). **HAL / drivers / Windows purego vs CGO:** [architecture/HAL_AND_RENDERING.md](architecture/HAL_AND_RENDERING.md).
 
@@ -108,10 +108,10 @@ Replace paths as needed. On Windows, set `CGO_ENABLED=1` and `CC` per BUILDING.m
 
 | Action | Command |
 |--------|---------|
-| Type-check (Headless) | `go run . --check path/to/script.mb` |
+| Type-check (Headless) | `moonbasic --check path/to/script.mb` |
 | Compile to `.mbc` (Headless) | `go run . path/to/script.mb` |
-| Run game (source) | `CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun path/to/script.mb` |
-| Run game (alternate) | `CGO_ENABLED=1 go run -tags fullruntime . --run path/to/script.mb` |
+| Run game (source) | `CGO_ENABLED=1 moonrun path/to/script.mb` |
+| Run game (alternate) | `CGO_ENABLED=1 moonrun path/to/script.mb` |
 | Static Build (Windows) | `powershell -File scripts/build_static.ps1` |
 | Beta zip (static exe + `shaders` / `assets` / `examples`) | `powershell -File scripts/package_beta_zip.ps1` |
 | Disassemble bytecode | `go run . --disasm path/to/script.mbc` |
@@ -122,7 +122,7 @@ Shortcuts: see [Makefile](../Makefile) (Unix/Git Bash) and [scripts/dev.ps1](../
 
 ## CI parity
 
-Linux CI runs `go test ./...` and a set of `go run . --check …` commands on representative samples. See [.github/workflows/ci.yml](../.github/workflows/ci.yml). Running the same `--check` lines locally before pushing catches most compile-time regressions.
+Linux CI runs `go test ./...` and a set of `moonbasic --check …` commands on representative samples. See [.github/workflows/ci.yml](../.github/workflows/ci.yml). Running the same `--check` lines locally before pushing catches most compile-time regressions.
 
 ## Editing the command manifest
 

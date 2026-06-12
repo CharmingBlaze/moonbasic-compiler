@@ -143,7 +143,7 @@ Namespace reference pages should lead with **`NAMESPACE.CREATE` / `LOAD` / `FREE
 - [x] `SETPOSITION` aliases beside `SETPOS` where applicable (`TestSetPositionDeprecationMatchesSetPosKeys`)
 - [x] Core string / file / GUI helpers: canonical non-`$` names + `deprecated_of` where applied; `go run ./tools/apidoc` after manifest edits
 - [x] Duplicate **AUDIO** manifest rows (arity) — guarded by `TestNoDuplicateAudioManifestArgSignatures` in [`api_standardization_test.go`](../compiler/builtinmanifest/api_standardization_test.go); fix manifest if the test fails
-- [x] Representative `go run . --check` on migrated `testdata/*.mb` (ongoing when touching builtins)
+- [x] Representative `moonbasic --check` on migrated `testdata/*.mb` (ongoing when touching builtins)
 
 ### Phase 2 — Runtime / VM
 

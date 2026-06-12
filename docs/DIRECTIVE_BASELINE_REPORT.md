@@ -13,7 +13,7 @@ See `compiler/builtinmanifest/api_standardization_test.go`.
 
 ## Deprecation surfacing
 
-- CLI: `go run . --check` and compile print `[moonBASIC] Warning:` lines for deprecated `MAKE` / `SETPOSITION`-style aliases (see `compiler/pipeline/compile.go`).
+- CLI: `moonbasic --check` and compile print `[moonBASIC] Warning:` lines for deprecated `MAKE` / `SETPOSITION`-style aliases (see `compiler/pipeline/compile.go`).
 - **Strict mode:** `moonbasic --check --strict-deprecated file.mb` fails on deprecated aliases instead of warning (`compiler/semantic/analyze.go`, `pipeline.CheckOptions`).
 - LSP: `textDocument/publishDiagnostics` includes warning-level diagnostics for deprecated builtins (`lsp/server.go`).
 
@@ -42,7 +42,7 @@ Outputs/updates `docs/API_CONSISTENCY.md`.
 ```bash
 go test ./...
 go run ./tools/apidoc
-go run . --check testdata/camera_complete_test.mb
+moonbasic --check testdata/camera_complete_test.mb
 ```
 
 Adjust tags per `docs/DEVELOPER.md` for fullruntime-only tests.

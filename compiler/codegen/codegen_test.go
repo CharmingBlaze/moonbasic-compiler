@@ -126,7 +126,7 @@ func TestCompileFuncRefAndEachType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := out.Functions["main"].Disassemble()
+	d := out.Functions["MAIN"].Disassemble()
 	for _, want := range []string{"PUSH_FUNC_REF", "TYPE_INSTANCES", "ARRAY_GET"} {
 		if !strings.Contains(d, want) {
 			t.Fatalf("disassembly missing %s:\n%s", want, d)
@@ -146,7 +146,7 @@ func TestCompileFuncLitAndCallRef(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := out.Functions["main"].Disassemble()
+	d := out.Functions["MAIN"].Disassemble()
 	for _, want := range []string{"PUSH_FUNC_REF", "CALL_REF"} {
 		if !strings.Contains(d, want) {
 			t.Fatalf("disassembly missing %s:\n%s", want, d)

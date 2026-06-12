@@ -16,6 +16,19 @@ To run the samples below, clone this repo or download the source ZIP — release
 
 ---
 
+## Guide examples (documented tutorials)
+
+Runnable copies of **Full example** blocks in `docs/systems/guides/`:
+
+| Folder | Run |
+|--------|-----|
+| [guides/](guides/README.md) | `moonrun examples/guides/game_loop.mb` |
+| [guides/math/](guides/README.md) | `moonrun examples/guides/math/math_2d_chase.mb` |
+
+Check any file: `moonbasic --check examples/guides/game_loop.mb`
+
+---
+
 ## Run examples (compiled distribution only)
 
 Use the **official compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** — not `go run`, not a locally built `moonrun`. Extract the **full runtime** zip/tar.gz so you have **`moonbasic`** and **`moonrun`** next to each other.
@@ -24,11 +37,16 @@ Use the **official compiled distribution** from **[GitHub Releases](https://gith
 2. Get the **`examples/`** folder: **clone** this repo or **download the repository ZIP** from GitHub (release archives do not include `examples/`).
 3. Open a terminal at the **repository root** (the folder that contains `examples/`). Either add the folder where you extracted **`moonbasic`** / **`moonrun`** to your **`PATH`**, or invoke them with a **full path** to those `.exe` / binaries.
 
-**Check** a sample (no window):
+**Check** all samples (no window, from repo root):
 
 ```bash
+# PowerShell — every examples/**/*.mb file
+Get-ChildItem -Recurse examples -Filter *.mb | ForEach-Object { go run . --check $_.FullName }
+# Or with installed moonbasic:
 moonbasic --check examples/spin_cube/main.mb
 ```
+
+All **57** example scripts in `examples/` are kept in sync with `moonbasic --check`.
 
 **Run** a sample (opens a window):
 
@@ -60,7 +78,7 @@ More: **[docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)** (including **Shi
 | [gui_counter](gui_counter/main.mb) | raygui + optional TTF; small interactive demo |
 | [game_math_helpers](game_math_helpers/main.mb) | Compile-only exercise of **`HDIST`**, **`YAWFROMXZ`**, **`SMOOTHERSTEP`**, … ([GAME_MATH_HELPERS](../docs/reference/GAME_MATH_HELPERS.md)) |
 | [spin_cube](spin_cube/main.mb) | 3D camera, lit cube, **`Transform.*`** matrix + grid, resource cleanup |
-| [sphere_drop](sphere_drop/main.mb) | **Jolt `PHYSICS3D`**: click to spawn colored spheres on a platform, orbit camera, cull fallen balls (desktop full runtime; building from source on Windows may need [JOLT_WINDOWS_PARITY](../docs/JOLT_WINDOWS_PARITY.md)) |
+| [sphere_drop](sphere_drop/main.mb) | **Jolt `PHYSICS3D`**: click to spawn colored spheres on a platform, orbit camera, cull fallen balls (**Windows** or **Linux** full runtime) |
 | [pong](pong/main.mb) | 2D rectangles + default-font HUD |
 | [platformer](platformer/main.mb) | Simple platform collision |
 | [tilemap](tilemap/README.md) | Tiled TMX load, draw, collision layer |
@@ -83,35 +101,3 @@ These demos use **`Draw.Text`** for on-screen text so you do **not** need a `.tt
 - [Examples (narrative)](../docs/EXAMPLES.md) — same ideas with inline explanations
 - [GUI reference](../docs/reference/GUI.md) — `GUI.*` / raygui
 
-<details>
-<summary><strong>Contributors: compile with <code>go run</code> from a dev tree</strong></summary>
-
-The default repo entrypoint (`go run .` without build tags) **only compiles** `.mb` → `.mbc`. It does **not** open a window.
-
-**Compile to bytecode** (writes `examples/spin_cube/main.mbc`):
-
-```bash
-CGO_ENABLED=1 go run . examples/spin_cube/main.mb
-```
-
-```powershell
-$env:CGO_ENABLED="1"
-go run . examples\spin_cube\main.mb
-```
-
-**Run the game** (opens a window) — full runtime:
-
-```bash
-CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
-```
-
-```powershell
-$env:CGO_ENABLED="1"
-go run -tags fullruntime ./cmd/moonrun examples\spin_cube\main.mb
-```
-
-Or build `moonrun` once (`go build -tags fullruntime -o moonrun ./cmd/moonrun`) and run `moonrun examples/spin_cube/main.mb`.
-
-Requires **CGO** and a **C toolchain** (same as building Raylib). See **[docs/BUILDING.md](../docs/BUILDING.md)** for toolchains, **[docs/DEVELOPER.md](../docs/DEVELOPER.md)**, [Makefile](../Makefile), [scripts/dev.ps1](../scripts/dev.ps1).
-
-</details>

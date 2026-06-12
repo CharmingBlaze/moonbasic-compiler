@@ -29,6 +29,7 @@ from manifest_entries.physics import ENTRIES as PHYSICS
 from manifest_entries.ray import ENTRIES as RAY
 from manifest_entries.rendering import ENTRIES as RENDERING
 from manifest_entries.world import ENTRIES as WORLD
+from manifest_entries.checklist import ENTRIES as CHECKLIST
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 MAN = os.path.join(ROOT, "compiler", "builtinmanifest", "commands.json")
@@ -36,7 +37,7 @@ MAN = os.path.join(ROOT, "compiler", "builtinmanifest", "commands.json")
 # Aggregate all namespace modules into one flat list.
 NEW: list[tuple] = (
     AUDIO + CAMERA + DRAW + DRAW_OBJECTS + ENTITY + INPUT + DATA
-    + PHYSICS + RENDERING + WORLD + RAY + MODEL + MISC
+    + PHYSICS + RENDERING + WORLD + RAY + MODEL + MISC + CHECKLIST
 )
 
 

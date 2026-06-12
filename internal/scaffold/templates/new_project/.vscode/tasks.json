@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "moonbasic: Check",
+      "type": "shell",
+      "command": "moonbasic",
+      "args": ["--check", "${file}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": "$moonbasic"
+    },
+    {
+      "label": "moonbasic: Compile",
+      "type": "shell",
+      "command": "moonbasic",
+      "args": ["${file}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": "$moonbasic"
+    },
+    {
+      "label": "moonrun: Run",
+      "type": "shell",
+      "command": "moonrun",
+      "args": ["${file}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ]
+}

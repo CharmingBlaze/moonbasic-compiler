@@ -1,6 +1,8 @@
 package codegen
 
 import (
+	"strings"
+
 	"moonbasic/compiler/ast"
 	"moonbasic/vm/opcode"
 )
@@ -30,9 +32,10 @@ func (g *CodeGen) emitCallStmt(ch *opcode.Chunk, n *ast.CallStmtNode) {
 	g.nextReg = g.baseReg
 	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
-	idx := ch.AddName(n.Name)
+	fnKey := strings.ToUpper(n.Name)
+	idx := ch.AddName(fnKey)
 	op := opcode.OpCallBuiltin
-	if _, ok := g.Prog.Functions[n.Name]; ok {
+	if _, ok := g.Prog.Functions[fnKey]; ok {
 		op = opcode.OpCallUser
 	}
 

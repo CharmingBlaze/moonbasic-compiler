@@ -7,6 +7,7 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
+	"moonbasic/vm/value"
 )
 
 // Module holds RNG and optional config/timer state.
@@ -16,6 +17,10 @@ type Module struct {
 	t0 time.Time
 
 	config *configStore
+
+	invoke     func(string, []value.Value) (value.Value, error)
+	callbacks  []callbackTimer
+	cbNextID   int
 
 	shakeByCam map[int64]*shakeState
 	flash      *screenFlashState
@@ -48,6 +53,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.registerDrawHelpers(r)
 	m.registerWorldCamera(r)
 	m.registerTimers(r)
+	m.registerCallbackTimers(r)
 	m.registerConfig(r)
 	m.registerGamepad(r)
 	m.registerAudioHelpers(r)
@@ -69,6 +75,8 @@ func (m *Module) Shutdown() {
 	m.fpsCam = nil
 	m.tpsCam = nil
 	m.config = nil
+	m.callbacks = nil
+	m.invoke = nil
 }
 
 func (m *Module) Reset() {}

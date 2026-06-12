@@ -25,7 +25,8 @@ func (v *VM) doCallRef(i opcode.Instruction) error {
 		return v.runtimeError("CALL_REF: invalid function reference")
 	}
 	name := frame.Chunk.Names[nameIdx]
-	targetChunk, ok := v.Program.Functions[name]
+	key := NormalizeName(name)
+	targetChunk, ok := v.Program.Functions[key]
 	if !ok {
 		return v.runtimeError("undefined function: " + name)
 	}
