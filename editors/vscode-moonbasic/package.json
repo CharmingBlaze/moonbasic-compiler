@@ -1,8 +1,8 @@
 {
   "name": "vscode-moonbasic",
   "displayName": "moonBASIC",
-  "description": "Syntax highlighting, snippets, LSP, and debugger for moonBASIC (.mb / .mbc).",
-  "version": "0.2.0",
+  "description": "Syntax highlighting, snippets, LSP, check/compile/run commands, and debugger for moonBASIC (.mb / .mbc).",
+  "version": "0.3.0",
   "publisher": "moonbasic",
   "license": "MIT",
   "engines": {
@@ -10,6 +10,10 @@
   },
   "categories": ["Programming Languages"],
   "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:moonbasic",
+    "onDebug:moonbasic"
+  ],
   "contributes": {
     "languages": [
       {
@@ -53,10 +57,151 @@
         "moonbasic.moonrunPath": {
           "type": "string",
           "default": "",
-          "description": "Path to the moonrun executable for debugging. When empty, uses `moonrun` from PATH."
+          "description": "Path to the moonrun executable for Run and Debug. When empty, uses `moonrun` from PATH."
+        },
+        "moonbasic.checkOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run moonbasic --check when a .mb file is saved (in addition to LSP diagnostics)."
         }
       }
     },
+    "commands": [
+      {
+        "command": "moonbasic.check",
+        "title": "Check Current File",
+        "category": "moonBASIC",
+        "icon": "$(verified)"
+      },
+      {
+        "command": "moonbasic.compile",
+        "title": "Compile to .mbc",
+        "category": "moonBASIC",
+        "icon": "$(file-binary)"
+      },
+      {
+        "command": "moonbasic.run",
+        "title": "Run with moonrun",
+        "category": "moonBASIC",
+        "icon": "$(run)"
+      },
+      {
+        "command": "moonbasic.help",
+        "title": "Help at Cursor",
+        "category": "moonBASIC",
+        "icon": "$(question)"
+      },
+      {
+        "command": "moonbasic.openDocs",
+        "title": "Open Documentation",
+        "category": "moonBASIC",
+        "icon": "$(book)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "moonbasic.run",
+          "when": "editorLangId == moonbasic",
+          "group": "moonbasic@1"
+        },
+        {
+          "command": "moonbasic.check",
+          "when": "editorLangId == moonbasic",
+          "group": "moonbasic@2"
+        },
+        {
+          "command": "moonbasic.compile",
+          "when": "editorLangId == moonbasic",
+          "group": "moonbasic@2"
+        },
+        {
+          "command": "moonbasic.help",
+          "when": "editorLangId == moonbasic",
+          "group": "moonbasic@3"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "moonbasic.run",
+          "when": "editorLangId == moonbasic",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "moonbasic.check",
+          "when": "editorLangId == moonbasic"
+        },
+        {
+          "command": "moonbasic.compile",
+          "when": "editorLangId == moonbasic"
+        },
+        {
+          "command": "moonbasic.run",
+          "when": "editorLangId == moonbasic"
+        },
+        {
+          "command": "moonbasic.help",
+          "when": "editorLangId == moonbasic"
+        },
+        {
+          "command": "moonbasic.openDocs"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "moonbasic.check",
+        "key": "ctrl+shift+c",
+        "when": "editorLangId == moonbasic"
+      },
+      {
+        "command": "moonbasic.run",
+        "key": "ctrl+f5",
+        "when": "editorLangId == moonbasic"
+      },
+      {
+        "command": "moonbasic.help",
+        "key": "alt+h",
+        "when": "editorLangId == moonbasic"
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "moonbasic",
+        "owner": "moonbasic",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": [
+          {
+            "regexp": "^\\[moonBASIC\\].+ in (.+) line (\\d+) col (\\d+):$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          },
+          {
+            "regexp": "^  (.+)$",
+            "message": 1
+          }
+        ]
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "moonbasic",
+        "required": ["task"],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "moonBASIC task: check, compile, or run"
+          },
+          "file": {
+            "type": "string",
+            "description": "Source file path (defaults to ${file})"
+          }
+        }
+      }
+    ],
     "debuggers": [
       {
         "type": "moonbasic",

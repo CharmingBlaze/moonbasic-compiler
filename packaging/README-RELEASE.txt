@@ -102,15 +102,21 @@ TIPS
 
   • Example projects (tilemap, gamepad, platformer): examples/ folder in the source repo.
 
-  • Visual Studio Code: on the same GitHub Release page, download  moonbasic-<tag>-vscode.vsix
+  • Visual Studio Code / Cursor (easiest):
 
-    and use Extensions -> ... -> Install from VSIX...
+      Windows: double-click  INSTALL-VSCODE.bat  in this folder
 
-    Set moonbasic.languageServerPath and moonbasic.moonrunPath if the exes are not on PATH.
+      Linux/macOS:  ./INSTALL-VSCODE.sh
 
-    Run and Debug -> "Debug moonBASIC" to break on breakpoints (needs full runtime / moonrun).
+      Or run:  moonbasic install-vscode
 
-    See docs/GETTING_STARTED.md in the repo.
+    This installs the extension and sets moonbasic.languageServerPath / moonbasic.moonrunPath
+
+    automatically. The .vsix is included in this zip (moonbasic-*-vscode.vsix).
+
+    Then open any .mb file — Ctrl+F5 run, Ctrl+Shift+C check, Alt+H help.
+
+    Run and Debug -> "Debug moonBASIC" for breakpoints (needs moonrun in this folder).
 
   • For editor support (any client), run:  moonbasic --lsp  (stdio language server)
 

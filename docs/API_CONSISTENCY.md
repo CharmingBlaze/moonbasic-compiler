@@ -57,7 +57,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### ACTION
 
+- **`ACTION.BINDGAMEPAD`** - args: string, int, int
+- **`ACTION.BINDKEY`** - args: string, int
 - **`ACTION.DOWN`** - args: string -> returns bool
+- **`ACTION.HIT`** - args: string -> returns bool
 - **`ACTION.MAPAXIS`** - args: string, int, int
 - **`ACTION.MAPJOY`** - args: string, int, int
 - **`ACTION.MAPKEY`** - args: string, int
@@ -113,6 +116,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### ANIMLENGTH
 
 - **`ANIMLENGTH`** - args: handle -> returns int
+
+### APP
+
+- **`APP.CLOSE`** - args: (none)
+- **`APP.DELTA`** - args: (none) -> returns float
+- **`APP.GETFPS`** - args: (none) -> returns float
+- **`APP.HEIGHT`** - args: (none) -> returns int
+- **`APP.OPEN`** - args: int, int, string
+- **`APP.SETFPS`** - args: int
+- **`APP.SHOULDCLOSE`** - args: (none) -> returns bool
+- **`APP.TIME`** - args: (none) -> returns float
+- **`APP.VERSION`** - args: (none) -> returns string
+- **`APP.WIDTH`** - args: (none) -> returns int
 
 ### APPLYENTITYFORCE
 
@@ -189,6 +205,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`ASSERT`** - args: any, string
 
+### ASSET
+
+- **`ASSET.LOADPACK`** - args: string
+- **`ASSET.MODEL`** - args: string -> returns handle
+- **`ASSET.SOUND`** - args: string -> returns handle
+- **`ASSET.TEXTURE`** - args: string -> returns handle
+- **`ASSET.UNLOAD`** - args: (none)
+
 ### ATAN
 
 - **`ATAN`** - args: any
@@ -225,7 +249,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AUDIO.LOADSOUND`** - args: string -> returns handle
 - **`AUDIO.PAUSE`** - args: handle -> returns handle
 - **`AUDIO.PLAY`** - args: handle -> returns handle
+- **`AUDIO.PLAYMUSIC`** - args: handle
 - **`AUDIO.PLAYRNDSOUND`** - args: handle, int
+- **`AUDIO.PLAYSOUND`** - args: handle
 - **`AUDIO.PLAYVARYSOUND`** - args: handle, float, float
 - **`AUDIO.RESUME`** - args: handle -> returns handle
 - **`AUDIO.SEEKMUSIC`** - args: handle, float
@@ -235,8 +261,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AUDIO.SETSOUNDPAN`** - args: handle, float
 - **`AUDIO.SETSOUNDPITCH`** - args: handle, float
 - **`AUDIO.SETSOUNDVOLUME`** - args: handle, float
+- **`AUDIO.SETVOLUME`** - args: handle, float
 - **`AUDIO.STOP`** - args: handle -> returns handle
+- **`AUDIO.STOPMUSIC`** - args: handle
+- **`AUDIO.STOPSOUND`** - args: handle
 - **`AUDIO.UPDATEMUSIC`** - args: handle
+
+### AUDIO3D
+
+- **`AUDIO3D.ATTACH`** - args: handle, handle
+- **`AUDIO3D.LOAD`** - args: string -> returns handle
+- **`AUDIO3D.PLAYAT`** - args: handle, float, float, float, float
+- **`AUDIO3D.SETLISTENER`** - args: handle
+- **`AUDIO3D.SETRANGE`** - args: handle, float
 
 ### AUDIOSTREAM
 
@@ -352,6 +389,15 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### BODY
 
+- **`BODY.ADDCAPSULE`** - args: handle, float, float
+- **`BODY.ADDDYNAMICBOX`** - args: handle, float, float, float
+- **`BODY.ADDSPHERE`** - args: handle, float
+- **`BODY.ADDSTATICBOX`** - args: handle, float, float, float
+- **`BODY.APPLYFORCE`** - args: handle, float, float, float
+- **`BODY.APPLYIMPULSE`** - args: handle, float, float, float
+- **`BODY.SETBOUNCE`** - args: handle, float
+- **`BODY.SETFRICTION`** - args: handle, float
+- **`BODY.SETMASS`** - args: handle, float
 - **`BODY3D.LOCKAXIS`** - args: handle, int — Lock motion/rotation axes (flags: 1=X, 2=Y, 4=Z, 8=RotX, 16=RotY, 32=RotZ).
 - **`BODY3D.SETCCD`** - args: handle, bool -> returns handle — Enable/disable Continuous Collision Detection.
 - **`BODY3D.SETDAMPING`** - args: handle, float, float -> returns handle — Set linear and angular damping.
@@ -713,6 +759,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CAP
 
 - **`CAP`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.CAPSULE â€” solid capsule
+
+### CAPSULE
+
+- **`CAPSULE`** - args: float, float -> returns handle — Blitz-style static capsule entity (radius, height) â€” ENTITYREF handle
 
 ### CAPW
 
@@ -1216,7 +1266,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### CREATECUBE
 
-- **`CREATECUBE`** - args: (none) -> returns int — Easy Mode: ENTITY.CREATECUBE(1, 1, 1)
+- **`CREATECUBE`** - args: (none) -> returns handle — Easy Mode: ENTITY.CREATECUBE(1, 1, 1)
 
 ### CREATECYLINDER
 
@@ -1419,10 +1469,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### CreateCube
 
-- **`CreateCube`** - args: (none) -> returns int — Default 1x1x1 axis-aligned box; returns entity
-- **`CreateCube`** - args: int -> returns int — 1x1x1 box parented to entity (parent entity id)
-- **`CreateCube`** - args: float, float, float -> returns int — Box with width, height, depth (no parent)
-- **`CreateCube`** - args: int, float, float, float -> returns int — Box (w,h,d) parented to entity
+- **`CreateCube`** - args: (none) -> returns handle — Default 1x1x1 axis-aligned box; returns entity
+- **`CreateCube`** - args: int -> returns handle — 1x1x1 box parented to entity (parent entity id)
+- **`CreateCube`** - args: float, float, float -> returns handle — Box with width, height, depth (no parent)
+- **`CreateCube`** - args: int, float, float, float -> returns handle — Box (w,h,d) parented to entity
 
 ### CreateLight
 
@@ -2094,7 +2144,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.ADDVERTEX`** - args: handle, float, float, float -> returns int
 - **`ENTITY.ADDWOBBLE`** - args: handle, float, float
 - **`ENTITY.ALIGNTOVECTOR`** - args: int, float, float, float, int
-- **`ENTITY.ALPHA`** - args: int, float — Easy Mode: Set entity transparency (0.0 to 1.0)
+- **`ENTITY.ALPHA`** - args: int, float -> returns handle — Easy Mode: Set entity transparency (0.0 to 1.0)
 - **`ENTITY.ANIMATE`** - args: int, any, any
 - **`ENTITY.ANIMATETOWARD`** - args: int, float, float, float, float — Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE
 - **`ENTITY.ANIMCOUNT`** - args: int -> returns int
@@ -2124,9 +2174,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.COLLISIONX`** - args: int -> returns float
 - **`ENTITY.COLLISIONY`** - args: int -> returns float
 - **`ENTITY.COLLISIONZ`** - args: int -> returns float
-- **`ENTITY.COLOR`** - args: int, handle
-- **`ENTITY.COLOR`** - args: int, int, int, int
-- **`ENTITY.COLOR`** - args: int, int, int, int, int
+- **`ENTITY.COLOR`** - args: int, handle -> returns handle
+- **`ENTITY.COLOR`** - args: int, int, int, int -> returns handle
+- **`ENTITY.COLOR`** - args: int, int, int, int, int -> returns handle
 - **`ENTITY.COLORPULSE`** - args: handle, handle, handle, float — Pulses color.
 - **`ENTITY.COPY`** - args: int -> returns int
 - **`ENTITY.COUNTCHILDREN`** - args: int -> returns int
@@ -2134,7 +2184,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.CREATEBOX`** - args: float -> returns int — Uniform cube: size used for width, height, and depth (alias ENTITY.CREATECUBE)
 - **`ENTITY.CREATEBOX`** - args: float, float, float -> returns int
 - **`ENTITY.CREATECONE`** - args: int, int, int, int -> returns handle
-- **`ENTITY.CREATECUBE`** - args: float, float, float -> returns int
+- **`ENTITY.CREATECUBE`** - args: float, float, float -> returns handle
 - **`ENTITY.CREATECYLINDER`** - args: float, float, int -> returns int
 - **`ENTITY.CREATEENTITY`** - args: (none) -> returns int
 - **`ENTITY.CREATEMESH`** - args: any -> returns int — Procedural mesh: optional parentEntity; use AddVertex/UpdateMesh
@@ -2275,7 +2325,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.POINTAT`** - args: int, int
 - **`ENTITY.POINTENTITY`** - args: int, int
 - **`ENTITY.POLLMESSAGE`** - args: int -> returns string
-- **`ENTITY.POS`** - args: int, float, float, float — Easy Mode shorthand for positioning an entity
+- **`ENTITY.POS`** - args: int, float, float, float -> returns handle — Easy Mode shorthand for positioning an entity
 - **`ENTITY.POSITION`** - args: int, float, float, float, any — Alias of ENTITY.SETPOS â€” set world or local position
 - **`ENTITY.POSITIONENTITY`** - args: int, float, float, float, any
 - **`ENTITY.PUSH`** - args: int, float, float, float — Apply Jolt impulse (requires ENTITY.ADDPHYSICS)
@@ -2287,12 +2337,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.RAYCAST`** - args: float, float, float, float, float, float, float -> returns int — Jolt ray cast; returns first hit entity or 0 (same query path as PHYSICS3D/PICK)
 - **`ENTITY.RAYHIT`** - args: int, float, float, float, float, float, float -> returns bool
 - **`ENTITY.RGB`** - args: int, int, int, int — Easy Mode: Set entity color (id, r, g, b)
-- **`ENTITY.ROT`** - args: int, float, float, float — Easy Mode shorthand for rotating an entity (absolute)
+- **`ENTITY.ROT`** - args: int, float, float, float -> returns handle — Easy Mode shorthand for rotating an entity (absolute)
 - **`ENTITY.ROTATE`** - args: int, float, float, float
 - **`ENTITY.ROTATEENTITY`** - args: int, float, float, float, any
 - **`ENTITY.SAVESCENE`** - args: any
 - **`ENTITY.SCA`** - args: int, float, float, float — Easy Mode shorthand for scaling an entity (absolute)
-- **`ENTITY.SCALE`** - args: int, float, float, float
+- **`ENTITY.SCALE`** - args: int, float, float, float -> returns handle
 - **`ENTITY.SCROLLMATERIAL`** - args: int, float, float — Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)
 - **`ENTITY.SENDMESSAGE`** - args: int, string
 - **`ENTITY.SETANIMATION`** - args: int, handle, float — Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps
@@ -2724,6 +2774,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### FILE
 
 - **`FILE.CLOSE`** - args: handle
+- **`FILE.DELETE`** - args: string -> returns bool
 - **`FILE.EOF`** - args: handle -> returns bool
 - **`FILE.EXISTS`** - args: any -> returns bool
 - **`FILE.GETEOF`** - args: handle -> returns bool — Alias of FILE.EOF getter.
@@ -2734,12 +2785,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`FILE.OPENWRITE`** - args: string -> returns handle
 - **`FILE.READALLTEXT`** - args: any -> returns string
 - **`FILE.READLINE`** - args: handle
+- **`FILE.READTEXT`** - args: string -> returns string
 - **`FILE.SEEK`** - args: handle, int -> returns handle
 - **`FILE.SIZE`** - args: handle -> returns int
 - **`FILE.TELL`** - args: handle -> returns int
 - **`FILE.WRITE`** - args: handle, string — Write string to file without appending a newline.
 - **`FILE.WRITEALLTEXT`** - args: any, any
 - **`FILE.WRITELN`** - args: handle, string — Write string to file and append a newline.
+- **`FILE.WRITETEXT`** - args: string, string
 
 ### FILEEXISTS
 
@@ -3293,8 +3346,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.AXIS`** - args: any, any -> returns float — Two-key axis: -1, 0, or 1 (negKey vs posKey)
 - **`INPUT.AXISDEG`** - args: any, any, float, float -> returns float — Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) â€” radians this frame
 - **`INPUT.CHARPRESSED`** - args: (none) -> returns int
+- **`INPUT.GAMEPADAXIS`** - args: int, int -> returns float
 - **`INPUT.GAMEPADAXISCOUNT`** - args: int -> returns int
 - **`INPUT.GAMEPADBUTTONCOUNT`** - args: int -> returns int
+- **`INPUT.GAMEPADBUTTONDOWN`** - args: int, int -> returns bool
 - **`INPUT.GETGAMEPADAXISVALUE`** - args: int, int -> returns float
 - **`INPUT.GETINACTIVITY`** - args: (none) -> returns float — Returns time in seconds since the last user interaction.
 - **`INPUT.GETKEYNAME`** - args: int -> returns string
@@ -3305,12 +3360,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.JOYDOWN`** - args: any, any -> returns bool
 - **`INPUT.JOYX`** - args: (none) -> returns float
 - **`INPUT.JOYY`** - args: (none) -> returns float
-- **`INPUT.KEYDOWN`** - args: int -> returns bool
 - **`INPUT.KEYDOWN`** - args: any
+- **`INPUT.KEYDOWN`** - args: int -> returns bool
 - **`INPUT.KEYHIT`** - args: any -> returns bool
 - **`INPUT.KEYPRESSED`** - args: any
-- **`INPUT.KEYUP`** - args: int -> returns bool
 - **`INPUT.KEYUP`** - args: any
+- **`INPUT.KEYUP`** - args: int -> returns bool
 - **`INPUT.LOADMAPPINGS`** - args: string
 - **`INPUT.LOCKMOUSE`** - args: bool
 - **`INPUT.MAPGAMEPADAXIS`** - args: string, int, int
@@ -3319,6 +3374,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.MOUSEDELTA`** - args: (none) -> returns handle
 - **`INPUT.MOUSEDELTAX`** - args: (none) -> returns float
 - **`INPUT.MOUSEDELTAY`** - args: (none) -> returns float
+- **`INPUT.MOUSEDELTA_X`** - args: (none) -> returns float
+- **`INPUT.MOUSEDELTA_Y`** - args: (none) -> returns float
 - **`INPUT.MOUSEDOWN`** - args: int
 - **`INPUT.MOUSEDX`** - args: (none) -> returns float — Alias of INPUT.MOUSEDELTAX
 - **`INPUT.MOUSEDY`** - args: (none) -> returns float — Alias of INPUT.MOUSEDELTAY
@@ -3530,6 +3587,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`JSON.CREATE`** - args: (none) -> returns handle
 - **`JSON.DELETE`** - args: handle, string
 - **`JSON.FREE`** - args: handle
+- **`JSON.GET`** - args: handle, string -> returns any
 - **`JSON.GETARRAY`** - args: handle, string -> returns handle
 - **`JSON.GETBOOL`** - args: handle, string -> returns bool
 - **`JSON.GETFLOAT`** - args: handle, string -> returns float
@@ -3548,11 +3606,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`JSON.PRETTY`** - args: handle -> returns string
 - **`JSON.QUERY`** - args: handle, string -> returns any
 - **`JSON.SAVEFILE`** - args: any, any
+- **`JSON.SET`** - args: handle, string, string
 - **`JSON.SETBOOL`** - args: handle, bool
 - **`JSON.SETFLOAT`** - args: handle, string, float
 - **`JSON.SETINT`** - args: handle, string, int
 - **`JSON.SETNULL`** - args: handle, string
 - **`JSON.SETSTRING`** - args: handle, string, string
+- **`JSON.STRINGIFY`** - args: handle -> returns string
 - **`JSON.TOCSV`** - args: handle -> returns string
 - **`JSON.TOFILE`** - args: handle, string
 - **`JSON.TOFILEPRETTY`** - args: handle, string
@@ -4897,16 +4957,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PICK.CAST`** - args: (none) -> returns int — Run Jolt raycast from staged params; returns entity or 0
 - **`PICK.DIRECTION`** - args: float, float, float — Stage ray direction; length is max travel unless PICK.MAXDIST set
 - **`PICK.DIST`** - args: (none) -> returns float — Distance along ray to last hit
+- **`PICK.DISTANCE`** - args: (none) -> returns float
 - **`PICK.ENTITY`** - args: (none) -> returns int — Entity from last pick (linked BODY3D only)
 - **`PICK.FROMCAMERA`** - args: handle, float, float — Stage ray from camera handle and screen pixels (sets default MAXDIST if unset)
 - **`PICK.HIT`** - args: (none) -> returns bool — Whether last PICK.CAST / SCREENCAST hit
 - **`PICK.LAYERMASK`** - args: int — Bit i accepts ENTITY.COLLISIONLAYER i; 0 accepts all
 - **`PICK.MAXDIST`** - args: float — Optional max ray length (normalize direction then scale)
+- **`PICK.MOUSE`** - args: handle -> returns bool
 - **`PICK.NX`** - args: (none) -> returns float — Last pick surface normal X
 - **`PICK.NY`** - args: (none) -> returns float — Last pick surface normal Y
 - **`PICK.NZ`** - args: (none) -> returns float — Last pick surface normal Z
 - **`PICK.ORIGIN`** - args: float, float, float — Stage ray origin for PICK.CAST (Linux+CGO Jolt)
 - **`PICK.RADIUS`** - args: float — Reserved; non-zero returns error until sphere pick exists
+- **`PICK.RAY`** - args: float, float, float, float, float, float -> returns bool
 - **`PICK.SCREENCAST`** - args: handle, float, float -> returns int — FROMCAMERA then CAST; returns entity or 0
 - **`PICK.X`** - args: (none) -> returns float — Last pick hit world X
 - **`PICK.Y`** - args: (none) -> returns float — Last pick hit world Y
@@ -5446,6 +5509,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### RENDER
 
+- **`RENDER.BEGIN`** - args: (none)
+- **`RENDER.BEGIN`** - args: handle
 - **`RENDER.BEGIN3D`** - args: handle — Alias for CAMERA.BEGIN: 3D camera heap handle from CAMERA.CREATE or CreateCamera (deprecated alias CAMERA.MAKE)
 - **`RENDER.BEGINFRAME`** - args: (none)
 - **`RENDER.BEGINMODE2D`** - args: (none)
@@ -5458,6 +5523,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.CLEARCACHE`** - args: (none)
 - **`RENDER.CLEARSCISSOR`** - args: (none)
 - **`RENDER.DRAWFPS`** - args: int, int
+- **`RENDER.END`** - args: (none)
 - **`RENDER.END3D`** - args: (none) — Alias for CAMERA.END (no arguments)
 - **`RENDER.ENDFRAME`** - args: (none)
 - **`RENDER.ENDMODE2D`** - args: (none)
@@ -5470,6 +5536,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.SET2DAmbIENT`** - args: int, int, int, int
 - **`RENDER.SETAMBIENT`** - args: float, float, float
 - **`RENDER.SETAMBIENT`** - args: float, float, float, float
+- **`RENDER.SETBACKGROUND`** - args: int, int, int
 - **`RENDER.SETBLEND`** - args: int
 - **`RENDER.SETBLENDMODE`** - args: int
 - **`RENDER.SETBLOOM`** - args: float — POST.BLOOM threshold; intensity defaults to 1
@@ -5661,6 +5728,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`SAVE.DATA`** - args: string, string — Writes JSON data.
 - **`SAVE.GET`** - args: string -> returns string — Reads JSON data.
+- **`SAVE.READ`** - args: string
+- **`SAVE.READFILE`** - args: string
+- **`SAVE.SET`** - args: string, string
+- **`SAVE.WRITE`** - args: string
+- **`SAVE.WRITEFILE`** - args: string
 
 ### SCALEENTITY
 
@@ -6268,6 +6340,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TEXT
 
 - **`TEXT`** - args: int, int, string
+- **`TEXT.DRAW`** - args: string, int, int
+- **`TEXT.DRAWFONT`** - args: handle, string, int, int
+- **`TEXT.SIZE`** - args: string -> returns int
 
 ### TEXTDRAW
 
@@ -6400,8 +6475,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`TIMER`** - args: (none) -> returns float
 - **`TIMER`** - args: (none)
+- **`TIMER.AFTER`** - args: float, string -> returns int
+- **`TIMER.CANCEL`** - args: int
 - **`TIMER.CREATE`** - args: float -> returns handle — Simulation timer: duration in seconds; use TIMER.START/UPDATE with delta time
 - **`TIMER.DONE`** - args: handle -> returns bool
+- **`TIMER.EVERY`** - args: float, string -> returns int
 - **`TIMER.FINISHED`** - args: handle -> returns bool
 - **`TIMER.FRACTION`** - args: handle -> returns float
 - **`TIMER.FREE`** - args: handle

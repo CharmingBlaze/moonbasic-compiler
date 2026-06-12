@@ -4,8 +4,8 @@
     {
       "label": "moonbasic: Check current file",
       "type": "shell",
-      "command": "moonbasic",
-      "args": ["--check", "${file}"],
+      "command": "go",
+      "args": ["run", ".", "--check", "${file}"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -13,13 +13,13 @@
         "reveal": "always",
         "panel": "shared"
       },
-      "problemMatcher": []
+      "problemMatcher": "$moonbasic"
     },
     {
       "label": "moonbasic: Compile current file to .mbc",
       "type": "shell",
-      "command": "moonbasic",
-      "args": ["${file}"],
+      "command": "go",
+      "args": ["run", ".", "${file}"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -27,19 +27,19 @@
         "reveal": "always",
         "panel": "shared"
       },
-      "problemMatcher": []
+      "problemMatcher": "$moonbasic"
     },
     {
       "label": "moonrun: Run current file",
       "type": "shell",
-      "command": "moonrun",
-      "args": ["${file}"],
+      "command": "go",
+      "args": ["run", "-tags", "fullruntime", "./cmd/moonrun", "${file}"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared"
+        "panel": "dedicated"
       },
       "problemMatcher": []
     }

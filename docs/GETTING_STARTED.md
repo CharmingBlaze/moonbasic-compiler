@@ -6,6 +6,10 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 > **New to game development?**
 > Start with **[MoonBASIC: Your First Hour](FIRST_HOUR.md)** for a friendly introduction to the language, modern **Method Chaining**, and rapid prototyping.
 
+> [!TIP]
+> **Looking up commands by game system?**
+> Browse the **[40-system guide](systems/README.md)** (`APP`, `RENDER`, `ENTITY`, physics, audio, saves, …) — each page follows [DOCUMENTATION_STYLE_GUIDE.md](DOCUMENTATION_STYLE_GUIDE.md).
+
 ---
 
 ## 1. Installation
@@ -27,25 +31,33 @@ Extract the archive somewhere permanent — on **Windows**, keep the **full-runt
 
 More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic-compiler#download-and-use-recommended)** on GitHub.
 
-To **build moonbasic from source** (contributors), see **[BUILDING.md](BUILDING.md)**.
-
 ### VS Code: syntax and LSP
 
-After you install **`moonbasic`** from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest), you can add editor support **without cloning the repo** or installing Node.js:
+After you extract the **full runtime** zip, install the editor extension in **one step** (no Node.js, no manual VSIX):
 
-1. On the **same release page**, download **`moonbasic-<tag>-vscode.vsix`** (listed next to the platform zips).
-2. In Visual Studio Code: **Extensions** → **⋯** → **Install from VSIX…** and select that file.
-3. If **`moonbasic`** is not on your system **`PATH`**, open **Settings** → search **`moonbasic.languageServerPath`** → set it to the full path of **`moonbasic`** or **`moonbasic.exe`** (for example, the folder where you extracted the zip).
+| Platform | Easiest |
+|----------|---------|
+| **Windows** | Double-click **`INSTALL-VSCODE.bat`** in the extracted folder |
+| **Linux / macOS** | Run **`./INSTALL-VSCODE.sh`** in the extracted folder |
+| **Any** | **`moonbasic install-vscode`** |
 
-That gives you **syntax highlighting**, **snippets**, and **LSP** (completions and diagnostics) while you edit **`.mb`** files. Optional: clone the repo and use the workspace [`.vscode`](../.vscode/) tasks for **check / compile / moonrun** — see **[DEVELOPER.md — moonBASIC in VS Code](DEVELOPER.md#moonbasic-in-vs-code)** (contributors).
+The release zip already includes **`moonbasic-*-vscode.vsix`**. The installer finds **VS Code** or **Cursor**, installs the extension, and sets **`moonbasic.languageServerPath`** / **`moonbasic.moonrunPath`** to the **`moonbasic`** / **`moonrun`** next to the installer.
+
+If no local VSIX is found, **`moonbasic install-vscode`** downloads the latest **`moonbasic-*-vscode.vsix`** from GitHub automatically.
+
+**Manual fallback:** Extensions → **⋯** → **Install from VSIX…** → pick the `.vsix` in the zip.
+
+You get **syntax highlighting**, **snippets**, **LSP** (completions, hover help, diagnostics), and **moonBASIC** commands. **Ctrl+F5** run, **Ctrl+Shift+C** check, **Alt+H** help at cursor. Projects from **`moonbasic new`** include **`.vscode/`** for check, compile, run, and debug.
+
+**From source:** `powershell -File scripts/install-vscode-extension.ps1` or `./scripts/install-vscode-extension.sh`
 
 ### VS Code: debugging (full runtime)
 
 The **`moonbasic-<tag>-vscode.vsix`** extension can **debug** `.mb` games when you have **`moonrun`** from a **full runtime** archive (not compiler-only):
 
-1. Install the VSIX (above) and the **full runtime** zip/tarball for your OS.
-2. Open **Settings** → **`moonbasic.moonrunPath`** → set the full path to **`moonrun`** / **`moonrun.exe`** if it is not on **`PATH`**.
-3. Open a **`.mb`** file, set breakpoints in the gutter, then **Run and Debug** → **Debug moonBASIC** (or use the **`.vscode/launch.json`** in a project created with **`moonbasic new`**).
+1. Run **`moonbasic install-vscode`** (or **`INSTALL-VSCODE.bat`** / **`./INSTALL-VSCODE.sh`**) from the extracted full-runtime folder — paths are configured automatically.
+2. Open a **`.mb`** file, set breakpoints, then **Run and Debug** → **Debug moonBASIC** (or use **`.vscode/launch.json`** from **`moonbasic new`**).
+3. Only if needed: **Settings** → **`moonbasic.moonrunPath`** → path to **`moonrun`** when it is not beside **`moonbasic`**.
 
 Debugging uses **`moonrun --dap`** under the hood. Breakpoints pause the game; the **Globals** scope shows live variables.
 
@@ -59,7 +71,7 @@ cd MyGame
 moonrun main.mb
 ```
 
-This creates **`main.mb`**, **`assets/`**, **`.vscode/launch.json`**, and a short **`README.md`**. Edit **`main.mb`**, then run with **`moonrun`**.
+This creates **`main.mb`**, **`assets/`**, **`.vscode/`** (launch, tasks, extensions), and a short **`README.md`**. Edit **`main.mb`**, then run with **`moonrun`**.
 
 ---
 
@@ -71,9 +83,7 @@ You can share games in two straightforward ways:
 Ship your **`.mb`** source and/or **`.mbc`** bytecode, plus any **assets** (images, sounds, data files) using the **paths your scripts expect** (working directory when they run `moonrun`, or paths you set with **`RES.PATH`** and similar APIs). Tell players to install the **same [full runtime](#1-installation) archive** for their OS from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest) — **not** the **compiler-only** download (that bundle has no `moonrun` and cannot open a game window). Prefer the **same moonBASIC release tag** you used to build and test: bytecode and engine behavior stay aligned across patch versions.
 
 **B — Folder bundle (one zip per game)**  
-Ship a folder that contains **`moonrun`** (and optionally **`moonbasic`**) next to your game and assets so players extract and double-click or run from that folder. On **Windows**, use an official **`moonrun.exe`** from the full-runtime zip or a packager aligned with release builds — see **[`docs/BUILDING.md`](BUILDING.md)** (**Windows full-runtime PE link model**): official Windows builds avoid MinGW / Raylib companion DLLs beside the executables. On **Linux**, the full-runtime tarball links against the usual **glibc**, OpenGL, and desktop libraries on the build OS — **fully static Linux binaries are not the goal**; target common distros with a normal GPU stack, or build your own layout / AppImage / `.deb` from source using **[`docs/BUILDING.md`](BUILDING.md)** and maintainer notes in **[`dist/README.md`](../dist/README.md)**.
-
-Packaging helpers (maintainers / power users): **[`scripts/package_release_style_zip.ps1`](../scripts/package_release_style_zip.ps1)** (folder zip using a **release-style** `moonrun.exe`), **[`scripts/package_beta_zip.ps1`](../scripts/package_beta_zip.ps1)** (optional Zig-based build — see script header).
+Ship a folder that contains **`moonrun`** (and optionally **`moonbasic`**) next to your game and assets so players extract and run from that folder. Copy **`moonrun.exe`** / **`moonrun`** from the **same full-runtime release** you used to test. On **Linux**, use the official tarball layout or **`moonbasic package linux`** from your project folder.
 
 ---
 
@@ -264,6 +274,9 @@ Explore the specialized documentation to master every aspect of the engine:
 
 | Topic | Reference |
 |-------|-----------|
+| **Start here (install + why)** | [BEGIN_HERE.md](BEGIN_HERE.md) · [systems/00-START.md](systems/00-START.md) |
+| **Every beginner command listed** | [systems/COMMAND_REGISTRY.md](systems/COMMAND_REGISTRY.md) |
+| **40 game systems** | [systems/README.md](systems/README.md) |
 | **Core Workflow** | [Programming Guide](PROGRAMMING.md) |
 | **Language Syntax** | [Language Reference](LANGUAGE.md) — includes **`$"..."`**, **`ENUM`**, multi-return |
 | **Roadmap** | [ROADMAP.md](ROADMAP.md) — shipped vs planned language work |

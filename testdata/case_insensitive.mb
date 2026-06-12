@@ -1,0 +1,35 @@
+; Case insensitivity smoke test — mixed-case commands, keywords, constants, functions.
+
+app.open(640, 480, "Case Test")
+app.setfps(60)
+
+cam = camera.create()
+camera.setactive(cam)
+camera.setpos(cam, 0, 2, -8)
+camera.lookat(cam, 0, 0, 0)
+
+cube = entity.createcube(2, 2, 2)
+cube.pos(0, 0, 5)
+
+Function Tick()
+EndFunction
+
+TIMER.AFTER(0.1, "tick")
+
+While Not (input.keydown(key_escape) Or app.shouldclose())
+    cube.turn(0, 45 * app.delta(), 0)
+    render.clear(20, 24, 32)
+    render.begin(cam)
+    scene.draw()
+    render.end()
+    render.frame()
+Wend
+
+tick()
+Tick()
+TICK()
+
+save.set("Health", "100")
+x = save.get("health")
+
+app.close()

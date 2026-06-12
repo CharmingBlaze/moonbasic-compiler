@@ -64,7 +64,8 @@ func (v *VM) doCallUser(i opcode.Instruction) error {
 	nameIdx := int32(i.Operand & 0x00FFFFFF)
 	name := frame.Chunk.Names[nameIdx]
 
-	targetChunk, ok := v.Program.Functions[name]
+	key := NormalizeName(name)
+	targetChunk, ok := v.Program.Functions[key]
 	if !ok {
 		return v.runtimeError(fmt.Sprintf("undefined function: %s", name))
 	}

@@ -45,7 +45,7 @@ MODEL.SETPOS(m, x, y, z)
 
 1. Replace `MAKE` names with `CREATE` names.
 2. Replace `SETPOSITION` calls with `SETPOS`.
-3. Run `go run . --check <your_script.mb>` on updated scripts.
+3. Run `moonbasic --check <your_script.mb>` on updated scripts.
 4. Keep legacy aliases only for temporary compatibility branches.
 
 ## Compatibility Window

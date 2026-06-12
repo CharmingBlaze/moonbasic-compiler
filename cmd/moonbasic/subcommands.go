@@ -16,6 +16,8 @@ func dispatchSubcommand() (handled bool, exit int) {
 	switch strings.ToLower(strings.TrimSpace(os.Args[1])) {
 	case "new":
 		return true, runNewProjectCmd(os.Args[2:])
+	case "install-vscode":
+		return true, runInstallVscodeCmd(os.Args[2:])
 	}
 	return false, 0
 }
@@ -23,20 +25,21 @@ func dispatchSubcommand() (handled bool, exit int) {
 func runNewProjectCmd(argv []string) int {
 	fs := flag.NewFlagSet("new", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
+	tmpl := fs.String("template", "empty", "starter template: empty, 3d, platformer, ui, physics")
 	if err := fs.Parse(argv); err != nil {
 		return 2
 	}
 	rest := fs.Args()
 	if len(rest) != 1 {
-		fmt.Fprintln(os.Stderr, "usage: moonbasic new <project-name>")
+		fmt.Fprintln(os.Stderr, "usage: moonbasic new [--template name] <project-name>")
 		return 2
 	}
-	dir, err := scaffold.Create(rest[0])
+	dir, err := scaffold.Create(rest[0], *tmpl)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	fmt.Printf("Created project %s\n  main.mb\n  assets/\n  .vscode/launch.json\n  README.md\n", dir)
+	fmt.Printf("Created project %s\n  main.mb\n  assets/\n  .vscode/ (launch, tasks, extensions)\n  README.md\n", dir)
 	fmt.Println("Next: moonrun main.mb")
 	return 0
 }

@@ -2,7 +2,6 @@ package vm
 
 import (
 	"fmt"
-	"strings"
 
 	"moonbasic/vm/value"
 )
@@ -24,10 +23,10 @@ func (v *VM) CallUserFunction(name string, args []value.Value) (ret value.Value,
 	if v.Program == nil {
 		return value.Nil, fmt.Errorf("no program loaded")
 	}
-	key := strings.ToLower(strings.TrimSpace(name))
+	key := NormalizeName(name)
 	chunk, ok := v.Program.Functions[key]
 	if !ok {
-		err = fmt.Errorf("undefined function: %s", key)
+		err = fmt.Errorf("undefined function: %s", name)
 		if v.Registry != nil {
 			v.Registry.SetLastScriptError(err)
 		}

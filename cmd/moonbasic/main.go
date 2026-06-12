@@ -34,6 +34,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "moonBASIC Compiler %s\n", version.Version)
 		fmt.Fprintf(os.Stderr, "Usage:\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic new <name>            scaffold a new game project\n")
+		fmt.Fprintf(os.Stderr, "  moonbasic install-vscode        install VS Code / Cursor extension\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic [flags] <source.mb>     compile to .mbc\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --check <source.mb>     parse and type-check only\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --lsp                   language server on stdio\n")

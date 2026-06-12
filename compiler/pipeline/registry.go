@@ -20,6 +20,7 @@ import (
 	mbdb "moonbasic/runtime/dbmod"
 	mbblitz "moonbasic/runtime/blitzengine"
 	mbasset "moonbasic/runtime/mbasset"
+	"moonbasic/runtime/checklist_aliases"
 	mbcoroutine "moonbasic/runtime/mbcoroutine"
 	mbdraw "moonbasic/runtime/draw"
 	mbfile "moonbasic/runtime/file"
@@ -48,6 +49,7 @@ import (
 	mbpool "moonbasic/runtime/mbpool"
 	mbrand "moonbasic/runtime/mbrand"
 	mbscene "moonbasic/runtime/mbscene"
+	mbsave "moonbasic/runtime/mbsave"
 	mbtilemap "moonbasic/runtime/mbtilemap"
 	mbtransition "moonbasic/runtime/mbtransition"
 	mbtween "moonbasic/runtime/mbtween"
@@ -140,6 +142,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbfont.NewModule())
 	reg.RegisterModule(mbgui.NewModule())
 	reg.RegisterModule(audMod)
+	reg.RegisterModule(mbsave.NewModule())
 	reg.RegisterModule(mbjson.NewModule())
 	reg.RegisterModule(mbcsv.NewModule())
 	reg.RegisterModule(mbdb.NewModule())
@@ -172,6 +175,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	// mbentity must register after blitz: Registry.Call uppercases names, so CreateSphere → CREATESPHERE
 	// and would otherwise be overwritten by Blitz's legacy CREATESPHERE (segments, parent) handler.
 	reg.RegisterModule(mbentity.NewModule())
+	reg.RegisterModule(checklistaliases.NewModule())
 
 	// Stubs for manifest entries not yet implemented natively
 	reg.RegisterFromManifest(builtinmanifest.Default())
@@ -294,6 +298,7 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 	var eventMod *mbevent.Module
 	var navMod *mbnav.Module
 	var coMod *mbcoroutine.Module
+	var gameMod *mbgame.Module
 
 	for _, m := range reg.Modules {
 		switch mod := m.(type) {
@@ -309,6 +314,8 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 			navMod = mod
 		case *mbcoroutine.Module:
 			coMod = mod
+		case *mbgame.Module:
+			gameMod = mod
 		}
 	}
 
@@ -340,6 +347,9 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 	if coMod != nil {
 		coMod.BindVM(machine)
 	}
+	if gameMod != nil {
+		gameMod.SetUserInvoker(machine.CallUserFunction)
+	}
 
 	wirePerFrameHooks(reg, machine)
 
@@ -361,12 +371,15 @@ func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
 func wirePerFrameHooks(reg *runtime.Registry, machine *vm.VM) {
 	var winMod *window.Module
 	var inputMod *input.Module
+	var gameMod *mbgame.Module
 	for _, m := range reg.Modules {
 		switch mod := m.(type) {
 		case *window.Module:
 			winMod = mod
 		case *input.Module:
 			inputMod = mod
+		case *mbgame.Module:
+			gameMod = mod
 		}
 	}
 	if inputMod != nil {
@@ -378,6 +391,9 @@ func wirePerFrameHooks(reg *runtime.Registry, machine *vm.VM) {
 	winMod.AppendFrameDrawHook(func() {
 		if inputMod != nil {
 			inputMod.PollGamepadEvents()
+		}
+		if gameMod != nil {
+			gameMod.TickCallbackTimers()
 		}
 		now := float64(time.Now().UnixNano()) / 1e9
 		machine.TickCoroutines(now)

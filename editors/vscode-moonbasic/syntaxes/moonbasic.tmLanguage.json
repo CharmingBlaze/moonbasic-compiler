@@ -6,7 +6,9 @@
     { "include": "#strings" },
     { "include": "#floats" },
     { "include": "#ints" },
+    { "include": "#keyConstants" },
     { "include": "#namespaceCall" },
+    { "include": "#handleMethods" },
     { "include": "#keywords" },
     { "include": "#operators" }
   ],
@@ -35,19 +37,27 @@
       "name": "constant.numeric.integer.moonbasic",
       "match": "(?i)(?<![\\w.])(-)?\\d+\\b"
     },
+    "keyConstants": {
+      "name": "constant.language.moonbasic",
+      "match": "(?i)\\bKEY_[A-Z0-9_]+\\b"
+    },
     "namespaceCall": {
       "name": "entity.name.function.moonbasic",
       "match": "(?i)[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "handleMethods": {
+      "name": "entity.name.function.moonbasic",
+      "match": "(?i)(?<=[\\w\\)])\\.(pos|look|fov|move|turn|scale|visible|name)\\b"
     },
     "keywords": {
       "patterns": [
         {
           "name": "keyword.control.moonbasic",
-          "match": "(?i)\\b(IF|THEN|ELSE|ELSEIF|ENDIF|WHILE|WEND|ENDWHILE|FOR|TO|DOWNTO|STEP|NEXT|REPEAT|UNTIL|SELECT|CASE|DEFAULT|ENDSELECT|FUNCTION|ENDFUNCTION|RETURN|TYPE|FIELD|ENDTYPE|NEW|DELETE|EACH|GOTO|GOSUB|DIM|REDIM|PRESERVE|LOCAL|GLOBAL|CONST|STATIC|SWAP|ERASE|INCLUDE|END)\\b"
+          "match": "(?i)\\b(IF|THEN|ELSE|ENDIF|WHILE|WEND|ENDWHILE|FOR|TO|DOWNTO|STEP|NEXT|REPEAT|UNTIL|SELECT|CASE|DEFAULT|ENDSELECT|FUNCTION|ENDFUNCTION|RETURN|TYPE|FIELD|ENDTYPE|NEW|DELETE|EACH|GOTO|GOSUB|DIM|REDIM|PRESERVE|LOCAL|GLOBAL|CONST|STATIC|SWAP|ERASE|INCLUDE|IMPORT|END)\\b"
         },
         {
           "name": "keyword.operator.word.moonbasic",
-          "match": "(?i)\\b(AND|OR|NOT|XOR|MOD|TRUE|FALSE|NULL|PRINT)\\b"
+          "match": "(?i)\\b(AND|OR|NOT|XOR|MOD|TRUE|FALSE|NULL|PRINT|HELP)\\b"
         }
       ]
     },

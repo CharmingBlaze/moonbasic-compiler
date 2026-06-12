@@ -13,6 +13,9 @@ func (m *Module) registerFileExtras(r runtime.Registrar) {
 	r.Register("FILE.EXISTS", "file", m.fileExists)
 	r.Register("FILE.READALLTEXT", "file", m.fileReadAllText)
 	r.Register("FILE.WRITEALLTEXT", "file", m.fileWriteAllText)
+	r.Register("FILE.DELETE", "file", m.fileDelete)
+	r.Register("FILE.READTEXT", "file", m.fileReadAllText)
+	r.Register("FILE.WRITETEXT", "file", m.fileWriteAllText)
 }
 
 func (m *Module) fileExists(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -64,4 +67,21 @@ func (m *Module) fileWriteAllText(rt *runtime.Runtime, args ...value.Value) (val
 		return value.Nil, err
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) fileDelete(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("FILE.DELETE expects (path)")
+	}
+	path, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	if err := os.Remove(path); err != nil {
+		if os.IsNotExist(err) {
+			return value.FromBool(false), nil
+		}
+		return value.Nil, err
+	}
+	return value.FromBool(true), nil
 }
