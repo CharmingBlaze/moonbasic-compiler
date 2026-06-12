@@ -2,10 +2,25 @@
 
 **Generated** by `python tools/diff_manifest_runtime.py --write`. **In Runtime but Missing from Manifest** lists only **string literals** in `.Register("…")` (alias helpers like `regFlat` are not counted here). **In Manifest but Missing from Runtime** uses a **wide** scan: those literals plus keys from `regFlat`, `regLegacy2`, `regRT0`, two-arg `reg`, and single-arg `reg`. Not every builtin is covered. Treat gaps as triage hints.
 
-## In Runtime but Missing from Manifest (0)
+## In Runtime but Missing from Manifest (15)
 These commands appear as string literals in `.Register("…")` but have no entry in commands.json.
 The compiler will reject .mb scripts that try to use them.
 
+- `ACTION.BINDMOUSE`
+- `ASSET.PATH`
+- `ASSET.RESOLVE`
+- `COROUTINE.DONE`
+- `COROUTINE.RESUME`
+- `COROUTINE.START`
+- `COROUTINE.WAIT`
+- `FONT.BUILTIN`
+- `INPUT.GAMEPADCONNECTED`
+- `INPUT.ONGAMEPAD`
+- `SOUND.BUILTIN`
+- `SPRITE.BUILTIN`
+- `TIME.PHYSICSSTEP`
+- `TIME.PHYSICSSTEPS`
+- `WINDOW.SETLOOPMODE`
 
 ## In Manifest but Missing from Runtime (337)
 These commands are declared in commands.json but have no runtime registration.
