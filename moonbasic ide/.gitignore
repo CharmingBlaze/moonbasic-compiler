@@ -1,15 +1,12 @@
+# Build / sync output
 node_modules/
 frontend/
 dist/
 build/bin/
-toolchain/*.exe
-toolchain/moonbasic
-toolchain/moonrun
-toolchain/raylib.dll
-toolchain/paths.local.json
+
+# Local binaries (never commit)
 raylib.dll
 *.exe
-nl-test.zip
-save.json
+
 .DS_Store
 Thumbs.db
