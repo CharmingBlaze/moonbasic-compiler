@@ -34,5 +34,10 @@ third_party/JoltPhysics/
 debug_output*.txt
 output.txt
 moonbasic.exe~
+moonrun.exe~
 test_error.mb
+spin_test.txt
+save.json
+_mattest/
+examples/**/*.mbc
 editors/vscode-moonbasic/vscode-moonbasic-*.vsix

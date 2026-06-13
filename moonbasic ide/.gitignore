@@ -10,3 +10,7 @@ raylib.dll
 
 .DS_Store
 Thumbs.db
+
+# Local IDE state / scratch
+save.json
+*.zip
