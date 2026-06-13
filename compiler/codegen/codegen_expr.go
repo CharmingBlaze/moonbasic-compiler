@@ -163,6 +163,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		idx := ch.AddName(strings.ToUpper(n.TypeName))
 		dst := g.allocReg()
 		ch.Emit(opcode.OpNew, dst, 0, 0, idx, n.Line)
+		g.nextReg = dst + 1
 		return dst
 
 	case *ast.FieldAccessNode:
@@ -170,8 +171,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 			recReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Object, Line: n.Line, Col: n.Col})
 			dst := g.allocReg()
 			ch.Emit(opcode.OpArrayLen, dst, recReg, 0, 0, n.Line)
-			g.nextReg = recReg
-			g.allocReg()
+			g.nextReg = dst + 1
 			return dst
 		}
 		recReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Object, Line: n.Line, Col: n.Col})
@@ -179,8 +179,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		dst := g.allocReg()
 		ch.Emit(opcode.OpFieldGet, dst, recReg, 0, fidx, n.Line)
 
-		g.nextReg = recReg
-		g.allocReg() // keep dst
+		g.nextReg = dst + 1
 		return dst
 
 	case *ast.UnaryNode:
@@ -203,9 +202,8 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		}
 		dst := g.allocReg()
 		ch.Emit(opcode.OpArrayGet, dst, baseReg, dimStart, int32(len(n.Index)), n.Line)
-		
-		g.nextReg = baseReg
-		g.allocReg()
+
+		g.nextReg = dst + 1
 		return dst
 
 	case *ast.GroupedExpr:
@@ -231,8 +229,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 
 	case *ast.NamespaceCallExpr:
 		if dst, ok := g.tryEmitEnumMember(ch, n.NS, n.Method, len(n.Args), n.Line); ok {
-			g.nextReg = g.baseReg
-			g.allocReg()
+			g.nextReg = dst + 1
 			return dst
 		}
 		// NS.METHOD(...)
@@ -254,8 +251,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 				idReg := g.emitExpr(ch, n.Args[0])
 				dst := g.allocReg()
 				ch.Emit(opcode.OpEntityPropGet, dst, idReg, 0, int32(propID), n.Line)
-				g.nextReg = idReg
-				g.allocReg() // keep dst
+				g.nextReg = dst + 1
 				return dst
 			}
 			fmt.Printf("DEBUG: codegen: ENTITY macro NOT matched: %s\n", n.Method)
@@ -268,9 +264,8 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		
 		operand := (int32(len(n.Args)) << 24) | idx
 		ch.Emit(opcode.OpCallBuiltin, dst, 0, argStart, operand, n.Line)
-		
-		g.nextReg = argStart
-		g.allocReg()
+
+		g.nextReg = dst + 1
 		return dst
 
 	case *ast.IndexFieldExpr:
@@ -288,9 +283,8 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		fidx := ch.AddName(strings.ToUpper(n.Field))
 		dst := g.allocReg()
 		ch.Emit(opcode.OpFieldGet, dst, objReg, 0, fidx, n.Line)
-		
-		g.nextReg = arrReg
-		g.allocReg()
+
+		g.nextReg = dst + 1
 		return dst
 
 	default:
