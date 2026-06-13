@@ -13,10 +13,13 @@ If you came here from the repo: **you usually do not need this folder.**
 2. **Running games (engine at runtime)**  
    Calling **`WINDOW.*`**, **`PHYSICS3D.*`**, etc. needs the **engine**, which ships as **`moonrun`** in the **full runtime** archives — not in the compiler-only zip. Use the **full runtime** download when you need to **execute** those calls on a machine (graphics, physics, net, …).
 
-3. **Four download archives per version tag**  
-   Each release publishes **two** full-runtime (Linux + Windows) and **two** compiler-only archives. Together they cover tooling plus “run anywhere you install the full bundle.”
+3. **Five download families per version tag**  
+   Each release publishes **IDE bundles** (Windows/Linux/macOS), **two** full-runtime archives, **two** compiler-only archives, and a VS Code extension. Together they cover beginners (IDE), tooling, and “run anywhere you install the full bundle.”
 
-4. **VS Code extension (optional)**  
+4. **moonBASIC IDE (recommended for beginners)**  
+   **`moonbasic-<tag>-ide-windows-amd64.zip`**, **`moonbasic-<tag>-ide-linux-amd64.tar.gz`**, or **`moonbasic-<tag>-ide-macos-arm64.tar.gz`** — includes **`moonbasic-ide`**, **`moonbasic`**, **`moonrun`**, and **README-IDE-RELEASE.txt**. Documentation is built into the IDE. Extract and run **START-IDE** — no other tools required. Published on **[github.com/CharmingBlaze/moonbasic/releases](https://github.com/CharmingBlaze/moonbasic/releases)**.
+
+5. **VS Code extension (optional)**  
    Each tagged release also publishes **`moonbasic-<tag>-vscode.vsix`**. Install with **Extensions → … → Install from VSIX…** in Visual Studio Code, then ensure **`moonbasic`** is on **`PATH`** or set **`moonbasic.languageServerPath`** to your **`moonbasic` / `moonbasic.exe`**. No Node.js or git clone required. Steps: **[`docs/GETTING_STARTED.md`](../docs/GETTING_STARTED.md#vs-code-syntax-and-lsp)**.
 
 ---
@@ -27,6 +30,7 @@ If you came here from the repo: **you usually do not need this folder.**
 
 | Artifact | Contents | Typical use |
 |----------|----------|-------------|
+| **IDE bundle** (`moonbasic-<tag>-ide-…`) | `moonbasic-ide` + `moonbasic` + `moonrun` + README | Easiest setup — editor, docs, check, compile, run in one folder. |
 | **Full runtime** (`moonbasic-<tag>-windows-amd64.zip` / `linux-amd64.tar.gz`) | `moonbasic` + `moonrun` + README | Play and develop games with a window; needs OS + GPU/OpenGL stack; Windows may need VC++ redist (see `README-RELEASE.txt` in the zip). |
 | **Compiler only** (`moonbasic-<tag>-compiler-…`) | `moonbasic` only — **no `moonrun`** | CI, lint, compile to `.mbc`, LSP — **no** Raylib DLLs beside the compiler. |
 
