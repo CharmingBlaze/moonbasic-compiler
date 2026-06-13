@@ -134,6 +134,93 @@ func TestCompileFuncRefAndEachType(t *testing.T) {
 	}
 }
 
+func TestNamespaceCallMethodChainPreservesReceiverReg(t *testing.T) {
+	assertBuiltinHandleChain(t, "cube = ENTITY.CREATECUBE(1, 1, 1).scale(1.4, 1.4, 1.4)\n", "ENTITY.CREATECUBE", "SCALE")
+}
+
+func TestCameraCreateFovChainPreservesReceiverReg(t *testing.T) {
+	assertBuiltinHandleChain(t, "cam = CAMERA.CREATE().fov(55)\n", "CAMERA.CREATE", "FOV")
+}
+
+func TestIndexExprHandleChainPreservesReceiverReg(t *testing.T) {
+	assertBuiltinHandleChain(t, "DIM ents(4)\nx = ents(1).pos(0, 0, 0)\n", "", "POS")
+}
+
+func assertBuiltinHandleChain(t *testing.T, src, builtinName, handleMethod string) {
+	t.Helper()
+	lines := parser.SplitLines(src)
+	tree, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	g := New("t.mb", lines)
+	out, err := g.Compile(tree)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ins := out.Main.Instructions
+	var builtinDst uint8
+	var foundBuiltin bool
+	if builtinName != "" {
+		for i := range ins {
+			if ins[i].Op != opcode.OpCallBuiltin {
+				continue
+			}
+			name := strings.ToUpper(out.Main.Names[ins[i].Operand&0x00FFFFFF])
+			if name == builtinName {
+				builtinDst = ins[i].Dst
+				foundBuiltin = true
+			}
+		}
+	}
+	var receiverReg uint8
+	var foundHandle bool
+	for i := range ins {
+		if ins[i].Op != opcode.OpCallHandle {
+			continue
+		}
+		name := strings.ToUpper(out.Main.Names[ins[i].Operand&0x00FFFFFF])
+		if name == handleMethod {
+			receiverReg = ins[i].SrcA
+			foundHandle = true
+			argStart := ins[i].SrcB
+			argCount := int(uint32(ins[i].Operand) >> 24)
+			for a := 0; a < argCount; a++ {
+				if argStart+uint8(a) == receiverReg {
+					t.Fatalf("%s arg reg R%d overlaps receiver R%d", handleMethod, argStart+uint8(a), receiverReg)
+				}
+			}
+			break
+		}
+	}
+	if builtinName != "" && !foundBuiltin {
+		t.Fatalf("missing CALL_BUILTIN for %s", builtinName)
+	}
+	if !foundHandle {
+		t.Fatalf("missing CALL_HANDLE for %s", handleMethod)
+	}
+	if builtinName != "" && receiverReg != builtinDst {
+		t.Fatalf("%s receiver reg R%d != %s dst R%d", handleMethod, receiverReg, builtinName, builtinDst)
+	}
+	if builtinName == "" {
+		// Index/array receiver: ensure ARRAY_GET result is not clobbered by handle args.
+		var arrayGetDst uint8
+		var foundArrayGet bool
+		for i := range ins {
+			if ins[i].Op == opcode.OpArrayGet {
+				arrayGetDst = ins[i].Dst
+				foundArrayGet = true
+			}
+		}
+		if !foundArrayGet {
+			t.Fatal("expected ARRAY_GET before chained handle call")
+		}
+		if receiverReg != arrayGetDst {
+			t.Fatalf("%s receiver reg R%d != ARRAY_GET dst R%d", handleMethod, receiverReg, arrayGetDst)
+		}
+	}
+}
+
 func TestCompileFuncLitAndCallRef(t *testing.T) {
 	src := "FUNCTION Main()\ncb = FUNCTION(x)\nRETURN x + 1\nENDFUNCTION\ny = cb(2)\nENDFUNCTION\n"
 	lines := parser.SplitLines(src)

@@ -167,13 +167,21 @@ func pbrSharedShader() rl.Shader {
 	return pbrSharedShaderRL
 }
 
-func makePBRMaterial() rl.Material {
-	mat := rl.LoadMaterialDefault()
+func makePBRMaterial() (mat rl.Material) {
+	defer func() {
+		if recover() != nil {
+			mat = rl.Material{}
+		}
+	}()
+	mat = rl.LoadMaterialDefault()
 	sh := pbrSharedShader()
 	if !rl.IsShaderValid(sh) {
 		return mat
 	}
 	mat.Shader = sh
+	if mat.Maps == nil {
+		return mat
+	}
 	mat.GetMap(rl.MapRoughness).Value = 1
 	mat.GetMap(rl.MapMetalness).Value = 1
 	mat.GetMap(rl.MapEmission).Value = 0
