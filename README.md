@@ -25,6 +25,8 @@ Pre-built binaries ship from **[github.com/CharmingBlaze/moonbasic/releases](htt
 
 ### First steps with the IDE
 
+![moonBASIC IDE — editor, documentation, check, compile, and run in one app](docs/images/moonbasic-ide.png)
+
 1. Download **`moonbasic-<tag>-ide-…`** from [moonbasic releases](https://github.com/CharmingBlaze/moonbasic/releases/latest).
 2. Extract and run **START-IDE** (see `README-IDE-RELEASE.txt` in the archive).
 3. Open a `.mb` file — **F5** run, **Ctrl+Shift+C** check, **Alt+H** help at cursor.
