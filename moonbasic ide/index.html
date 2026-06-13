@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>moonBASIC IDE</title>
+  <link rel="stylesheet" href="css/vscode.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+</head>
+<body>
+
+<div class="titlebar">
+  <div class="titlebar-logo" id="logo"></div>
+  <nav class="menubar" id="menubar"></nav>
+  <div class="titlebar-spacer"></div>
+  <div class="titlebar-actions">
+    <div class="titlebar-menu-root" id="settings-menu-root">
+      <button type="button" class="action-btn" id="btn-settings" title="Settings" aria-haspopup="true"></button>
+      <div class="menu-dropdown titlebar-dropdown" id="settings-dropdown" hidden>
+        <button type="button" class="menu-item" data-settings-open="themes">Themes &amp; Appearance…</button>
+        <button type="button" class="menu-item" data-settings-open="editor">Editor &amp; Fonts…</button>
+        <button type="button" class="menu-item" data-settings-open="colors">Custom Colors…</button>
+        <hr class="menu-sep">
+        <button type="button" class="menu-item" data-settings-open="toolchain">Toolchain…</button>
+      </div>
+    </div>
+    <button class="action-btn" id="btn-check" title="Check"></button>
+    <button class="action-btn" id="btn-compile" title="Compile"></button>
+    <button class="action-btn primary" id="btn-run" title="Run (F5)"></button>
+  </div>
+</div>
+
+<div class="workbench">
+  <nav class="activity-bar" id="activity-bar"></nav>
+
+  <div class="sidebar-wrap" id="sidebar-wrap">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-panel active" data-panel="explorer">
+      <div class="sidebar-header">
+        <span>Explorer</span>
+        <div class="sidebar-actions">
+          <button class="icon-btn" id="btn-open-folder" title="Open folder"></button>
+          <button class="icon-btn" id="btn-new" title="New file"></button>
+          <button class="icon-btn" id="btn-open" title="Open .mb file"></button>
+          <button class="icon-btn" id="btn-save" title="Save"></button>
+        </div>
+      </div>
+      <div class="sidebar-scroll" id="file-tree">
+        <p class="sidebar-hint">Open or create <code>main.mb</code> files. Use <strong>New Project</strong> from the File menu to scaffold a game folder.</p>
+      </div>
+    </div>
+    <div class="sidebar-panel" data-panel="examples">
+      <div class="sidebar-header"><span>Examples</span></div>
+      <div class="sidebar-scroll" id="example-list"></div>
+    </div>
+    <div class="sidebar-panel" data-panel="snippets">
+      <div class="sidebar-header"><span>Snippets</span></div>
+      <div class="sidebar-scroll" id="snippet-list"></div>
+    </div>
+    <div class="sidebar-panel" data-panel="docs">
+      <div class="sidebar-header"><span>Documentation</span></div>
+      <div class="sidebar-scroll">
+        <input type="search" id="doc-search" placeholder="Search docs…" spellcheck="false">
+        <div id="doc-list"></div>
+      </div>
+    </div>
+    <div class="sidebar-panel" data-panel="reference">
+      <div class="sidebar-header"><span>API Reference</span></div>
+      <div class="sidebar-scroll" id="ref-list-wrap">
+        <input type="search" id="ref-search" placeholder="Search commands (F1)…" spellcheck="false">
+        <div id="ref-list"></div>
+      </div>
+    </div>
+  </aside>
+  <div class="resize-handle resize-v" id="resize-sidebar" title="Drag to resize sidebar"></div>
+  </div>
+
+  <div class="main-column">
+    <div class="editor-row">
+      <div class="editor-stack" id="editor-stack">
+        <div class="editor-tabs" id="tab-bar"></div>
+        <div class="breadcrumb" id="breadcrumb">moonBASIC <span>›</span> <span id="bc-file">untitled.mb</span></div>
+        <div class="find-bar" id="find-bar" hidden>
+          <div class="find-bar-row">
+            <input type="text" id="find-input" placeholder="Find in file…" spellcheck="false">
+            <button type="button" class="find-btn" id="find-prev" title="Previous">↑</button>
+            <button type="button" class="find-btn" id="find-next" title="Next">↓</button>
+            <button type="button" class="find-close" id="find-close" title="Close">×</button>
+          </div>
+        </div>
+        <div class="editor-container" id="editor-mount"></div>
+        <div class="resize-handle resize-h" id="resize-panel" title="Drag to resize panel"></div>
+        <div class="bottom-panel" id="bottom-panel">
+          <div class="panel-tabs">
+            <div class="panel-tab active" data-panel="terminal">Terminal</div>
+            <div class="panel-tab" data-panel="problems">Problems</div>
+          </div>
+          <div class="panel-body">
+            <div class="panel-pane active" id="pane-terminal">
+              <div class="terminal-output" id="console-output">
+                <div class="log-dim">moonBASIC IDE — edit .mb files, check, compile, and run with moonbasic / moonrun</div>
+              </div>
+            </div>
+            <div class="panel-pane" id="pane-problems"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="resize-handle resize-v" id="split-h" title="Drag to resize help panel"></div>
+
+      <div class="preview-stack" id="help-stack">
+        <div class="preview-tabs">
+          <div class="preview-tab active" data-doc-tab="guide">Documentation</div>
+          <div class="preview-tab" data-doc-tab="cursor">At Cursor</div>
+          <div class="preview-tabs-spacer"></div>
+          <button type="button" class="panel-close-btn" id="btn-hide-right" title="Hide help panel (Ctrl+\)">×</button>
+        </div>
+        <div class="preview-body preview-body-stack">
+          <div class="preview-overlay" id="preview-overlay">
+            <div id="overlay-logo"></div>
+            <h2>moonBASIC IDE</h2>
+            <p>Write <code>.mb</code> source for the real moonBASIC compiler — 2D/3D games with Raylib, Jolt physics, and the full engine runtime.</p>
+            <p>Press <kbd>F5</kbd> to run · <kbd>Ctrl+Shift+C</kbd> to check · <kbd>Ctrl+Space</kbd> for autocomplete</p>
+            <div class="welcome-examples" id="welcome-examples">
+              <button type="button" class="welcome-btn primary" id="btn-new-project">New Project…</button>
+              <button type="button" class="welcome-btn" data-example="hello">Hello</button>
+              <button type="button" class="welcome-btn" data-example="spin_cube">3D Cube</button>
+              <button type="button" class="welcome-btn" data-example="pong">2D Pong</button>
+              <button type="button" class="welcome-btn" data-example="gui_basics">GUI</button>
+            </div>
+          </div>
+          <div class="help-panel-body doc-viewer" id="doc-viewer"></div>
+          <div class="help-panel-body doc-viewer hidden" id="help-cursor-panel"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <div class="statusbar-item"><div class="statusbar-dot" id="status-dot"></div><span id="status-text">Ready</span></div>
+  <div class="statusbar-item" id="cursor-pos">Ln 1, Col 1</div>
+  <div class="statusbar-spacer"></div>
+  <div class="statusbar-item">moonBASIC</div>
+  <div class="statusbar-item">.mb</div>
+  <div class="statusbar-item">UTF-8</div>
+</div>
+
+<input type="file" id="file-input" accept=".mb,.txt" hidden>
+
+<div id="modal-project" class="modal" hidden>
+  <div class="modal-backdrop">
+    <div class="modal-card modal-card-wide" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">New Project</h3>
+        <button type="button" class="modal-close" data-modal-close title="Close">×</button>
+      </div>
+      <p class="project-step-label"></p>
+      <div class="project-folder-row">
+        <label for="project-folder-display">Project folder</label>
+        <input type="text" id="project-folder-display" readonly placeholder="Choose a folder first…" spellcheck="false">
+      </div>
+      <div class="modal-options"></div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" data-modal-close>Cancel</button>
+        <button type="button" class="modal-btn primary" data-project-create>Create Project</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-goto" class="modal" hidden>
+  <div class="modal-backdrop">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Go to Line</h3>
+        <button type="button" class="modal-close" data-modal-close title="Close">×</button>
+      </div>
+      <div class="modal-input-body">
+        <label for="goto-line-input">Line number</label>
+        <input type="number" id="goto-line-input" min="1" placeholder="1" spellcheck="false">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" data-modal-close>Cancel</button>
+        <button type="button" class="modal-btn primary" id="goto-line-go">Go</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-shortcuts" class="modal" hidden>
+  <div class="modal-backdrop">
+    <div class="modal-card modal-card-wide" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Keyboard Shortcuts</h3>
+        <button type="button" class="modal-close" data-modal-close title="Close">×</button>
+      </div>
+      <div class="shortcuts-list" id="shortcuts-list"></div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-choice" class="modal" hidden>
+  <div class="modal-backdrop">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Choose</h3>
+        <button type="button" class="modal-close" data-modal-close title="Close">×</button>
+      </div>
+      <div class="modal-options"></div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-settings" class="modal" hidden>
+  <div class="modal-backdrop">
+    <div class="modal-card modal-card-settings" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <div class="modal-header">
+        <h3 class="modal-title" id="settings-modal-title">Settings</h3>
+        <button type="button" class="modal-close" id="settings-close-x" title="Close">×</button>
+      </div>
+      <div class="settings-shell">
+        <nav class="settings-nav" aria-label="Settings sections">
+          <button type="button" class="settings-nav-btn active" data-settings-tab="themes">Themes</button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="editor">Editor</button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="colors">Colors</button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="toolchain">Toolchain</button>
+        </nav>
+        <div class="settings-body">
+          <div class="settings-pane active" data-settings-pane="themes">
+            <h4 class="settings-section-title">Theme presets</h4>
+            <div id="settings-theme-grid" class="theme-grid"></div>
+            <div class="settings-actions-inline">
+              <button type="button" class="modal-btn secondary" id="settings-reset-appearance">Reset to defaults</button>
+            </div>
+          </div>
+          <div class="settings-pane" data-settings-pane="editor">
+            <h4 class="settings-section-title">Editor &amp; interface</h4>
+            <div class="settings-row">
+              <label for="set-editor-size">Editor font size</label>
+              <input type="range" id="set-editor-size" min="10" max="28" step="1" value="15">
+              <span class="settings-val" id="set-editor-size-val">15</span>
+            </div>
+            <div class="settings-row">
+              <label for="set-editor-line">Editor line height</label>
+              <input type="range" id="set-editor-line" min="1.2" max="2.2" step="0.05" value="1.65">
+              <span class="settings-val" id="set-editor-line-val">1.65</span>
+            </div>
+            <div class="settings-row">
+              <label for="set-ui-size">UI font size</label>
+              <input type="range" id="set-ui-size" min="10" max="18" step="1" value="13">
+              <span class="settings-val" id="set-ui-size-val">13</span>
+            </div>
+            <div class="settings-row">
+              <label for="set-font-mono">Monospace font</label>
+              <select id="set-font-mono"></select>
+            </div>
+          </div>
+          <div class="settings-pane" data-settings-pane="colors">
+            <h4 class="settings-section-title">Custom colors</h4>
+            <p class="settings-hint">Overrides apply on top of the selected theme. Changes preview live.</p>
+            <div id="settings-color-groups"></div>
+            <div class="settings-actions-inline">
+              <button type="button" class="modal-btn secondary" id="settings-reset-colors">Reset color overrides</button>
+            </div>
+          </div>
+          <div class="settings-pane" data-settings-pane="toolchain">
+            <h4 class="settings-section-title">Compiler paths</h4>
+            <p class="settings-hint" id="settings-hint"></p>
+            <div class="settings-field">
+              <label for="settings-moonbasic">moonbasic (compiler / LSP)</label>
+              <div class="settings-path-row">
+                <input type="text" id="settings-moonbasic" placeholder="Auto-detect from PATH or IDE folder" spellcheck="false">
+                <button type="button" class="modal-btn secondary" id="settings-browse-moonbasic">Browse…</button>
+              </div>
+            </div>
+            <div class="settings-field">
+              <label for="settings-moonrun">moonrun (runtime player)</label>
+              <div class="settings-path-row">
+                <input type="text" id="settings-moonrun" placeholder="Optional — needed for F5 Run" spellcheck="false">
+                <button type="button" class="modal-btn secondary" id="settings-browse-moonrun">Browse…</button>
+              </div>
+            </div>
+            <div class="settings-status" id="settings-status"></div>
+            <div class="settings-actions-inline">
+              <button type="button" class="modal-btn secondary" id="settings-clear-toolchain">Clear paths</button>
+              <button type="button" class="modal-btn secondary" id="settings-test-toolchain">Test toolchain</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer settings-footer">
+        <button type="button" class="modal-btn secondary" id="settings-cancel">Cancel</button>
+        <button type="button" class="modal-btn primary" id="settings-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/match-highlighter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/display/autorefresh.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script type="module" src="js/studio/main.js"></script>
+</body>
+</html>

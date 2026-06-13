@@ -15,10 +15,12 @@ The **compiled distribution** ships only from **[GitHub Releases](https://github
 | Your goal | Download (replace `<tag>` with the release, e.g. `v1.2.20`) |
 |-----------|-------------------------------------------------------------|
 | **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
+| **moonBASIC IDE** (editor + compiler + runtime + docs — easiest setup) | **IDE bundle:** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, or `moonbasic-<tag>-ide-macos-arm64.tar.gz` |
 | **Compile** `.mb` → `.mbc`, **`--check`**, **`--lsp`** only (CI, tooling, no game window) | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
 | **VS Code** (syntax + LSP + debugger) | **`moonbasic-<tag>-vscode.vsix`** — [install from VSIX](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) (same release as your binaries; no repo clone) |
 
 - **Full runtime** includes **`moonbasic`** + **`moonrun`** (+ `README-RELEASE.txt`). Use this if you want to play or develop games with a window.
+- **IDE bundle** includes **`moonbasic-ide`** + **`moonbasic`** + **`moonrun`** (+ `README-IDE-RELEASE.txt`). Extract and run **START-IDE** — documentation is built into the IDE. Best for beginners.
 - **Compiler only** is a small folder with **`moonbasic`** only (no `moonrun`). Same command names for `--check` / compile / LSP as the full build — see **[`dist/README.md`](dist/README.md)** for the full picture.
 
 ### First steps after you extract (full runtime)

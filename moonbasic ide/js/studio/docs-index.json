@@ -1,0 +1,2174 @@
+[
+  {
+    "id": "begin",
+    "title": "Begin Here",
+    "path": "BEGIN_HERE.md",
+    "category": "Start"
+  },
+  {
+    "id": "getting-started",
+    "title": "Getting Started",
+    "path": "GETTING_STARTED.md",
+    "category": "Start"
+  },
+  {
+    "id": "first-hour",
+    "title": "First Hour",
+    "path": "FIRST_HOUR.md",
+    "category": "Start"
+  },
+  {
+    "id": "language",
+    "title": "Language Reference",
+    "path": "LANGUAGE.md",
+    "category": "Language"
+  },
+  {
+    "id": "programming",
+    "title": "Programming Guide",
+    "path": "PROGRAMMING.md",
+    "category": "Language"
+  },
+  {
+    "id": "commands",
+    "title": "Command Index",
+    "path": "COMMANDS.md",
+    "category": "Reference"
+  },
+  {
+    "id": "style",
+    "title": "Style Guide",
+    "path": "STYLE_GUIDE.md",
+    "category": "Language"
+  },
+  {
+    "id": "easy-mode",
+    "title": "Easy Mode",
+    "path": "EASY_MODE.md",
+    "category": "Language"
+  },
+  {
+    "id": "guides",
+    "title": "Guides Index",
+    "path": "systems/GUIDES.md",
+    "category": "Guides"
+  },
+  {
+    "id": "building",
+    "title": "Building from Source",
+    "path": "BUILDING.md",
+    "category": "Developers"
+  },
+  {
+    "id": "developer",
+    "title": "Developer Guide",
+    "path": "DEVELOPER.md",
+    "category": "Developers"
+  },
+  {
+    "id": "reference-action",
+    "title": "ACTION",
+    "path": "reference/ACTION.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-action-gamepad",
+    "title": "ACTION GAMEPAD",
+    "path": "reference/ACTION_GAMEPAD.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-aero",
+    "title": "AERO",
+    "path": "reference/AERO.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-angle",
+    "title": "ANGLE",
+    "path": "reference/ANGLE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-anim",
+    "title": "ANIM",
+    "path": "reference/ANIM.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-animation-3d",
+    "title": "ANIMATION 3D",
+    "path": "reference/ANIMATION_3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-api-conventions",
+    "title": "API CONVENTIONS",
+    "path": "reference/API_CONVENTIONS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-array",
+    "title": "ARRAY",
+    "path": "reference/ARRAY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-atlas",
+    "title": "ATLAS",
+    "path": "reference/ATLAS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-audio",
+    "title": "AUDIO",
+    "path": "reference/AUDIO.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-audiostream",
+    "title": "AUDIOSTREAM",
+    "path": "reference/AUDIOSTREAM.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-axis",
+    "title": "AXIS",
+    "path": "reference/AXIS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-bbox",
+    "title": "BBOX",
+    "path": "reference/BBOX.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-beginner-full-stack",
+    "title": "BEGINNER FULL STACK",
+    "path": "reference/BEGINNER_FULL_STACK.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-biome",
+    "title": "BIOME",
+    "path": "reference/BIOME.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-bitwise",
+    "title": "BITWISE",
+    "path": "reference/BITWISE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-blitz-command-index",
+    "title": "BLITZ COMMAND INDEX",
+    "path": "reference/BLITZ_COMMAND_INDEX.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-blitz-essential-api",
+    "title": "BLITZ ESSENTIAL API",
+    "path": "reference/BLITZ_ESSENTIAL_API.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-blitz2025",
+    "title": "BLITZ2025",
+    "path": "reference/BLITZ2025.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-blitz3d",
+    "title": "BLITZ3D",
+    "path": "reference/BLITZ3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-body2d",
+    "title": "BODY2D",
+    "path": "reference/BODY2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-body3d",
+    "title": "BODY3D",
+    "path": "reference/BODY3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-bodyref",
+    "title": "BODYREF",
+    "path": "reference/BODYREF.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-box2d",
+    "title": "BOX2D",
+    "path": "reference/BOX2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-bsphere",
+    "title": "BSPHERE",
+    "path": "reference/BSPHERE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-btree",
+    "title": "BTREE",
+    "path": "reference/BTREE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-camera",
+    "title": "CAMERA",
+    "path": "reference/CAMERA.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-camera-light-render",
+    "title": "CAMERA LIGHT RENDER",
+    "path": "reference/CAMERA_LIGHT_RENDER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-camera2d",
+    "title": "CAMERA2D",
+    "path": "reference/CAMERA2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-char",
+    "title": "CHAR",
+    "path": "reference/CHAR.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-character",
+    "title": "CHARACTER",
+    "path": "reference/CHARACTER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-character-physics",
+    "title": "CHARACTER PHYSICS",
+    "path": "reference/CHARACTER_PHYSICS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-characterref",
+    "title": "CHARACTERREF",
+    "path": "reference/CHARACTERREF.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-charcontroller",
+    "title": "CHARCONTROLLER",
+    "path": "reference/CHARCONTROLLER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-check",
+    "title": "CHECK",
+    "path": "reference/CHECK.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-chunk",
+    "title": "CHUNK",
+    "path": "reference/CHUNK.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-client",
+    "title": "CLIENT",
+    "path": "reference/CLIENT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-clipboard",
+    "title": "CLIPBOARD",
+    "path": "reference/CLIPBOARD.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-cloth-rope-lighting",
+    "title": "CLOTH ROPE LIGHTING",
+    "path": "reference/CLOTH_ROPE_LIGHTING.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-cloud",
+    "title": "CLOUD",
+    "path": "reference/CLOUD.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-collision",
+    "title": "COLLISION",
+    "path": "reference/COLLISION.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-color",
+    "title": "COLOR",
+    "path": "reference/COLOR.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-computeshader",
+    "title": "COMPUTESHADER",
+    "path": "reference/COMPUTESHADER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-config",
+    "title": "CONFIG",
+    "path": "reference/CONFIG.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-console",
+    "title": "CONSOLE",
+    "path": "reference/CONSOLE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-controller",
+    "title": "CONTROLLER",
+    "path": "reference/CONTROLLER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-csv",
+    "title": "CSV",
+    "path": "reference/CSV.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-csv-database",
+    "title": "CSV DATABASE",
+    "path": "reference/CSV_DATABASE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-cull",
+    "title": "CULL",
+    "path": "reference/CULL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-cursor",
+    "title": "CURSOR",
+    "path": "reference/CURSOR.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-data",
+    "title": "DATA",
+    "path": "reference/DATA.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-database",
+    "title": "DATABASE",
+    "path": "reference/DATABASE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-db",
+    "title": "DB",
+    "path": "reference/DB.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-debug",
+    "title": "DEBUG",
+    "path": "reference/DEBUG.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-decal",
+    "title": "DECAL",
+    "path": "reference/DECAL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-draw",
+    "title": "DRAW",
+    "path": "reference/DRAW.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-draw-wrappers",
+    "title": "DRAW WRAPPERS",
+    "path": "reference/DRAW_WRAPPERS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-draw2d",
+    "title": "DRAW2D",
+    "path": "reference/DRAW2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-draw3d",
+    "title": "DRAW3D",
+    "path": "reference/DRAW3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-drawprim2d",
+    "title": "DRAWPRIM2D",
+    "path": "reference/DRAWPRIM2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-drawprim3d",
+    "title": "DRAWPRIM3D",
+    "path": "reference/DRAWPRIM3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-drawtex",
+    "title": "DRAWTEX",
+    "path": "reference/DRAWTEX.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-drawtex2",
+    "title": "DRAWTEX2",
+    "path": "reference/DRAWTEX2.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-drawtexpro",
+    "title": "DRAWTEXPRO",
+    "path": "reference/DRAWTEXPRO.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-drawtexrec",
+    "title": "DRAWTEXREC",
+    "path": "reference/DRAWTEXREC.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-easing",
+    "title": "EASING",
+    "path": "reference/EASING.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-effect",
+    "title": "EFFECT",
+    "path": "reference/EFFECT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-enemy",
+    "title": "ENEMY",
+    "path": "reference/ENEMY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-enet",
+    "title": "ENET",
+    "path": "reference/ENET.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-ent",
+    "title": "ENT",
+    "path": "reference/ENT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-entity",
+    "title": "ENTITY",
+    "path": "reference/ENTITY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-entityref",
+    "title": "ENTITYREF",
+    "path": "reference/ENTITYREF.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-event",
+    "title": "EVENT",
+    "path": "reference/EVENT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-file",
+    "title": "FILE",
+    "path": "reference/FILE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-fog",
+    "title": "FOG",
+    "path": "reference/FOG.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-font",
+    "title": "FONT",
+    "path": "reference/FONT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-free",
+    "title": "FREE",
+    "path": "reference/FREE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-game",
+    "title": "GAME",
+    "path": "reference/GAME.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-game-engine-patterns",
+    "title": "GAME ENGINE PATTERNS",
+    "path": "reference/GAME_ENGINE_PATTERNS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-game-math-helpers",
+    "title": "GAME MATH HELPERS",
+    "path": "reference/GAME_MATH_HELPERS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-gamehelpers",
+    "title": "GAMEHELPERS",
+    "path": "reference/GAMEHELPERS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-gamepad",
+    "title": "GAMEPAD",
+    "path": "reference/GAMEPAD.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-gameplay-helpers",
+    "title": "GAMEPLAY HELPERS",
+    "path": "reference/GAMEPLAY_HELPERS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-gesture",
+    "title": "GESTURE",
+    "path": "reference/GESTURE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-grid",
+    "title": "GRID",
+    "path": "reference/GRID.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-gui",
+    "title": "GUI",
+    "path": "reference/GUI.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-image",
+    "title": "IMAGE",
+    "path": "reference/IMAGE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-include",
+    "title": "INCLUDE",
+    "path": "reference/INCLUDE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-input",
+    "title": "INPUT",
+    "path": "reference/INPUT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-instance",
+    "title": "INSTANCE",
+    "path": "reference/INSTANCE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-joint",
+    "title": "JOINT",
+    "path": "reference/JOINT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-joint2d",
+    "title": "JOINT2D",
+    "path": "reference/JOINT2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-joint3d",
+    "title": "JOINT3D",
+    "path": "reference/JOINT3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-jolt",
+    "title": "JOLT",
+    "path": "reference/JOLT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-json",
+    "title": "JSON",
+    "path": "reference/JSON.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-key",
+    "title": "KEY",
+    "path": "reference/KEY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-kinematic",
+    "title": "KINEMATIC",
+    "path": "reference/KINEMATIC.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-kinematicref",
+    "title": "KINEMATICREF",
+    "path": "reference/KINEMATICREF.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-less-math",
+    "title": "LESS MATH",
+    "path": "reference/LESS_MATH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-level",
+    "title": "LEVEL",
+    "path": "reference/LEVEL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-level-collision",
+    "title": "LEVEL COLLISION",
+    "path": "reference/LEVEL_COLLISION.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-light",
+    "title": "LIGHT",
+    "path": "reference/LIGHT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-light2d",
+    "title": "LIGHT2D",
+    "path": "reference/LIGHT2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-lobby",
+    "title": "LOBBY",
+    "path": "reference/LOBBY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-mat4",
+    "title": "MAT4",
+    "path": "reference/MAT4.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-material",
+    "title": "MATERIAL",
+    "path": "reference/MATERIAL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-math",
+    "title": "MATH",
+    "path": "reference/MATH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-matrix",
+    "title": "MATRIX",
+    "path": "reference/MATRIX.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-mem",
+    "title": "MEM",
+    "path": "reference/MEM.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-mesh",
+    "title": "MESH",
+    "path": "reference/MESH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-migration",
+    "title": "MIGRATION",
+    "path": "reference/MIGRATION.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-model",
+    "title": "MODEL",
+    "path": "reference/MODEL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-modern-blitz-commands",
+    "title": "MODERN BLITZ COMMANDS",
+    "path": "reference/MODERN_BLITZ_COMMANDS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-mouse",
+    "title": "MOUSE",
+    "path": "reference/MOUSE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-move",
+    "title": "MOVE",
+    "path": "reference/MOVE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-movement",
+    "title": "MOVEMENT",
+    "path": "reference/MOVEMENT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-mover",
+    "title": "MOVER",
+    "path": "reference/MOVER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-multiplayer",
+    "title": "MULTIPLAYER",
+    "path": "reference/MULTIPLAYER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-music",
+    "title": "MUSIC",
+    "path": "reference/MUSIC.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-nav",
+    "title": "NAV",
+    "path": "reference/NAV.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-nav-ai",
+    "title": "NAV AI",
+    "path": "reference/NAV_AI.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-navagent",
+    "title": "NAVAGENT",
+    "path": "reference/NAVAGENT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-navmesh",
+    "title": "NAVMESH",
+    "path": "reference/NAVMESH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-net",
+    "title": "NET",
+    "path": "reference/NET.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-network",
+    "title": "NETWORK",
+    "path": "reference/NETWORK.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-noise",
+    "title": "NOISE",
+    "path": "reference/NOISE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-packet",
+    "title": "PACKET",
+    "path": "reference/PACKET.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-particle",
+    "title": "PARTICLE",
+    "path": "reference/PARTICLE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-particle2d",
+    "title": "PARTICLE2D",
+    "path": "reference/PARTICLE2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-particle3d",
+    "title": "PARTICLE3D",
+    "path": "reference/PARTICLE3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-particles",
+    "title": "PARTICLES",
+    "path": "reference/PARTICLES.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-path",
+    "title": "PATH",
+    "path": "reference/PATH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-peer",
+    "title": "PEER",
+    "path": "reference/PEER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-physics",
+    "title": "PHYSICS",
+    "path": "reference/PHYSICS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-physics-advanced",
+    "title": "PHYSICS ADVANCED",
+    "path": "reference/PHYSICS_ADVANCED.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-physics2d",
+    "title": "PHYSICS2D",
+    "path": "reference/PHYSICS2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-physics3d",
+    "title": "PHYSICS3D",
+    "path": "reference/PHYSICS3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-pick",
+    "title": "PICK",
+    "path": "reference/PICK.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-player",
+    "title": "PLAYER",
+    "path": "reference/PLAYER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-player2d",
+    "title": "PLAYER2D",
+    "path": "reference/PLAYER2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-pool",
+    "title": "POOL",
+    "path": "reference/POOL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-post",
+    "title": "POST",
+    "path": "reference/POST.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-procedural",
+    "title": "PROCEDURAL",
+    "path": "reference/PROCEDURAL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-projectiles",
+    "title": "PROJECTILES",
+    "path": "reference/PROJECTILES.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-prop",
+    "title": "PROP",
+    "path": "reference/PROP.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-qol",
+    "title": "QOL",
+    "path": "reference/QOL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-quat",
+    "title": "QUAT",
+    "path": "reference/QUAT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-rand",
+    "title": "RAND",
+    "path": "reference/RAND.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-ray",
+    "title": "RAY",
+    "path": "reference/RAY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-ray2d",
+    "title": "RAY2D",
+    "path": "reference/RAY2D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-raycast",
+    "title": "RAYCAST",
+    "path": "reference/RAYCAST.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-raylib",
+    "title": "RAYLIB",
+    "path": "reference/RAYLIB.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-raylib-extras",
+    "title": "RAYLIB EXTRAS",
+    "path": "reference/RAYLIB_EXTRAS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-render",
+    "title": "RENDER",
+    "path": "reference/RENDER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-rendertarget",
+    "title": "RENDERTARGET",
+    "path": "reference/RENDERTARGET.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-res",
+    "title": "RES",
+    "path": "reference/RES.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-rows",
+    "title": "ROWS",
+    "path": "reference/ROWS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-rpc",
+    "title": "RPC",
+    "path": "reference/RPC.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-save",
+    "title": "SAVE",
+    "path": "reference/SAVE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-scatter",
+    "title": "SCATTER",
+    "path": "reference/SCATTER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-scatter-prop-spawner",
+    "title": "SCATTER PROP SPAWNER",
+    "path": "reference/SCATTER_PROP_SPAWNER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-scene",
+    "title": "SCENE",
+    "path": "reference/SCENE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-scene-engine-brief",
+    "title": "SCENE ENGINE BRIEF",
+    "path": "reference/SCENE_ENGINE_BRIEF.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-server",
+    "title": "SERVER",
+    "path": "reference/SERVER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-shader",
+    "title": "SHADER",
+    "path": "reference/SHADER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-shape",
+    "title": "SHAPE",
+    "path": "reference/SHAPE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-shaperef",
+    "title": "SHAPEREF",
+    "path": "reference/SHAPEREF.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-sky",
+    "title": "SKY",
+    "path": "reference/SKY.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-sound",
+    "title": "SOUND",
+    "path": "reference/SOUND.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-spawner",
+    "title": "SPAWNER",
+    "path": "reference/SPAWNER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-sprite",
+    "title": "SPRITE",
+    "path": "reference/SPRITE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-sprite3d",
+    "title": "SPRITE3D",
+    "path": "reference/SPRITE3D.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-spritebatch",
+    "title": "SPRITEBATCH",
+    "path": "reference/SPRITEBATCH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-spritegroup",
+    "title": "SPRITEGROUP",
+    "path": "reference/SPRITEGROUP.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-spritelayer",
+    "title": "SPRITELAYER",
+    "path": "reference/SPRITELAYER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-spriteui",
+    "title": "SPRITEUI",
+    "path": "reference/SPRITEUI.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-static",
+    "title": "STATIC",
+    "path": "reference/STATIC.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-steer",
+    "title": "STEER",
+    "path": "reference/STEER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-stopwatch",
+    "title": "STOPWATCH",
+    "path": "reference/STOPWATCH.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-string",
+    "title": "STRING",
+    "path": "reference/STRING.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-string-heap",
+    "title": "STRING HEAP",
+    "path": "reference/STRING_HEAP.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-system",
+    "title": "SYSTEM",
+    "path": "reference/SYSTEM.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-table",
+    "title": "TABLE",
+    "path": "reference/TABLE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-terrain",
+    "title": "TERRAIN",
+    "path": "reference/TERRAIN.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-textdraw",
+    "title": "TEXTDRAW",
+    "path": "reference/TEXTDRAW.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-textexobj",
+    "title": "TEXTEXOBJ",
+    "path": "reference/TEXTEXOBJ.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-texture",
+    "title": "TEXTURE",
+    "path": "reference/TEXTURE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-texture-draw-wrappers",
+    "title": "TEXTURE DRAW WRAPPERS",
+    "path": "reference/TEXTURE_DRAW_WRAPPERS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-tilemap",
+    "title": "TILEMAP",
+    "path": "reference/TILEMAP.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-time",
+    "title": "TIME",
+    "path": "reference/TIME.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-timer",
+    "title": "TIMER",
+    "path": "reference/TIMER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-transform",
+    "title": "TRANSFORM",
+    "path": "reference/TRANSFORM.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-transition",
+    "title": "TRANSITION",
+    "path": "reference/TRANSITION.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-trigger",
+    "title": "TRIGGER",
+    "path": "reference/TRIGGER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-tween",
+    "title": "TWEEN",
+    "path": "reference/TWEEN.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-ui",
+    "title": "UI",
+    "path": "reference/UI.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-universal-handle-methods",
+    "title": "UNIVERSAL HANDLE METHODS",
+    "path": "reference/UNIVERSAL_HANDLE_METHODS.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-util",
+    "title": "UTIL",
+    "path": "reference/UTIL.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-vec-quat",
+    "title": "VEC QUAT",
+    "path": "reference/VEC_QUAT.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-vec2",
+    "title": "VEC2",
+    "path": "reference/VEC2.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-vec3",
+    "title": "VEC3",
+    "path": "reference/VEC3.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-vehicle",
+    "title": "VEHICLE",
+    "path": "reference/VEHICLE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-water",
+    "title": "WATER",
+    "path": "reference/WATER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-wave",
+    "title": "WAVE",
+    "path": "reference/WAVE.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-weather",
+    "title": "WEATHER",
+    "path": "reference/WEATHER.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-wind",
+    "title": "WIND",
+    "path": "reference/WIND.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-window",
+    "title": "WINDOW",
+    "path": "reference/WINDOW.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "reference-world",
+    "title": "WORLD",
+    "path": "reference/WORLD.md",
+    "category": "API Reference"
+  },
+  {
+    "id": "api-api-index",
+    "title": "API INDEX",
+    "path": "api/API_INDEX.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-audio",
+    "title": "AUDIO",
+    "path": "api/AUDIO.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-camera",
+    "title": "CAMERA",
+    "path": "api/CAMERA.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-draw",
+    "title": "DRAW",
+    "path": "api/DRAW.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-entity",
+    "title": "ENTITY",
+    "path": "api/ENTITY.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-file",
+    "title": "FILE",
+    "path": "api/FILE.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-gui",
+    "title": "GUI",
+    "path": "api/GUI.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-input",
+    "title": "INPUT",
+    "path": "api/INPUT.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-json",
+    "title": "JSON",
+    "path": "api/JSON.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-math",
+    "title": "MATH",
+    "path": "api/MATH.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-model",
+    "title": "MODEL",
+    "path": "api/MODEL.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-particles",
+    "title": "PARTICLES",
+    "path": "api/PARTICLES.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-physics",
+    "title": "PHYSICS",
+    "path": "api/PHYSICS.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-post",
+    "title": "POST",
+    "path": "api/POST.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-render",
+    "title": "RENDER",
+    "path": "api/RENDER.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-sprite",
+    "title": "SPRITE",
+    "path": "api/SPRITE.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-texture",
+    "title": "TEXTURE",
+    "path": "api/TEXTURE.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-time",
+    "title": "TIME",
+    "path": "api/TIME.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-window",
+    "title": "WINDOW",
+    "path": "api/WINDOW.md",
+    "category": "Api"
+  },
+  {
+    "id": "api-world",
+    "title": "WORLD",
+    "path": "api/WORLD.md",
+    "category": "Api"
+  },
+  {
+    "id": "architecture-compiler-opcodes",
+    "title": "COMPILER OPCODES",
+    "path": "architecture/COMPILER_OPCODES.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-hal-and-rendering",
+    "title": "HAL AND RENDERING",
+    "path": "architecture/HAL_AND_RENDERING.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-implicit-decl-and-lsp",
+    "title": "IMPLICIT DECL AND LSP",
+    "path": "architecture/IMPLICIT_DECL_AND_LSP.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-jolt-wasm-prototype",
+    "title": "JOLT WASM PROTOTYPE",
+    "path": "architecture/JOLT_WASM_PROTOTYPE.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-net-zero-cgo",
+    "title": "NET ZERO CGO",
+    "path": "architecture/NET_ZERO_CGO.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-physics-arena-and-interpolation",
+    "title": "PHYSICS ARENA AND INTERPOLATION",
+    "path": "architecture/PHYSICS_ARENA_AND_INTERPOLATION.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-physics-internal",
+    "title": "PHYSICS INTERNAL",
+    "path": "architecture/PHYSICS_INTERNAL.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-render-hidpi-and-postfx",
+    "title": "RENDER HIDPI AND POSTFX",
+    "path": "architecture/RENDER_HIDPI_AND_POSTFX.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-rendering-stability-and-defaults",
+    "title": "RENDERING STABILITY AND DEFAULTS",
+    "path": "architecture/RENDERING_STABILITY_AND_DEFAULTS.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-resource-lifecycle",
+    "title": "RESOURCE LIFECYCLE",
+    "path": "architecture/RESOURCE_LIFECYCLE.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-zero-cgo-raylib",
+    "title": "ZERO CGO RAYLIB",
+    "path": "architecture/ZERO_CGO_RAYLIB.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "audit-ir-v3-vm-audit",
+    "title": "IR V3 VM AUDIT",
+    "path": "audit/IR_V3_VM_AUDIT.md",
+    "category": "Audit"
+  },
+  {
+    "id": "audit-readme",
+    "title": "README",
+    "path": "audit/README.md",
+    "category": "Audit"
+  },
+  {
+    "id": "reference-moonbasic-command-set-gameplay-intent",
+    "title": "Gameplay Intent",
+    "path": "reference/moonbasic-command-set/Gameplay_Intent.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-readme",
+    "title": "README",
+    "path": "reference/moonbasic-command-set/README.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-blitz-engine",
+    "title": "blitz engine",
+    "path": "reference/moonbasic-command-set/blitz-engine.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-camera",
+    "title": "camera",
+    "path": "reference/moonbasic-command-set/camera.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-draw2d",
+    "title": "draw2d",
+    "path": "reference/moonbasic-command-set/draw2d.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-entities",
+    "title": "entities",
+    "path": "reference/moonbasic-command-set/entities.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-files",
+    "title": "files",
+    "path": "reference/moonbasic-command-set/files.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-game-english",
+    "title": "game english",
+    "path": "reference/moonbasic-command-set/game-english.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-graphics",
+    "title": "graphics",
+    "path": "reference/moonbasic-command-set/graphics.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-input",
+    "title": "input",
+    "path": "reference/moonbasic-command-set/input.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-lights",
+    "title": "lights",
+    "path": "reference/moonbasic-command-set/lights.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-math",
+    "title": "math",
+    "path": "reference/moonbasic-command-set/math.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-mesh-surface",
+    "title": "mesh surface",
+    "path": "reference/moonbasic-command-set/mesh-surface.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-network-enet",
+    "title": "network enet",
+    "path": "reference/moonbasic-command-set/network-enet.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-network-helpers",
+    "title": "network helpers",
+    "path": "reference/moonbasic-command-set/network-helpers.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-physics-2d",
+    "title": "physics 2d",
+    "path": "reference/moonbasic-command-set/physics-2d.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-physics-3d",
+    "title": "physics 3d",
+    "path": "reference/moonbasic-command-set/physics-3d.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-qol-moonbasic",
+    "title": "qol moonbasic",
+    "path": "reference/moonbasic-command-set/qol-moonbasic.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-runtime",
+    "title": "runtime",
+    "path": "reference/moonbasic-command-set/runtime.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-sound",
+    "title": "sound",
+    "path": "reference/moonbasic-command-set/sound.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-sprites",
+    "title": "sprites",
+    "path": "reference/moonbasic-command-set/sprites.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-textures",
+    "title": "textures",
+    "path": "reference/moonbasic-command-set/textures.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-moonbasic-command-set-world3d",
+    "title": "world3d",
+    "path": "reference/moonbasic-command-set/world3d.md",
+    "category": "Command Set"
+  },
+  {
+    "id": "reference-dbpro-01-objects-3d",
+    "title": "01 objects 3d",
+    "path": "reference/dbpro/01-objects-3d.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-02-mesh-limb",
+    "title": "02 mesh limb",
+    "path": "reference/dbpro/02-mesh-limb.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-03-camera",
+    "title": "03 camera",
+    "path": "reference/dbpro/03-camera.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-04-lights",
+    "title": "04 lights",
+    "path": "reference/dbpro/04-lights.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-05-image",
+    "title": "05 image",
+    "path": "reference/dbpro/05-image.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-06-sprite",
+    "title": "06 sprite",
+    "path": "reference/dbpro/06-sprite.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-07-sound",
+    "title": "07 sound",
+    "path": "reference/dbpro/07-sound.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-08-input",
+    "title": "08 input",
+    "path": "reference/dbpro/08-input.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-09-file",
+    "title": "09 file",
+    "path": "reference/dbpro/09-file.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-10-math",
+    "title": "10 math",
+    "path": "reference/dbpro/10-math.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "reference-dbpro-readme",
+    "title": "README",
+    "path": "reference/dbpro/README.md",
+    "category": "DBPro Reference"
+  },
+  {
+    "id": "api-consistency",
+    "title": "API CONSISTENCY",
+    "path": "API_CONSISTENCY.md",
+    "category": "General"
+  },
+  {
+    "id": "api-standardization-directive",
+    "title": "API STANDARDIZATION DIRECTIVE",
+    "path": "API_STANDARDIZATION_DIRECTIVE.md",
+    "category": "General"
+  },
+  {
+    "id": "architecture-modular-entities",
+    "title": "ARCHITECTURE MODULAR ENTITIES",
+    "path": "ARCHITECTURE_MODULAR_ENTITIES.md",
+    "category": "General"
+  },
+  {
+    "id": "blitz3d-porting",
+    "title": "BLITZ3D PORTING",
+    "path": "BLITZ3D_PORTING.md",
+    "category": "General"
+  },
+  {
+    "id": "changelog",
+    "title": "CHANGELOG",
+    "path": "CHANGELOG.md",
+    "category": "General"
+  },
+  {
+    "id": "command-audit",
+    "title": "COMMAND AUDIT",
+    "path": "COMMAND_AUDIT.md",
+    "category": "General"
+  },
+  {
+    "id": "compiler-spec",
+    "title": "COMPILER SPEC",
+    "path": "COMPILER_SPEC.md",
+    "category": "General"
+  },
+  {
+    "id": "directive-baseline-report",
+    "title": "DIRECTIVE BASELINE REPORT",
+    "path": "DIRECTIVE_BASELINE_REPORT.md",
+    "category": "General"
+  },
+  {
+    "id": "directive-conformance-report",
+    "title": "DIRECTIVE CONFORMANCE REPORT",
+    "path": "DIRECTIVE_CONFORMANCE_REPORT.md",
+    "category": "General"
+  },
+  {
+    "id": "directive-implementation-traceability",
+    "title": "DIRECTIVE IMPLEMENTATION TRACEABILITY",
+    "path": "DIRECTIVE_IMPLEMENTATION_TRACEABILITY.md",
+    "category": "General"
+  },
+  {
+    "id": "doc-style-guide",
+    "title": "DOC STYLE GUIDE",
+    "path": "DOC_STYLE_GUIDE.md",
+    "category": "General"
+  },
+  {
+    "id": "documentation-style-guide",
+    "title": "DOCUMENTATION STYLE GUIDE",
+    "path": "DOCUMENTATION_STYLE_GUIDE.md",
+    "category": "General"
+  },
+  {
+    "id": "easy-language",
+    "title": "EASY LANGUAGE",
+    "path": "EASY_LANGUAGE.md",
+    "category": "General"
+  },
+  {
+    "id": "error-messages",
+    "title": "ERROR MESSAGES",
+    "path": "ERROR_MESSAGES.md",
+    "category": "General"
+  },
+  {
+    "id": "examples",
+    "title": "EXAMPLES",
+    "path": "EXAMPLES.md",
+    "category": "General"
+  },
+  {
+    "id": "final-polish-systems",
+    "title": "FINAL POLISH SYSTEMS",
+    "path": "FINAL_POLISH_SYSTEMS.md",
+    "category": "General"
+  },
+  {
+    "id": "high-fidelity-roadmap",
+    "title": "HIGH FIDELITY ROADMAP",
+    "path": "HIGH_FIDELITY_ROADMAP.md",
+    "category": "General"
+  },
+  {
+    "id": "memory",
+    "title": "MEMORY",
+    "path": "MEMORY.md",
+    "category": "General"
+  },
+  {
+    "id": "migration-create-from-make",
+    "title": "MIGRATION CREATE FROM MAKE",
+    "path": "MIGRATION_CREATE_FROM_MAKE.md",
+    "category": "General"
+  },
+  {
+    "id": "missing-commands",
+    "title": "MISSING COMMANDS",
+    "path": "MISSING_COMMANDS.md",
+    "category": "General"
+  },
+  {
+    "id": "missing-commands-audit",
+    "title": "MISSING COMMANDS AUDIT",
+    "path": "MISSING_COMMANDS_AUDIT.md",
+    "category": "General"
+  },
+  {
+    "id": "packages",
+    "title": "PACKAGES",
+    "path": "PACKAGES.md",
+    "category": "General"
+  },
+  {
+    "id": "physics",
+    "title": "PHYSICS",
+    "path": "PHYSICS.md",
+    "category": "General"
+  },
+  {
+    "id": "physics-ergonomics",
+    "title": "PHYSICS ERGONOMICS",
+    "path": "PHYSICS_ERGONOMICS.md",
+    "category": "General"
+  },
+  {
+    "id": "readme",
+    "title": "README",
+    "path": "README.md",
+    "category": "General"
+  },
+  {
+    "id": "roadmap",
+    "title": "ROADMAP",
+    "path": "ROADMAP.md",
+    "category": "General"
+  },
+  {
+    "id": "state-of-the-union",
+    "title": "STATE OF THE UNION",
+    "path": "STATE_OF_THE_UNION.md",
+    "category": "General"
+  },
+  {
+    "id": "terrain",
+    "title": "TERRAIN",
+    "path": "TERRAIN.md",
+    "category": "General"
+  },
+  {
+    "id": "systems-guides-math-angles-and-rotation",
+    "title": "ANGLES AND ROTATION",
+    "path": "systems/guides/math/ANGLES-AND-ROTATION.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-animation",
+    "title": "ANIMATION",
+    "path": "systems/guides/ANIMATION.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-assets-pipeline",
+    "title": "ASSETS PIPELINE",
+    "path": "systems/guides/ASSETS-PIPELINE.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-audio-feedback",
+    "title": "AUDIO FEEDBACK",
+    "path": "systems/guides/AUDIO-FEEDBACK.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-camera-and-input",
+    "title": "CAMERA AND INPUT",
+    "path": "systems/guides/CAMERA-AND-INPUT.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-character-3d-walking",
+    "title": "CHARACTER 3D WALKING",
+    "path": "systems/guides/CHARACTER-3D-WALKING.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-collision-2d",
+    "title": "COLLISION 2D",
+    "path": "systems/guides/COLLISION-2D.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-collision-3d",
+    "title": "COLLISION 3D",
+    "path": "systems/guides/COLLISION-3D.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-compiler-errors",
+    "title": "COMPILER ERRORS",
+    "path": "systems/guides/COMPILER-ERRORS.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-debug-and-testing",
+    "title": "DEBUG AND TESTING",
+    "path": "systems/guides/DEBUG-AND-TESTING.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-entity-system",
+    "title": "ENTITY SYSTEM",
+    "path": "systems/guides/ENTITY-SYSTEM.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-files-and-json",
+    "title": "FILES AND JSON",
+    "path": "systems/guides/FILES-AND-JSON.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-game-loop-and-rendering",
+    "title": "GAME LOOP AND RENDERING",
+    "path": "systems/guides/GAME-LOOP-AND-RENDERING.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-interpolation-and-easing",
+    "title": "INTERPOLATION AND EASING",
+    "path": "systems/guides/math/INTERPOLATION-AND-EASING.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-lighting",
+    "title": "LIGHTING",
+    "path": "systems/guides/LIGHTING.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-math-2d-gameplay",
+    "title": "MATH 2D GAMEPLAY",
+    "path": "systems/guides/math/MATH-2D-GAMEPLAY.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-math-3d-gameplay",
+    "title": "MATH 3D GAMEPLAY",
+    "path": "systems/guides/math/MATH-3D-GAMEPLAY.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-and-vectors",
+    "title": "MATH AND VECTORS",
+    "path": "systems/guides/MATH-AND-VECTORS.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-meshes-models-materials",
+    "title": "MESHES MODELS MATERIALS",
+    "path": "systems/guides/MESHES-MODELS-MATERIALS.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-multiplayer",
+    "title": "MULTIPLAYER",
+    "path": "systems/guides/MULTIPLAYER.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-networking-low-level",
+    "title": "NETWORKING LOW LEVEL",
+    "path": "systems/guides/NETWORKING-LOW-LEVEL.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-particles",
+    "title": "PARTICLES",
+    "path": "systems/guides/PARTICLES.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-physics-2d-platformer",
+    "title": "PHYSICS 2D PLATFORMER",
+    "path": "systems/guides/PHYSICS-2D-PLATFORMER.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-project-workflow",
+    "title": "PROJECT WORKFLOW",
+    "path": "systems/guides/PROJECT-WORKFLOW.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-randomness-and-procedure",
+    "title": "RANDOMNESS AND PROCEDURE",
+    "path": "systems/guides/math/RANDOMNESS-AND-PROCEDURE.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-readme",
+    "title": "README",
+    "path": "systems/guides/math/README.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-readme",
+    "title": "README",
+    "path": "systems/guides/README.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-save-and-progress",
+    "title": "SAVE AND PROGRESS",
+    "path": "systems/guides/SAVE-AND-PROGRESS.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-sprites-tilemaps-2d",
+    "title": "SPRITES TILEMAPS 2D",
+    "path": "systems/guides/SPRITES-TILEMAPS-2D.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-terrain-open-world",
+    "title": "TERRAIN OPEN WORLD",
+    "path": "systems/guides/TERRAIN-OPEN-WORLD.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-ui-menus",
+    "title": "UI MENUS",
+    "path": "systems/guides/UI-MENUS.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-vec2-math",
+    "title": "VEC2 MATH",
+    "path": "systems/guides/math/VEC2-MATH.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-vec3-math",
+    "title": "VEC3 MATH",
+    "path": "systems/guides/math/VEC3-MATH.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-00-start",
+    "title": "00 START",
+    "path": "systems/00-START.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-01-core",
+    "title": "01 CORE",
+    "path": "systems/01-CORE.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-02-camera-light",
+    "title": "02 CAMERA LIGHT",
+    "path": "systems/02-CAMERA-LIGHT.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-03-assets",
+    "title": "03 ASSETS",
+    "path": "systems/03-ASSETS.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-04-input",
+    "title": "04 INPUT",
+    "path": "systems/04-INPUT.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-05-physics",
+    "title": "05 PHYSICS",
+    "path": "systems/05-PHYSICS.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-06-audio",
+    "title": "06 AUDIO",
+    "path": "systems/06-AUDIO.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-07-2d-world",
+    "title": "07 2D WORLD",
+    "path": "systems/07-2D-WORLD.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-08-ui-text",
+    "title": "08 UI TEXT",
+    "path": "systems/08-UI-TEXT.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-09-data",
+    "title": "09 DATA",
+    "path": "systems/09-DATA.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-10-debug-timer",
+    "title": "10 DEBUG TIMER",
+    "path": "systems/10-DEBUG-TIMER.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-11-tooling",
+    "title": "11 TOOLING",
+    "path": "systems/11-TOOLING.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-command-registry",
+    "title": "COMMAND REGISTRY",
+    "path": "systems/COMMAND_REGISTRY.md",
+    "category": "Systems"
+  },
+  {
+    "id": "systems-readme",
+    "title": "README",
+    "path": "systems/README.md",
+    "category": "Systems"
+  },
+  {
+    "id": "tutorials-first-multiplayer-game",
+    "title": "FIRST MULTIPLAYER GAME",
+    "path": "tutorials/FIRST_MULTIPLAYER_GAME.md",
+    "category": "Tutorials"
+  }
+]

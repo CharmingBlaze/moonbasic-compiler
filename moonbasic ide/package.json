@@ -1,0 +1,20 @@
+{
+  "name": "moonbasic-ide",
+  "version": "2.0.0",
+  "type": "module",
+  "private": true,
+  "description": "moonBASIC IDE — edit, check, compile, and run .mb files with the real moonBASIC toolchain",
+  "scripts": {
+    "dev": "npx serve . -l 3456",
+    "dev:wails": "npm run sync && wails dev",
+    "sync": "node scripts/sync-wails-frontend.mjs",
+    "toolchain:build": "powershell -ExecutionPolicy Bypass -File scripts/build-toolchain.ps1",
+    "toolchain:raylib": "powershell -ExecutionPolicy Bypass -File scripts/fetch-raylib.ps1",
+    "langdata": "cd .. && go run ./tools/ideexport && go run ./tools/docsexport",
+    "prebuild:wails": "npm run sync",
+    "build:wails": "wails build"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}
