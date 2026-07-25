@@ -228,12 +228,17 @@ jobs:
         shell: bash
         env:
           CGO_ENABLED: '1'
-          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
+          # Prefer g++ on PATH for CGO and -extld=g++ (static-libstdc++).
+          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/g++.exe
+          CXX: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/g++.exe
         run: |
           set -e
           mkdir -p dist
+          MINGW_BIN="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin"
+          export PATH="${MINGW_BIN}:${PATH}"
           . scripts/build/windows_fullruntime_go_ldflags.sh
           EX="$(moonbasic_windows_fullruntime_go_ldflags)"
+          echo "Windows fullruntime ldflags: ${EX}"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt

@@ -197,11 +197,14 @@ jobs:
         shell: bash
         env:
           CGO_ENABLED: '1'
-          CC: ${{ steps.msys2_fullrt.outputs.msys2-location }}/mingw64/bin/gcc.exe
+          CC: ${{ steps.msys2_fullrt.outputs.msys2-location }}/mingw64/bin/g++.exe
+          CXX: ${{ steps.msys2_fullrt.outputs.msys2-location }}/mingw64/bin/g++.exe
           MOONBASIC_WINDOWS_VERSION: 'ci-${{ github.sha }}'
         run: |
           set -e
           mkdir -p dist
+          MINGW_BIN="${{ steps.msys2_fullrt.outputs.msys2-location }}/mingw64/bin"
+          export PATH="${MINGW_BIN}:${PATH}"
           . scripts/build/windows_fullruntime_go_ldflags.sh
           EX="$(moonbasic_windows_fullruntime_go_ldflags)"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
