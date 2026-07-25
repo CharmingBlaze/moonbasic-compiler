@@ -57,7 +57,7 @@ SPRITE.SETSCALE(sprite, sx, sy, sz)
 
 ## Part 2 — Universal handle methods
 
-Mandatory behaviors are implemented in the VM via `handleCallDispatch` / `handleCallBuiltin` and documented in [reference/UNIVERSAL_HANDLE_METHODS.md](reference/UNIVERSAL_HANDLE_METHODS.md).
+Mandatory behaviors are implemented via `handlecall.Dispatch` / `handlecall.Builtin` (used by the VM and compiler) and documented in [reference/UNIVERSAL_HANDLE_METHODS.md](reference/UNIVERSAL_HANDLE_METHODS.md).
 
 **Minimum expectations**
 
@@ -81,7 +81,7 @@ Implementation varies by type. Use this as a **review checklist**, not a guarant
 
 \*2D-style types may use a single rotation value where documented.
 
-**Actions:** Audit `vm/handlecall.go` and the manifest; extend dispatch before claiming parity with Blitz-style megafunctions.
+**Actions:** Audit `handlecall/` and the manifest; extend dispatch before claiming parity with Blitz-style megafunctions.
 
 ---
 

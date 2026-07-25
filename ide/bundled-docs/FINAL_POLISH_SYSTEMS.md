@@ -1,6 +1,6 @@
 # Final polish systems checklist
 
-This document maps the **40 beginner systems** from `final polish and docs.md` to moonBASIC’s shipped commands, notes on memory, and gaps.
+This document maps the **40 beginner systems** from [`audit/archive/final-polish-and-docs.md`](audit/archive/final-polish-and-docs.md) to moonBASIC’s shipped commands, notes on memory, and gaps.
 
 **Beginner docs:** Full system guides (style guide format) live in **[systems/README.md](systems/README.md)** — start with [01-CORE](systems/01-CORE.md), then follow the build order in that index.
 

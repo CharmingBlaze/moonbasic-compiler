@@ -64,7 +64,7 @@ npm run toolchain:build
 Package IDE + runtime bundle (after building `dist/moonbasic` + `dist/moonrun`):
 
 ```powershell
-.\scripts\package_ide_bundle.ps1 -Version v1.2.27
+.\scripts\packaging\package_ide_bundle.ps1 -Version v1.2.27
 ```
 
 ## Regenerate language data
@@ -76,6 +76,8 @@ go run ./tools/ideexport
 go run ./tools/docsexport
 # or from ide/:  npm run langdata
 ```
+
+`ide/bundled-docs/` is generated from `docs/` (see `bundled-docs/GENERATED.md`). Verify with `go run ./tools/docsexport --check`.
 
 ## VS Code alternative
 

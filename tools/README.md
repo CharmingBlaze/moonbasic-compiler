@@ -24,6 +24,8 @@ Developer utilities for auditing and maintaining the MoonBASIC compiler manifest
 |--------|---------|
 | `cmdaudit/` | Go tool (`go run ./tools/cmdaudit`) that audits manifest vs. doc-file coverage by namespace. |
 | `apidoc/` | Go tool (`go run ./tools/apidoc`) that regenerates `docs/API_CONSISTENCY.md` from the manifest. |
+| `docsexport/` | Syncs canonical `docs/` → `ide/bundled-docs/` and writes `ide/js/studio/docs-index.json`. Run `go run ./tools/docsexport` after doc moves; CI verifies with `go run ./tools/docsexport --check`. Do not edit `ide/bundled-docs/` by hand. |
+| `ideexport/` | Exports language/command data for the IDE (`go run ./tools/ideexport`). |
 
 ## Removed (historical)
 

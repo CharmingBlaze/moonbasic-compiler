@@ -1,10 +1,10 @@
 # IR v3 VM audit (gap analysis vs ENGINE_IR_V3.md)
 
-This document confirms alignment between [ENGINE_IR_V3.md](../../ENGINE_IR_V3.md), the compiler, and [vm/vm.go](../../vm/vm.go), and lists legacy naming or paths to retire or document.
+This document confirms alignment between [ENGINE_IR_V3.md](../architecture/ENGINE_IR_V3.md), the compiler, and [vm/vm.go](../../vm/vm.go), and lists legacy naming or paths to retire or document.
 
 ## Confirmed alignment
 
-Tier-1 platforms for shipping and CI are **Windows x64** and **Linux x64**; IR v3 / MOON are defined to be **portable** across them (see [ENGINE_IR_V3.md](../../ENGINE_IR_V3.md) § Platform portability).
+Tier-1 platforms for shipping and CI are **Windows x64** and **Linux x64**; IR v3 / MOON are defined to be **portable** across them (see [ENGINE_IR_V3.md](../architecture/ENGINE_IR_V3.md) § Platform portability).
 
 | Item | Location | Notes |
 |------|----------|--------|

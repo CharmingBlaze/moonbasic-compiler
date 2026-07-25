@@ -1440,6 +1440,18 @@
     "category": "Architecture"
   },
   {
+    "id": "architecture-engine-ir-v2",
+    "title": "ENGINE IR V2",
+    "path": "architecture/ENGINE_IR_V2.md",
+    "category": "Architecture"
+  },
+  {
+    "id": "architecture-engine-ir-v3",
+    "title": "ENGINE IR V3",
+    "path": "architecture/ENGINE_IR_V3.md",
+    "category": "Architecture"
+  },
+  {
     "id": "architecture-hal-and-rendering",
     "title": "HAL AND RENDERING",
     "path": "architecture/HAL_AND_RENDERING.md",
@@ -1509,6 +1521,12 @@
     "id": "audit-readme",
     "title": "README",
     "path": "audit/README.md",
+    "category": "Audit"
+  },
+  {
+    "id": "audit-archive-final-polish-and-docs",
+    "title": "final polish and docs",
+    "path": "audit/archive/final-polish-and-docs.md",
     "category": "Audit"
   },
   {
@@ -1714,6 +1732,36 @@
     "title": "README",
     "path": "reference/dbpro/README.md",
     "category": "DBPro Reference"
+  },
+  {
+    "id": "development-codebase-map",
+    "title": "CODEBASE MAP",
+    "path": "development/CODEBASE_MAP.md",
+    "category": "Development"
+  },
+  {
+    "id": "development-compiler-engineer-directive",
+    "title": "COMPILER ENGINEER DIRECTIVE",
+    "path": "development/COMPILER_ENGINEER_DIRECTIVE.md",
+    "category": "Development"
+  },
+  {
+    "id": "development-masterplan",
+    "title": "Masterplan",
+    "path": "development/Masterplan.md",
+    "category": "Development"
+  },
+  {
+    "id": "development-repository-cleanup-audit",
+    "title": "REPOSITORY CLEANUP AUDIT",
+    "path": "development/REPOSITORY_CLEANUP_AUDIT.md",
+    "category": "Development"
+  },
+  {
+    "id": "development-repository-cleanup-log",
+    "title": "REPOSITORY CLEANUP LOG",
+    "path": "development/REPOSITORY_CLEANUP_LOG.md",
+    "category": "Development"
   },
   {
     "id": "api-consistency",
@@ -2034,15 +2082,15 @@
     "category": "Guides"
   },
   {
-    "id": "systems-guides-math-readme",
-    "title": "README",
-    "path": "systems/guides/math/README.md",
-    "category": "Guides"
-  },
-  {
     "id": "systems-guides-readme",
     "title": "README",
     "path": "systems/guides/README.md",
+    "category": "Guides"
+  },
+  {
+    "id": "systems-guides-math-readme",
+    "title": "README",
+    "path": "systems/guides/math/README.md",
     "category": "Guides"
   },
   {

@@ -1,14 +1,14 @@
 # Full directive rollout — conformance report
 
-This report closes the **Full Directive Implementation Plan** checklist against [COMPILER_ENGINEER_DIRECTIVE.md](../COMPILER_ENGINEER_DIRECTIVE.md).
+This report closes the **Full Directive Implementation Plan** checklist against [COMPILER_ENGINEER_DIRECTIVE.md](development/COMPILER_ENGINEER_DIRECTIVE.md).
 
 **Last validation:** `go test ./...`, `go run ./tools/apidoc` (regenerates [API_CONSISTENCY.md](API_CONSISTENCY.md)), and `go run ./tools/cmdaudit` (regenerates [COMMAND_AUDIT.md](COMMAND_AUDIT.md)).
 
-**Reference doc alignment (ongoing):** Blitz/camera/light/image overview pages list **CREATE** / **SETPOS** as primary and **MAKE** / **SETPOSITION** as deprecated where those files were updated; [MIGRATION_CREATE_FROM_MAKE.md](MIGRATION_CREATE_FROM_MAKE.md) and [COMPILER_ENGINEER_DIRECTIVE.md](../COMPILER_ENGINEER_DIRECTIVE.md) intentionally retain **before** examples.
+**Reference doc alignment (ongoing):** Blitz/camera/light/image overview pages list **CREATE** / **SETPOS** as primary and **MAKE** / **SETPOSITION** as deprecated where those files were updated; [MIGRATION_CREATE_FROM_MAKE.md](MIGRATION_CREATE_FROM_MAKE.md) and [COMPILER_ENGINEER_DIRECTIVE.md](development/COMPILER_ENGINEER_DIRECTIVE.md) intentionally retain **before** examples.
 
 ## Completed deliverables
 
-Directive [COMPILER_ENGINEER_DIRECTIVE.md](../COMPILER_ENGINEER_DIRECTIVE.md) **Part 7 checklist** is marked complete for **v0.9** (in-repo rollout). Recent API work includes **`CAMERA.GETROT`** + zero-arg `cam.rot()` → `CAMERA.GETROT` (`runtime/camera/camera_extras_cgo.go`, `vm/handlecall.go`); **sprite** stored **rot / scale / color / alpha** with universal handle getters; **`SPRITE.HIT`** / **`SPRITE.POINTHIT`** aligned with **`DrawTexturePro`** (`runtime/sprite/sprite_hit_cgo.go`).
+Directive [COMPILER_ENGINEER_DIRECTIVE.md](development/COMPILER_ENGINEER_DIRECTIVE.md) **Part 7 checklist** is marked complete for **v0.9** (in-repo rollout). Recent API work includes **`CAMERA.GETROT`** + zero-arg `cam.rot()` → `CAMERA.GETROT` (`runtime/camera/camera_extras_cgo.go`, `vm/handlecall.go`); **sprite** stored **rot / scale / color / alpha** with universal handle getters; **`SPRITE.HIT`** / **`SPRITE.POINTHIT`** aligned with **`DrawTexturePro`** (`runtime/sprite/sprite_hit_cgo.go`).
 
 | Plan area | Evidence |
 |-----------|----------|

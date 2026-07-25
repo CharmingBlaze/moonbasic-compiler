@@ -2,7 +2,7 @@
 
 This document is the **canonical** description of how moonBASIC separates **graphics/window concerns** from the **compiler and VM**, why that matters for CI and headless tooling, and how **linking** (CGO vs purego vs static) relates to that separation.
 
-**Related:** [ZERO_CGO_RAYLIB.md](ZERO_CGO_RAYLIB.md) (purego/sidecar strategy and symbol inventory), [BUILDING.md](../BUILDING.md) (toolchains), [scripts/build_static.ps1](../../scripts/build_static.ps1) (experimental Zig CC build).
+**Related:** [ZERO_CGO_RAYLIB.md](ZERO_CGO_RAYLIB.md) (purego/sidecar strategy and symbol inventory), [BUILDING.md](../BUILDING.md) (toolchains), [scripts/build/build_static.ps1](../../scripts/build/build_static.ps1) (experimental Zig CC build).
 
 ---
 
@@ -105,7 +105,7 @@ Do not treat “HAL complete” as a binary fact in reviews—treat it as a **gr
 - **Purego + sidecar DLL** — Easy cross-compilation of the **Go** binary; users ship **`raylib.dll`** next to it (Windows).
 - **CGO + static or semi-static Raylib** — Can produce a **single** user-facing executable, but requires a **C toolchain**, correct **LDFLAGS**, and platform-specific libraries. Cross-compiling static CGO is harder than pure Go.
 
-The repo includes an **experimental** script [`scripts/build_static.ps1`](../../scripts/build_static.ps1) that sets **`CGO_ENABLED=1`** and **`CC`** to **`zig cc`** for a Windows GNU target; see [`BUILDING.md`](../BUILDING.md) for prerequisites (Raylib and friends on the compiler search path). This does not remove the need for careful platform setup; it only centralizes one invocation pattern.
+The repo includes an **experimental** script [`scripts/build/build_static.ps1`](../../scripts/build/build_static.ps1) that sets **`CGO_ENABLED=1`** and **`CC`** to **`zig cc`** for a Windows GNU target; see [`BUILDING.md`](../BUILDING.md) for prerequisites (Raylib and friends on the compiler search path). This does not remove the need for careful platform setup; it only centralizes one invocation pattern.
 
 Using **Zig** as **`CC`** is optional; it is one way to get a predictable C linker for Go CGO without relying on a full MSVC setup for every contributor.
 
@@ -127,4 +127,4 @@ Using **Zig** as **`CC`** is optional; it is one way to get a predictable C link
 | Interactive **`RunProgram`** (fullruntime) | **`DefaultDriver()`** → **`drivers/video/raylib`** |
 | CGO vs DLL on Windows | **`internal/driver`**, build tags, **`MOONBASIC_DRIVER`** |
 | Avoid DLL load during **`go test`** (Windows purego) | Deferred **`init()`** + stubs for select calls; **`MOONBASIC_SKIP_RAYLIB_DLL`** |
-| Static-ish Windows experiment | **`scripts/build_static.ps1`** + **`BUILDING.md`** |
+| Static-ish Windows experiment | **`scripts/build/build_static.ps1`** + **`BUILDING.md`** |
