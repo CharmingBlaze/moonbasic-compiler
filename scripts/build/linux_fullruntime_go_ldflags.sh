@@ -14,6 +14,8 @@
 moonbasic_linux_fullruntime_go_ldflags() {
   local ver="${MOONBASIC_LINUX_VERSION:-${GITHUB_REF_NAME:-devel}}"
   # -extld=g++ ensures the C++ runtime (Jolt) links correctly with static-libstdc++.
+  # Pass each linker flag as its own -extldflags so go -ldflags space-splitting
+  # does not turn "-static-libstdc++" into a bogus top-level ldflag.
   printf '%s' \
     "-s -w -X moonbasic/internal/version.Version=${ver} " \
     "-linkmode external " \

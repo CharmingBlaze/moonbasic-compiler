@@ -285,8 +285,7 @@ jobs:
           source scripts/build/linux_fullruntime_go_ldflags.sh
           LD="$(moonbasic_linux_fullruntime_go_ldflags)"
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
-          chmod +x scripts/verification/verify_linux_shared_libs.sh scripts/build/linux_fullruntime_go_ldflags.sh
-          ./scripts/verification/verify_linux_shared_libs.sh dist/moonrun
+          bash scripts/verification/verify_linux_shared_libs.sh dist/moonrun
           ./dist/moonrun --version || ./dist/moonrun -version || true
 
   # Compile-only: core Raylib via raylib-go purego (no C compiler). raygui/DB/ENet still need CGO in full builds.

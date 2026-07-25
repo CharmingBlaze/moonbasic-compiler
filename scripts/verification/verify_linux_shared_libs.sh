@@ -4,7 +4,8 @@
 #
 # Usage (from repo root, after building dist/moonrun):
 #   bash scripts/verification/verify_linux_shared_libs.sh dist/moonrun
-#   bash scripts/verification/verify_linux_shared_libs.sh dist/moonbasic   # optional; compiler may be thinner
+#
+# Compatible with bash 3.2+ (no mapfile).
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -27,25 +28,26 @@ for bin in "$@"; do
     echo "ERROR: ldd not found" >&2
     exit 1
   fi
-  mapfile -t lines < <(ldd "$bin" 2>&1 || true)
   echo "== ldd $bin =="
-  printf '%s\n' "${lines[@]}"
-  bad=()
-  for line in "${lines[@]}"; do
+  tmp="$(mktemp)"
+  ldd "$bin" >"$tmp" 2>&1 || true
+  bad=""
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    printf '%s\n' "$line"
     if [[ "$line" =~ $FORBIDDEN_REGEX ]]; then
-      bad+=("$line")
+      bad="${bad}${line}"$'\n'
     fi
     if [[ "$line" == *"not found"* ]]; then
-      # Missing DT_NEEDED is always a release blocker (except linux-vdso).
       if [[ "$line" != *"linux-vdso"* ]]; then
-        bad+=("$line")
+        bad="${bad}${line}"$'\n'
       fi
     fi
-  done
-  if ((${#bad[@]} > 0)); then
+  done <"$tmp"
+  rm -f "$tmp"
+  if [[ -n "$bad" ]]; then
     echo "ERROR: $bin has forbidden or missing shared libs:" >&2
-    printf '  %s\n' "${bad[@]}" >&2
-    echo "Expected: ENet/Raylib/Jolt/SQLite statically linked; only desktop stack (glibc, libstdc++, Wayland/X11, OpenGL, xkbcommon, …) may be dynamic." >&2
+    printf '%s' "$bad" >&2
+    echo "Expected: ENet/Raylib/Jolt/SQLite statically linked; C++ runtime static (-static-libstdc++); only desktop stack (glibc, Wayland/X11, OpenGL, xkbcommon, …) may be dynamic." >&2
     fail=1
   else
     echo "OK: $bin — no forbidden engine shared libs; no missing DT_NEEDED."

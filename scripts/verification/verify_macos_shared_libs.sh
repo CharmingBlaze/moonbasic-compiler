@@ -3,6 +3,8 @@
 #
 # Usage:
 #   bash scripts/verification/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
+#
+# Compatible with macOS system bash 3.2 (no mapfile).
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -23,18 +25,20 @@ for bin in "$@"; do
     echo "ERROR: otool not found" >&2
     exit 1
   fi
-  mapfile -t lines < <(otool -L "$bin" 2>&1 || true)
   echo "== otool -L $bin =="
-  printf '%s\n' "${lines[@]}"
-  bad=()
-  for line in "${lines[@]}"; do
+  tmp="$(mktemp)"
+  otool -L "$bin" >"$tmp" 2>&1 || true
+  bad=""
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    printf '%s\n' "$line"
     if [[ "$line" =~ $FORBIDDEN_REGEX ]]; then
-      bad+=("$line")
+      bad="${bad}${line}"$'\n'
     fi
-  done
-  if ((${#bad[@]} > 0)); then
+  done <"$tmp"
+  rm -f "$tmp"
+  if [[ -n "$bad" ]]; then
     echo "ERROR: $bin links forbidden engine dylibs:" >&2
-    printf '  %s\n' "${bad[@]}" >&2
+    printf '%s' "$bad" >&2
     fail=1
   else
     echo "OK: $bin — no forbidden engine dylibs."

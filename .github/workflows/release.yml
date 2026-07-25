@@ -103,9 +103,8 @@ jobs:
 
       - name: Verify no engine shared libs (ldd)
         run: |
-          chmod +x scripts/verification/verify_linux_shared_libs.sh
-          # moonrun must be free of engine + libstdc++ sidecars; moonbasic (compiler) may still use dynamic libstdc++ if any CGO.
-          ./scripts/verification/verify_linux_shared_libs.sh dist/moonrun
+          # Invoke via bash so CRLF shebangs cannot break CI; moonrun must be free of engine + libstdc++ sidecars.
+          bash scripts/verification/verify_linux_shared_libs.sh dist/moonrun
           # Soft check compiler: forbid engine libs only (allow libstdc++).
           if ldd dist/moonbasic 2>/dev/null | grep -E 'libenet\.so|libraylib\.so|libjolt\.so'; then
             echo "ERROR: dist/moonbasic unexpectedly links engine shared libs" >&2
@@ -345,8 +344,7 @@ jobs:
 
       - name: Verify no engine dylibs (otool)
         run: |
-          chmod +x scripts/verification/verify_macos_shared_libs.sh
-          ./scripts/verification/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
+          bash scripts/verification/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
 
       - uses: actions/download-artifact@v5
         with:
