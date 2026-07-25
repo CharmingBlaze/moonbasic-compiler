@@ -16,7 +16,7 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 
 ### Easiest: moonBASIC IDE (recommended)
 
-Download the **IDE bundle** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** — one folder with the editor, compiler, runtime, docs, and samples:
+Download the **IDE bundle** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** — one folder with the editor, compiler, runtime, **built-in documentation**, and samples:
 
 | Platform | Archive |
 |----------|---------|
@@ -52,7 +52,7 @@ On **Linux** you still need a normal desktop stack (these are OS packages, not m
 
 (If an *older* release prints `libenet.so.7 => not found`, download a newer full-runtime archive, or temporarily `sudo pacman -S enet` on Arch/CachyOS.)
 
-More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic-compiler#download-and-use-recommended)** on GitHub.
+More detail on what each archive contains: **[RELEASES.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md)** on the download hub, or **[`dist/README.md`](../dist/README.md)** in the engine source tree.
 
 ### VS Code: syntax and LSP
 
@@ -103,7 +103,7 @@ This creates **`main.mb`**, **`assets/`**, **`.vscode/`** (launch, tasks, extens
 You can share games in two straightforward ways:
 
 **A — Minimal install for players (recommended)**  
-Ship your **`.mb`** source and/or **`.mbc`** bytecode, plus any **assets** (images, sounds, data files) using the **paths your scripts expect** (working directory when they run `moonrun`, or paths you set with **`RES.PATH`** and similar APIs). Tell players to install the **same [full runtime](#1-installation) archive** for their OS from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest) — **not** the **compiler-only** download (that bundle has no `moonrun` and cannot open a game window). Prefer the **same moonBASIC release tag** you used to build and test: bytecode and engine behavior stay aligned across patch versions.
+Ship your **`.mb`** source and/or **`.mbc`** bytecode, plus any **assets** (images, sounds, data files) using the **paths your scripts expect** (working directory when they run `moonrun`, or paths you set with **`RES.PATH`** and similar APIs). Tell players to install the **same [full runtime](#1-installation) archive** for their OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) — **not** the **compiler-only** download (that bundle has no `moonrun` and cannot open a game window). Prefer the **same moonBASIC release tag** you used to build and test: bytecode and engine behavior stay aligned across patch versions.
 
 **B — Folder bundle (one zip per game)**  
 Ship a folder that contains **`moonrun`** (and optionally **`moonbasic`**) next to your game and assets so players extract and run from that folder. Copy **`moonrun.exe`** / **`moonrun`** from the **same full-runtime release** you used to test. On **Linux**, use the official tarball layout or **`moonbasic package linux`** from your project folder.

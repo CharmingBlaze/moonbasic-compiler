@@ -132,7 +132,9 @@ TIPS
 
   • Porting from BlitzBASIC? See docs/reference/MIGRATION.md for commands not in this release.
 
-  • More help: https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md
+  • More help: https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md
+
+  • Downloads / IDE: https://github.com/CharmingBlaze/moonbasic/releases/latest
 
 
 
