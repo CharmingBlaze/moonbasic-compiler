@@ -38,6 +38,10 @@ foreach ($line in $out) {
     }
 }
 
+if ($dlls.Count -eq 0) {
+    Write-Error ("objdump reported zero DLL imports for {0} — refusing to treat as OK (parser/toolchain bug)." -f $Exe)
+}
+
 # Names we do not want next to the exe for "fully static MinGW runtime" distro builds.
 # Keep engine/native game libs here so a bad -l / CGO_LDFLAGS cannot silently reintroduce sidecars
 # (same class of bug as Linux libenet.so.7).

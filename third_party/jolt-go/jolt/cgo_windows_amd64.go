@@ -17,6 +17,9 @@ third_party/jolt-go/scripts/build-libs-windows.ps1 before building the Go runtim
 package jolt
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/lib/windows_amd64 -ljolt_wrapper -lJolt -lstdc++
+# Force static libstdc++/libgcc/winpthread. A bare -lstdc++ after Go's -Wl,-Bdynamic
+# re-introduces libstdc++-6.dll / libwinpthread-1.dll load-time deps (STATUS_DLL_NOT_FOUND
+# on clean user PCs that do not have MinGW on PATH).
+#cgo LDFLAGS: -L${SRCDIR}/lib/windows_amd64 -ljolt_wrapper -lJolt -static-libstdc++ -static-libgcc -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic
 */
 import "C"

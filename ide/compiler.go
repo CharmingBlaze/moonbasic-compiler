@@ -9,6 +9,7 @@ import (
 	stdruntime "runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 // ToolchainInfo describes discovered moonbasic/moonrun binaries.
@@ -269,6 +270,9 @@ func (a *App) RunFile(filePath string) ToolchainResult {
 	cwd := filepath.Dir(filePath)
 	cmd := exec.Command(tc.Moonrun, filePath)
 	cmd.Dir = cwd
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	runMu.Lock()
 	if runCmd != nil && runCmd.Process != nil {
 		_ = runCmd.Process.Kill()
@@ -280,18 +284,59 @@ func (a *App) RunFile(filePath string) ToolchainResult {
 	}
 	runCmd = cmd
 	runMu.Unlock()
+
+	// Catch immediate failures (missing MinGW DLLs, bad .mb, GPU init) before claiming success.
+	done := make(chan error, 1)
 	go func() {
-		_ = cmd.Wait()
+		done <- cmd.Wait()
 		runMu.Lock()
 		if runCmd == cmd {
 			runCmd = nil
 		}
 		runMu.Unlock()
 	}()
-	return ToolchainResult{
-		Success: true,
-		Message: fmt.Sprintf("Started %s", filepath.Base(tc.Moonrun)),
+	select {
+	case err := <-done:
+		res := ToolchainResult{
+			Success: false,
+			Stdout:  stdout.String(),
+			Stderr:  stderr.String(),
+		}
+		if err != nil {
+			res.Error = explainMoonrunExit(err, stderr.String())
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				res.ExitCode = exitErr.ExitCode()
+			}
+		} else {
+			res.Error = "moonrun exited immediately (no game window). Check the script or re-download the latest IDE/runtime zip."
+		}
+		return res
+	case <-time.After(800 * time.Millisecond):
+		return ToolchainResult{
+			Success: true,
+			Message: fmt.Sprintf("Started %s", filepath.Base(tc.Moonrun)),
+		}
 	}
+}
+
+func explainMoonrunExit(err error, stderr string) string {
+	msg := err.Error()
+	exitCode := 0
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		exitCode = exitErr.ExitCode()
+	}
+	// Windows STATUS_DLL_NOT_FOUND (0xC0000135) — often libstdc++-6.dll / libwinpthread-1.dll.
+	if stdruntime.GOOS == "windows" && uint32(exitCode) == 0xC0000135 {
+		return "moonrun failed to start: a required DLL is missing (usually libstdc++-6.dll or libwinpthread-1.dll). " +
+			"Download the latest moonBASIC IDE/runtime release — older zips need those MinGW DLLs beside moonrun.exe."
+	}
+	if strings.TrimSpace(stderr) != "" {
+		return strings.TrimSpace(stderr)
+	}
+	if exitCode != 0 {
+		return fmt.Sprintf("moonrun exited immediately (code %d): %s", exitCode, msg)
+	}
+	return msg
 }
 
 // StopRun kills the last moonrun process started from the IDE (if still running).
