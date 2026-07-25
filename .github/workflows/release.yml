@@ -228,8 +228,8 @@ jobs:
         shell: bash
         env:
           CGO_ENABLED: '1'
-          # Prefer g++ on PATH for CGO and -extld=g++ (static-libstdc++).
-          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/g++.exe
+          # Compile C with gcc; final link uses -extld=g++ (see windows_fullruntime_go_ldflags.sh).
+          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
           CXX: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/g++.exe
         run: |
           set -e
