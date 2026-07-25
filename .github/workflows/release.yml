@@ -147,7 +147,10 @@ jobs:
           cache-dependency-path: ide/package-lock.json
 
       - name: Install Wails dependencies (Linux)
-        run: sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+        run: |
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+          # Prefer 4.0 if the distro still provides it (older Wails defaults).
+          sudo apt-get install -y libwebkit2gtk-4.0-dev || true
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
@@ -161,7 +164,12 @@ jobs:
           go run ./tools/docsexport
           cd "ide"
           npm ci
-          wails build
+          # Ubuntu runners ship webkit2gtk-4.1; Wails defaults to 4.0 without this tag.
+          if pkg-config --exists webkit2gtk-4.1 && ! pkg-config --exists webkit2gtk-4.0; then
+            wails build -tags webkit2_41
+          else
+            wails build
+          fi
           mkdir -p ../ide-dist
           cp build/bin/moonbasic-ide ../ide-dist/
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
