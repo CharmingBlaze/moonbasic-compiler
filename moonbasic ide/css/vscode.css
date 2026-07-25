@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
+/* System fonts only — no CDN (works offline on Win/Mac/Linux). */
 :root {
   --sb-bg: #0c0e14;
   --sb-bg-elevated: #12151c;
@@ -26,8 +25,8 @@
   --sb-green: #86efac;
   --sb-orange: #fdba74;
   --sb-yellow: #fde68a;
-  --sb-font: 'Inter', system-ui, sans-serif;
-  --sb-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+  --sb-font: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --sb-mono: "Cascadia Code", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --sb-titlebar: linear-gradient(180deg, #141820 0%, #0f1118 100%);
   --sb-statusbar: linear-gradient(90deg, #6d28d9 0%, #0891b2 100%);
   --sb-glass: blur(12px) saturate(1.2);
@@ -53,6 +52,48 @@ body.is-resizing * { cursor: inherit !important; }
 
 svg.icon { width: 16px; height: 16px; display: block; flex-shrink: 0; }
 svg.icon-lg { width: 24px; height: 24px; }
+
+/* ── First-run / toolchain banner ── */
+.setup-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(109, 40, 217, 0.35), rgba(8, 145, 178, 0.28));
+  border-bottom: 1px solid var(--sb-border-bright);
+  font-size: 12.5px;
+  line-height: 1.4;
+  z-index: 40;
+}
+.setup-banner.hidden { display: none !important; }
+.setup-banner.warn {
+  background: linear-gradient(90deg, rgba(180, 83, 9, 0.4), rgba(109, 40, 217, 0.25));
+}
+.setup-banner.err {
+  background: linear-gradient(90deg, rgba(190, 50, 70, 0.45), rgba(109, 40, 217, 0.2));
+}
+.setup-banner-text { flex: 1; min-width: 0; color: var(--sb-text-bright); }
+.setup-banner-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.setup-banner-btn {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--sb-text-bright);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+.setup-banner-btn:hover { background: rgba(0, 0, 0, 0.4); }
+.setup-banner-btn.ghost {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  padding: 0 6px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.setup-banner-btn.ghost:hover { opacity: 1; }
 
 /* ── Title / Menu bar ── */
 .titlebar {

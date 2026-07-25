@@ -195,7 +195,7 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 			g.emitExpr(ch, ix)
 		}
 		valReg := g.emitExpr(ch, n.Expr)
-		ch.Emit(opcode.OpArraySet, valReg, arrReg, dimStart, int32(len(n.Index)), n.Line)
+		ch.Emit(opcode.OpArraySet, valReg, arrReg, uint8(dimStart), int32(len(n.Index)), n.Line)
 
 	case *ast.ReturnNode:
 		g.emitReturn(ch, n)
@@ -462,7 +462,7 @@ func (g *CodeGen) emitIndexFieldAssign(ch *opcode.Chunk, n *ast.IndexFieldAssign
 		g.emitExpr(ch, ix)
 	}
 	objReg := g.allocReg()
-	ch.Emit(opcode.OpArrayGet, objReg, arrReg, dimStart, int32(len(n.Index)), n.Line)
+	ch.Emit(opcode.OpArrayGet, objReg, arrReg, uint8(dimStart), int32(len(n.Index)), n.Line)
 
 	valReg := g.emitExpr(ch, n.Expr)
 	fidx := ch.AddName(strings.ToUpper(n.Field))

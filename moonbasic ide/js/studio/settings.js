@@ -68,7 +68,7 @@ function readDraftFromModal(modal) {
     editorFontSize: Number(modal.querySelector('#set-editor-size')?.value) || 15,
     editorLineHeight: Number(modal.querySelector('#set-editor-line')?.value) || 1.65,
     uiFontSize: Number(modal.querySelector('#set-ui-size')?.value) || 13,
-    fontMono: modal.querySelector('#set-font-mono')?.value || 'JetBrains Mono',
+    fontMono: modal.querySelector('#set-font-mono')?.value || 'Cascadia Code',
     colorOverrides: { ...draftAppearance.colorOverrides }
   };
   modal.querySelectorAll('[data-color-key]').forEach(input => {
@@ -203,11 +203,14 @@ async function updateToolchainStatus(el) {
   el.className = 'settings-status';
   try {
     const tc = isDesktopApp() ? await testToolchain() : await getToolchain();
-    if (tc.found) {
-      el.textContent = `moonbasic: ${tc.moonbasic || 'found'}${tc.moonrun ? ' · moonrun: ' + tc.moonrun : ''}`;
+    if (tc.found && tc.moonrun) {
+      el.textContent = `Ready — moonbasic + moonrun\n${tc.moonbasic}\n${tc.moonrun}`;
       el.classList.add('ok');
+    } else if (tc.found) {
+      el.textContent = `moonbasic only (F5 needs moonrun beside the IDE)\n${tc.moonbasic}`;
+      el.classList.add('warn');
     } else {
-      el.textContent = 'Toolchain not found — set paths below or leave blank to auto-detect';
+      el.textContent = 'Not found — put moonbasic and moonrun in the same folder as the IDE, or Browse… below';
       el.classList.add('warn');
     }
   } catch (e) {
@@ -254,12 +257,17 @@ export async function showSettingsModal(opts = {}) {
   const hintEl = modal.querySelector('#settings-hint');
 
   if (hintEl) {
-    const localDir = isDesktopApp() && appApi()?.GetLocalToolchainDir
-      ? await appApi().GetLocalToolchainDir()
-      : 'toolchain/';
-    hintEl.textContent = isDesktopApp()
-      ? `Local folder: ${localDir || 'toolchain/'} — or set explicit paths below.`
-      : 'Compiler paths apply in the desktop app only.';
+    if (!isDesktopApp()) {
+      hintEl.textContent = 'Compiler paths apply in the desktop app only.';
+    } else {
+      let installDir = '';
+      try {
+        installDir = appApi()?.GetInstallDir ? await appApi().GetInstallDir() : '';
+      } catch (_) {}
+      hintEl.textContent = installDir
+        ? `Auto-detect looks beside the IDE: ${installDir}. Leave blank unless you moved the binaries.`
+        : 'Leave blank — auto-detect uses moonbasic/moonrun next to the IDE (release zip).';
+    }
   }
 
   const tc = await loadToolchainSettings();

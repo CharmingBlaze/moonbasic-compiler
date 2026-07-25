@@ -24,6 +24,9 @@ require (
 
 replace github.com/bbitechnologies/jolt-go => ./third_party/jolt-go
 
+// go-enet: compile ENet C sources statically (no system libenet.so / pkg-config at runtime).
+replace github.com/codecat/go-enet => ./third_party/go-enet
+
 // raylib-go: rcamera.go references GetFrameTime/IsKeyDown/etc. that only exist in rcore (CGO) or
 // raylib_purego (Windows); without this gate, linux+CGO_ENABLED=0 fails to compile. Upstream issue.
 replace github.com/gen2brain/raylib-go/raylib => ./third_party/raylib-go-raylib

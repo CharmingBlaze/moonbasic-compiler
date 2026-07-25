@@ -24,4 +24,4 @@ Generated for DarkBASIC-style parity tracking. Regenerate when adding runtime co
 - **`QOL_AUDIT_DUPLICATES.txt`** — keys that appear more than once. **Expected:** stub vs `cgo` pairs (`//go:build !cgo` vs `cgo`) register the same key in mutually exclusive files; only one implementation is linked per build. True conflicts = same key in two files with the **same** build tag.
 - **`QOL_AUDIT.txt`** — human matrix: spec / common name → status (DONE / PARTIAL / MISSING / DOCONLY) and primary implementation path.
 
-Canonical **instant game / QOL** implementation lives in **`runtime/mbgame`** (registered from `compiler/pipeline/pipeline.go`). Do **not** add a second package that registers the same command keys.
+Canonical **instant game / QOL** implementation lives in **`runtime/mbgame`** (registered from `compiler/pipeline/registry.go`). Do **not** add a second package that registers the same command keys.

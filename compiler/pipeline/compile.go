@@ -34,10 +34,6 @@ type CompileOptions struct {
 	// First assignment declares the variable with inferred type.
 	ImplicitDeclaration bool
 
-	// TypeInference enables automatic type detection from expressions.
-	// When disabled, variables default to INT unless suffix is present.
-	TypeInference bool
-
 	// Debug enables verbose output during compilation.
 	Debug bool
 
@@ -49,7 +45,6 @@ type CompileOptions struct {
 func CompileSource(name, src string) (*opcode.Program, error) {
 	return CompileSourceWithOptions(name, src, CompileOptions{
 		ImplicitDeclaration: true, // Enable modern syntax by default
-		TypeInference:       true,
 	})
 }
 
@@ -97,7 +92,8 @@ func CompileSourceWithOptions(name, src string, opts CompileOptions) (*opcode.Pr
 	g := codegen.NewWithSymbols(name, lines, symbols)
 	bc, err := g.Compile(prog)
 	if err != nil {
-		return nil, fmt.Errorf("[moonBASIC] CodeGen Error: %v", err)
+		// Preserve *errors.MoonError for LSP / structured diagnostics.
+		return nil, err
 	}
 
 	return bc, nil
@@ -147,6 +143,7 @@ func CheckSourceWithNotices(name, src string, opts CheckOptions) ([]semantic.Dep
 	}
 	an := semantic.DefaultAnalyzer(name, parser.SplitLines(src))
 	an.StrictDeprecated = opts.StrictDeprecated
+	an.CollectErrors = true
 	if err := an.Run(prog); err != nil {
 		return an.DeprecationNotices(), an.Warnings(), err
 	}

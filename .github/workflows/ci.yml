@@ -24,7 +24,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             gcc \
-            libenet-dev \
             libgl1-mesa-dev \
             libxi-dev \
             libxcursor-dev \
@@ -219,6 +218,77 @@ jobs:
 
       # No headed Pong smoke here: GitHub Windows runners lack reliable OpenGL for GLFW.
 
+  # Mirrors release.yml linux-amd64: Jolt rebuild + static-libstdc++ ldflags + moonrun + ldd forbid list.
+  linux_fullruntime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake gcc g++ \
+            libgl1-mesa-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev \
+            libwayland-dev libxkbcommon-dev
+
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v5
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (Linux)
+        run: |
+          set -e
+          JOLT_SRC="${GITHUB_WORKSPACE}/JoltPhysics"
+          mkdir -p "$JOLT_SRC/Build/linux_amd64_release"
+          cd "$JOLT_SRC/Build/linux_amd64_release"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS="-fno-lto" \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+            -DDISABLE_CUSTOM_ALLOCATOR=ON \
+            -DTARGET_UNIT_TESTS=OFF \
+            -DTARGET_HELLO_WORLD=OFF \
+            -DTARGET_PERFORMANCE_TEST=OFF \
+            -DTARGET_SAMPLES=OFF \
+            -DTARGET_VIEWER=OFF
+          cmake --build . -j"$(nproc)"
+          WRAPPER="${GITHUB_WORKSPACE}/third_party/jolt-go/jolt/wrapper"
+          OUT="${GITHUB_WORKSPACE}/third_party/jolt-go/jolt/lib/linux_amd64"
+          mkdir -p "$OUT"
+          cd "$WRAPPER"
+          for src in *.cpp; do
+            g++ -std=c++17 -I"$JOLT_SRC" -DNDEBUG -DJPH_DISABLE_CUSTOM_ALLOCATOR \
+              -DJPH_PROFILE_ENABLED -DJPH_DEBUG_RENDERER -DJPH_OBJECT_STREAM \
+              -fPIC -fno-lto -c "$src" -o "${src%.cpp}.o"
+          done
+          ar rcs libjolt_wrapper.a *.o
+          rm -f *.o
+          cp libjolt_wrapper.a "$OUT/"
+          cp "$JOLT_SRC/Build/linux_amd64_release/libJolt.a" "$OUT/"
+
+      - name: Build moonrun (release parity) + verify ldd
+        env:
+          CGO_ENABLED: '1'
+          MOONBASIC_LINUX_VERSION: 'ci-${{ github.sha }}'
+        run: |
+          set -e
+          mkdir -p dist
+          source scripts/linux_fullruntime_go_ldflags.sh
+          LD="$(moonbasic_linux_fullruntime_go_ldflags)"
+          go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
+          chmod +x scripts/verify_linux_shared_libs.sh scripts/linux_fullruntime_go_ldflags.sh
+          ./scripts/verify_linux_shared_libs.sh dist/moonrun
+          ./dist/moonrun --version || ./dist/moonrun -version || true
+
   # Compile-only: core Raylib via raylib-go purego (no C compiler). raygui/DB/ENet still need CGO in full builds.
   windows_purego:
     runs-on: windows-latest
@@ -281,7 +351,11 @@ jobs:
 
   # cmd/moonbasic with CGO off (matches compiler-only release); smoke --version + --check
   compiler_smoke:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
 
@@ -290,13 +364,19 @@ jobs:
           go-version: '1.25.3'
 
       - name: Build and smoke-test standalone compiler
+        shell: bash
         run: |
           set -e
+          out=moonbasic_ci
+          if [ "${{ runner.os }}" = "Windows" ]; then out=moonbasic_ci.exe; fi
           CGO_ENABLED=0 go build -trimpath \
             -ldflags="-X moonbasic/internal/version.Version=ci" \
-            -o /tmp/moonbasic ./cmd/moonbasic
-          /tmp/moonbasic --version | grep -q ci
-          /tmp/moonbasic --check testdata/enet_smoke.mb
+            -o "$out" ./cmd/moonbasic
+          "./$out" --version | grep -q ci
+          "./$out" --check testdata/enet_smoke.mb
+          "./$out" --check testdata/include_globals.mb
+          "./$out" --check examples/spin_cube/main.mb
+          CGO_ENABLED=0 go test ./compiler/... ./handlecall/... ./lsp/...
 
   vscode-extension:
     runs-on: ubuntu-latest

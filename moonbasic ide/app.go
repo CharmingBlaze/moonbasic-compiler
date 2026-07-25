@@ -160,7 +160,14 @@ func (a *App) ReadProjectFolder(dir string) ReadProjectResult {
 		return ReadProjectResult{Success: false, Error: "No .mb source files found in folder"}
 	}
 	a.projectPath = dir
-	a.lastFile = filepath.Join(dir, "main.sb")
+	// Prefer main.mb when present; otherwise first discovered source.
+	a.lastFile = filepath.Join(dir, "main.mb")
+	for _, f := range files {
+		if strings.EqualFold(filepath.Base(f.Name), "main.mb") {
+			a.lastFile = filepath.Join(dir, filepath.FromSlash(f.Name))
+			break
+		}
+	}
 	return ReadProjectResult{Success: true, Path: dir, Files: files}
 }
 
@@ -194,9 +201,12 @@ func (a *App) OpenFile() FileResult {
 	}
 }
 
-// SaveFile saves content to a file, using last path or dialog
-func (a *App) SaveFile(content string, filename string) FileResult {
-	savePath := a.lastFile
+// SaveFile saves content. diskPath is the active tab path (preferred over lastFile).
+func (a *App) SaveFile(content string, filename string, diskPath string) FileResult {
+	savePath := strings.TrimSpace(diskPath)
+	if savePath == "" {
+		savePath = a.lastFile
+	}
 	if savePath == "" {
 		var err error
 		savePath, err = wailsruntime.SaveFileDialog(a.ctx, wailsruntime.SaveDialogOptions{
@@ -222,6 +232,25 @@ func (a *App) SaveFile(content string, filename string) FileResult {
 		Success:  true,
 		Path:     savePath,
 		Filename: filepath.Base(savePath),
+	}
+}
+
+// ReadFilePath loads a file from disk (recent files, reopen tabs).
+func (a *App) ReadFilePath(path string) FileResult {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return FileResult{Success: false, Error: "No path"}
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return FileResult{Success: false, Error: err.Error()}
+	}
+	a.lastFile = path
+	return FileResult{
+		Success:  true,
+		Path:     path,
+		Filename: filepath.Base(path),
+		Content:  string(data),
 	}
 }
 

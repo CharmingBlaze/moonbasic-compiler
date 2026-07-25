@@ -8,7 +8,7 @@
     "dev": "npx serve . -l 3456",
     "dev:wails": "npm run sync && wails dev",
     "sync": "node scripts/sync-wails-frontend.mjs",
-    "toolchain:build": "powershell -ExecutionPolicy Bypass -File scripts/build-toolchain.ps1",
+    "toolchain:build": "node -e \"require('child_process').execSync(process.platform==='win32'?'powershell -ExecutionPolicy Bypass -File scripts/build-toolchain.ps1':'bash scripts/build-toolchain.sh',{stdio:'inherit'})\"",
     "toolchain:raylib": "powershell -ExecutionPolicy Bypass -File scripts/fetch-raylib.ps1",
     "langdata": "cd .. && go run ./tools/ideexport && go run ./tools/docsexport",
     "prebuild:wails": "npm run sync",

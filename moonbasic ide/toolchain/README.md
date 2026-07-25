@@ -11,9 +11,12 @@ cd "moonbasic ide"
 npm run toolchain:build
 ```
 
-This builds `moonbasic.exe` into this folder. `moonrun.exe` is built when CGO/fullruntime is available.
+Windows: `scripts/build-toolchain.ps1` (or `npm run toolchain:build`)
+Unix: `scripts/build-toolchain.sh`
 
-  • Copy `raylib.dll` next to `moonrun.exe` when using a purego (CGO_ENABLED=0) build.
+This builds `moonbasic` / `moonbasic.exe` into this folder. `moonrun` is built when CGO/fullruntime is available.
+
+  • On Windows purego builds, copy `raylib.dll` next to `moonrun.exe` when needed.
   • Official [GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases) ship a static `moonrun` that does not need `raylib.dll`.
 
 ## Path configuration

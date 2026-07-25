@@ -20,7 +20,7 @@ func (g *CodeGen) emitDim(ch *opcode.Chunk, n *ast.DimNode) {
 		if n.Preserve {
 			preserve = 1
 		}
-		ch.Emit(opcode.OpArrayRedim, preserve, hReg, argStart, int32(len(n.Dims)), n.Line)
+		ch.Emit(opcode.OpArrayRedim, preserve, hReg, uint8(argStart), int32(len(n.Dims)), n.Line)
 		ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 		g.nextReg = g.baseReg
 		return
@@ -36,18 +36,18 @@ func (g *CodeGen) emitDim(ch *opcode.Chunk, n *ast.DimNode) {
 
 		switch tn {
 		case "HANDLE":
-			ch.Emit(opcode.OpArrayMake, dst, argStart, 3, int32(len(n.Dims)), n.Line)
+			ch.Emit(opcode.OpArrayMake, dst, uint8(argStart), 3, int32(len(n.Dims)), n.Line)
 			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 		case "STRING":
-			ch.Emit(opcode.OpArrayMake, dst, argStart, 1, int32(len(n.Dims)), n.Line)
+			ch.Emit(opcode.OpArrayMake, dst, uint8(argStart), 1, int32(len(n.Dims)), n.Line)
 			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 		case "INTEGER", "FLOAT":
-			ch.Emit(opcode.OpArrayMake, dst, argStart, 0, int32(len(n.Dims)), n.Line)
+			ch.Emit(opcode.OpArrayMake, dst, uint8(argStart), 0, int32(len(n.Dims)), n.Line)
 			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 		default:
 			// User TYPE array — heap instance per cell
 			tidx := ch.AddName(tn)
-			ch.Emit(opcode.OpArrayMakeTyped, dst, argStart, uint8(len(n.Dims)), tidx, n.Line)
+			ch.Emit(opcode.OpArrayMakeTyped, dst, uint8(argStart), uint8(len(n.Dims)), tidx, n.Line)
 			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 		}
 
@@ -62,7 +62,7 @@ func (g *CodeGen) emitDim(ch *opcode.Chunk, n *ast.DimNode) {
 	}
 	dst := g.allocReg()
 	// OpArrayMake: SrcA = dim value registers start, SrcB = kind flags (see vm doArrayMake)
-	ch.Emit(opcode.OpArrayMake, dst, argStart, flags, int32(len(n.Dims)), n.Line)
+	ch.Emit(opcode.OpArrayMake, dst, uint8(argStart), flags, int32(len(n.Dims)), n.Line)
 	ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 
 	g.emitStoreNamed(ch, n.Name, n.Line, dst)

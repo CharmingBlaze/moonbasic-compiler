@@ -9,7 +9,7 @@ IDE_DIR="$ROOT/moonbasic ide"
 STAGE="$ROOT/dist/ide-bundle"
 OUT="$ROOT/moonbasic-${TAG}-ide-${PLATFORM}.tar.gz"
 
-if [ ! -f "$IDE_DIR/build/bin/moonbasic-ide" ]; then
+if [ ! -f "$IDE_DIR/build/bin/moonbasic-ide" ] && [ ! -d "$IDE_DIR/build/bin/moonbasic-ide.app" ]; then
   echo "Build the IDE first: cd 'moonbasic ide' && npm ci && npm run langdata && wails build" >&2
   exit 1
 fi
@@ -20,10 +20,14 @@ fi
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE"
-cp "$IDE_DIR/build/bin/moonbasic-ide" "$STAGE/"
+if [ -d "$IDE_DIR/build/bin/moonbasic-ide.app" ]; then
+  cp -R "$IDE_DIR/build/bin/moonbasic-ide.app" "$STAGE/"
+else
+  cp "$IDE_DIR/build/bin/moonbasic-ide" "$STAGE/"
+  chmod +x "$STAGE/moonbasic-ide"
+fi
 cp "$ROOT/dist/moonbasic" "$ROOT/dist/moonrun" "$STAGE/"
-cp "$ROOT/packaging/README-IDE-RELEASE.txt" "$STAGE/"
-cp "$ROOT/packaging/START-IDE.sh" "$STAGE/"
-chmod +x "$STAGE/moonbasic-ide" "$STAGE/moonbasic" "$STAGE/moonrun" "$STAGE/START-IDE.sh"
+chmod +x "$STAGE/moonbasic" "$STAGE/moonrun"
+bash "$ROOT/scripts/stage_ide_extras.sh" "$STAGE"
 tar czvf "$OUT" -C "$STAGE" .
 echo "Wrote $OUT"

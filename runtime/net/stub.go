@@ -9,7 +9,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-const stubHint = "NET/PEER/EVENT require CGO and ENet (github.com/codecat/go-enet + libenet). Build with CGO_ENABLED=1."
+const stubHint = "NET/PEER/EVENT require CGO (vendored ENet is linked statically via third_party/go-enet). Build with CGO_ENABLED=1 -tags fullruntime."
 
 func registerNetCommands(m *Module, reg runtime.Registrar) {
 	_ = m

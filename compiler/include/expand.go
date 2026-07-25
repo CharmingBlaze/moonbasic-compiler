@@ -117,10 +117,11 @@ func mergeIncludedFile(childPath, altIncludePath string, stack []string, seen ma
 	if stackContains(stack, childAbsFinal) {
 		return nil, fmt.Errorf("[moonBASIC] Error: circular INCLUDE detected: %s", formatCircularChain(stack, childAbsFinal))
 	}
-	if _, already := seen[childAbsFinal]; already {
+	seenKey := pathKey(childAbsFinal)
+	if _, already := seen[seenKey]; already {
 		return nil, nil
 	}
-	seen[childAbsFinal] = struct{}{}
+	seen[seenKey] = struct{}{}
 
 	sub, err := parser.ParseSourceWithArena(childPath, string(data), ar)
 	if err != nil {

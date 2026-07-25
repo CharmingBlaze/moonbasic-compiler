@@ -7,10 +7,19 @@
   <link rel="stylesheet" href="css/vscode.css">
   <link rel="stylesheet" href="css/editor.css">
   <link rel="stylesheet" href="css/settings.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+  <link rel="stylesheet" href="lib/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="lib/codemirror/5.65.16/addon/hint/show-hint.min.css">
 </head>
 <body>
+
+<div id="setup-banner" class="setup-banner hidden" role="status">
+  <div class="setup-banner-text" id="setup-banner-text"></div>
+  <div class="setup-banner-actions">
+    <button type="button" class="setup-banner-btn" id="setup-banner-samples">Open samples</button>
+    <button type="button" class="setup-banner-btn" id="setup-banner-settings">Toolchain settings</button>
+    <button type="button" class="setup-banner-btn ghost" id="setup-banner-dismiss" title="Dismiss">×</button>
+  </div>
+</div>
 
 <div class="titlebar">
   <div class="titlebar-logo" id="logo"></div>
@@ -30,6 +39,7 @@
     <button class="action-btn" id="btn-check" title="Check"></button>
     <button class="action-btn" id="btn-compile" title="Compile"></button>
     <button class="action-btn primary" id="btn-run" title="Run (F5)"></button>
+    <button class="action-btn" id="btn-stop" title="Stop (Shift+F5)"></button>
   </div>
 </div>
 
@@ -122,10 +132,11 @@
           <div class="preview-overlay" id="preview-overlay">
             <div id="overlay-logo"></div>
             <h2>moonBASIC IDE</h2>
-            <p>Write <code>.mb</code> source for the real moonBASIC compiler — 2D/3D games with Raylib, Jolt physics, and the full engine runtime.</p>
-            <p>Press <kbd>F5</kbd> to run · <kbd>Ctrl+Shift+C</kbd> to check · <kbd>Ctrl+Space</kbd> for autocomplete</p>
+            <p>Extract the IDE zip → start with <strong>START-IDE</strong> → open a sample → press <kbd>F5</kbd>. The compiler and runtime sit in the same folder — no hunting.</p>
+            <p><kbd>F5</kbd> run · <kbd>Shift+F5</kbd> stop · <kbd>Ctrl/⌘+Shift+C</kbd> check · <kbd>Ctrl/⌘+Space</kbd> autocomplete</p>
             <div class="welcome-examples" id="welcome-examples">
               <button type="button" class="welcome-btn primary" id="btn-new-project">New Project…</button>
+              <button type="button" class="welcome-btn" id="btn-open-samples">Open samples folder</button>
               <button type="button" class="welcome-btn" data-example="hello">Hello</button>
               <button type="button" class="welcome-btn" data-example="spin_cube">3D Cube</button>
               <button type="button" class="welcome-btn" data-example="pong">2D Pong</button>
@@ -275,18 +286,18 @@
           </div>
           <div class="settings-pane" data-settings-pane="toolchain">
             <h4 class="settings-section-title">Compiler paths</h4>
-            <p class="settings-hint" id="settings-hint"></p>
+            <p class="settings-hint" id="settings-hint">Leave blank — the IDE auto-detects <code>moonbasic</code> and <code>moonrun</code> in the same folder as the editor (release zip layout).</p>
             <div class="settings-field">
               <label for="settings-moonbasic">moonbasic (compiler / LSP)</label>
               <div class="settings-path-row">
-                <input type="text" id="settings-moonbasic" placeholder="Auto-detect from PATH or IDE folder" spellcheck="false">
+                <input type="text" id="settings-moonbasic" placeholder="Auto: same folder as the IDE" spellcheck="false">
                 <button type="button" class="modal-btn secondary" id="settings-browse-moonbasic">Browse…</button>
               </div>
             </div>
             <div class="settings-field">
               <label for="settings-moonrun">moonrun (runtime player)</label>
               <div class="settings-path-row">
-                <input type="text" id="settings-moonrun" placeholder="Optional — needed for F5 Run" spellcheck="false">
+                <input type="text" id="settings-moonrun" placeholder="Auto: same folder as the IDE (needed for F5)" spellcheck="false">
                 <button type="button" class="modal-btn secondary" id="settings-browse-moonrun">Browse…</button>
               </div>
             </div>
@@ -306,14 +317,14 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/match-highlighter.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/display/autorefresh.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="lib/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/search/match-highlighter.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/display/autorefresh.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="lib/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
 <script type="module" src="js/studio/main.js"></script>
 </body>
 </html>

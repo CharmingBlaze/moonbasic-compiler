@@ -1,45 +1,33 @@
 Window.Open(1280, 720, "moonBASIC Demo")
-Window.SetFPS(60)
+Render.SetFPS(60)
 
-Render.SetSkybox("assets/sky/sunset.ktx2")
-Render.SetIBLIntensity(1.0)
-Render.SetIBLSplit(0.6, 1.2)
-Render.SetShadowMapSize(2048)
-Render.SetAmbient(0.1, 0.1, 0.2)
-
-cam = Camera.Make()
+cam = Camera.Create()
 cam.SetPos(0, 5, -12)
-cam.SetRot(20, 0, 0)
 cam.SetFOV(75)
 
-sun = Light.Make("directional")
+sun = Light.Create("directional")
 sun.SetDir(-1, -2, -1)
 sun.SetIntensity(1.0)
 sun.SetShadow(TRUE)
 
-terrain = Terrain.Make(256, 256)
-terrain.FillPerlin(0.03, 20)
-terrain.SetLayer(0, Texture.Load("assets/grass.png"))
-terrain.SetLayer(1, Texture.Load("assets/rock.png"))
-terrain.SetSplat(Texture.Load("assets/splat.png"))
-terrain.SetLayerTile(4.0)
+groundMesh = Terrain.Create(256, 256)
+groundMesh.FillPerlin(0.03, 20)
 
 robot = Model.Load("assets/robot.mdl")
-robot.SetTexture(Texture.Load("assets/robot.png"))
 
 Physics3D.Start()
 Physics3D.SetGravity(0, -9.8, 0)
 
-ground = Body3D.Make("static")
-ground.AddBox(100, 1, 100)
-ground.SetPos(0, -0.5, 0)
+groundDef = Body3D.Create("static")
+groundDef.AddBox(100, 1, 100)
+ground = groundDef.Commit(0, -0.5, 0)
 
-player = Body3D.Make("dynamic")
-player.AddCapsule(0.4, 1.8)
-player.SetPos(0, 5, 0)
-player.SetMass(80)
+heroDef = Body3D.Create("dynamic")
+heroDef.AddCapsule(0.4, 1.8)
+hero = heroDef.Commit(0, 5, 0)
+hero.SetMass(80)
 
-Physics3D.OnCollision(player, ground, "OnLand")
+Physics3D.OnCollision(hero, ground, "OnLand")
 
 mus = Audio.LoadMusic("assets/theme.ogg")
 landSnd = Audio.LoadSound("assets/land.wav")
@@ -54,28 +42,30 @@ WHILE NOT Input.KeyDown(KEY_ESCAPE)
     IF Input.KeyDown(KEY_A) THEN cam.Move(-5.0 * dt, 0, 0)
     IF Input.KeyDown(KEY_D) THEN cam.Move( 5.0 * dt, 0, 0)
 
-    IF Input.KeyPressed(KEY_SPACE) THEN
-        player.ApplyImpulse(0, 600, 0)
+    IF Input.KeyHit(KEY_SPACE) THEN
+        hero.ApplyImpulse(0, 600, 0)
     ENDIF
 
     Physics3D.Step()
     mus.Update()
 
-    robot.SetPos(player.X(), player.Y(), player.Z())
-    robot.Rotate(0, 45 * dt, 0)
+    robot.SetPos(0, 0, 0)
+    robot.SetRot(0, 45 * dt, 0)
 
-    y = terrain.Height(cam.X(), cam.Z())
-    cam.SetY(y + 1.8)
+    y = groundMesh.GetHeight(0, 0)
+    cam.SetPos(0, y + 1.8, -12)
 
     Render.Clear(10, 10, 20)
-    terrain.Draw()
+    cam.Begin()
+    groundMesh.Draw()
     robot.Draw()
+    cam.End()
     Render.Frame()
 
 WEND
 
 robot.Free()
-terrain.Free()
+groundMesh.Free()
 sun.Free()
 mus.Free()
 Physics3D.Stop()

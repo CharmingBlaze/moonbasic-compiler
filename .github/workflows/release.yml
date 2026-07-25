@@ -36,7 +36,6 @@ jobs:
             cmake \
             gcc \
             g++ \
-            libenet-dev \
             libgl1-mesa-dev \
             libxi-dev \
             libxcursor-dev \
@@ -92,11 +91,28 @@ jobs:
         run: |
           set -e
           mkdir -p dist
+          chmod +x scripts/linux_fullruntime_go_ldflags.sh
+          # shellcheck source=scripts/linux_fullruntime_go_ldflags.sh
+          source scripts/linux_fullruntime_go_ldflags.sh
+          LD="$(moonbasic_linux_fullruntime_go_ldflags)"
+          # Compiler binary: no fullruntime / no Jolt — keep normal ldflags.
           VER="${GITHUB_REF_NAME}"
-          LD="-s -w -X moonbasic/internal/version.Version=${VER}"
-          go build -trimpath -ldflags="${LD}" -o dist/moonbasic .
+          go build -trimpath -ldflags="-s -w -X moonbasic/internal/version.Version=${VER}" -o dist/moonbasic .
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Verify no engine shared libs (ldd)
+        run: |
+          chmod +x scripts/verify_linux_shared_libs.sh
+          # moonrun must be free of engine + libstdc++ sidecars; moonbasic (compiler) may still use dynamic libstdc++ if any CGO.
+          ./scripts/verify_linux_shared_libs.sh dist/moonrun
+          # Soft check compiler: forbid engine libs only (allow libstdc++).
+          if ldd dist/moonbasic 2>/dev/null | grep -E 'libenet\.so|libraylib\.so|libjolt\.so'; then
+            echo "ERROR: dist/moonbasic unexpectedly links engine shared libs" >&2
+            ldd dist/moonbasic
+            exit 1
+          fi
+          echo "OK: dist/moonbasic — no engine shared libs"
 
       - uses: actions/download-artifact@v5
         with:
@@ -150,8 +166,8 @@ jobs:
           mkdir -p ../ide-dist
           cp build/bin/moonbasic-ide ../ide-dist/
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
-          cp ../packaging/README-IDE-RELEASE.txt ../packaging/START-IDE.sh ../ide-dist/
-          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun ../ide-dist/START-IDE.sh
+          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
+          bash ../scripts/stage_ide_extras.sh ../ide-dist
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-linux-amd64.tar.gz" -C ../ide-dist .
 
       - uses: actions/upload-artifact@v5
@@ -275,7 +291,9 @@ jobs:
           New-Item -ItemType Directory -Force -Path ide-dist | Out-Null
           Copy-Item "moonbasic ide\build\bin\moonbasic-ide.exe" ide-dist\
           Copy-Item dist\moonbasic.exe, dist\moonrun.exe ide-dist\
-          Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh ide-dist\
+          Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh, packaging\START-IDE.command, packaging\ADD-TO-PATH.bat, packaging\ADD-TO-PATH.sh ide-dist\
+          New-Item -ItemType Directory -Force -Path ide-dist\samples | Out-Null
+          Copy-Item packaging\samples\* ide-dist\samples\
           $zip = "moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip"
           Compress-Archive -Path ide-dist\* -DestinationPath $zip -Force
 
@@ -295,7 +313,7 @@ jobs:
           go-version: '1.25.3'
 
       - name: Install system dependencies
-        run: brew install enet cmake
+        run: brew install cmake
 
       - name: Checkout Jolt Physics
         uses: actions/checkout@v5
@@ -324,6 +342,11 @@ jobs:
           go build -trimpath -ldflags="${LD}" -o dist/moonbasic .
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Verify no engine dylibs (otool)
+        run: |
+          chmod +x scripts/verify_macos_shared_libs.sh
+          ./scripts/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
 
       - uses: actions/download-artifact@v5
         with:
@@ -368,10 +391,10 @@ jobs:
           mkdir -p ../ide-dist
           cp build/bin/moonbasic-ide ../ide-dist/
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
-          cp ../packaging/README-IDE-RELEASE.txt ../packaging/START-IDE.sh ../ide-dist/
-          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun ../ide-dist/START-IDE.sh
+          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
+          bash ../scripts/stage_ide_extras.sh ../ide-dist
+          xattr -cr ../ide-dist || true
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" -C ../ide-dist .
-          xattr -cr ../ide-dist/moonbasic-ide || true
 
       - uses: actions/upload-artifact@v5
         with:
@@ -486,7 +509,7 @@ jobs:
           body: |
             **Builtin catalog:** The compiler always uses the full `commands.json` manifest — every release has the **same command names** for `--check`, `--lsp`, and `.mbc` output. See [dist/README.md](https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/dist/README.md) (“All commands”).
 
-            **moonBASIC IDE (desktop editor — docs built in):** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, or `moonbasic-<tag>-ide-macos-arm64.tar.gz` — includes **`moonbasic-ide`**, **`moonbasic`**, **`moonrun`**, and **README-IDE-RELEASE.txt**. Extract and run **START-IDE.bat** (Windows) or **./START-IDE.sh** (Linux/macOS). No other tools required.
+            **Easiest start — moonBASIC IDE:** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, or `moonbasic-<tag>-ide-macos-arm64.tar.gz` — editor + **`moonbasic`** + **`moonrun`** + **`samples/`** + docs. Extract → **START-IDE.bat** (Windows) / **START-IDE.command** (macOS) / **./START-IDE.sh** (Linux) → open `samples/hello.mb` → **F5**. No other tools required.
 
             **Full runtime (run games — graphics, physics, audio):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Use **`moonrun game.mb`** as the primary entry point.
 

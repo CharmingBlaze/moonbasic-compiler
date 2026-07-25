@@ -207,27 +207,48 @@ func (s *server) publishDiagnostics(uri, text string) {
 	}
 	notices, warnings, err := pipeline.CheckSourceWithNotices(path, text, pipeline.CheckOptions{})
 	var diags []any
-	var me *moonerrors.MoonError
-	if err != nil && errors.As(err, &me) {
-		diags = append(diags, map[string]any{
-			"range": map[string]any{
-				"start": map[string]uint32{"line": uint32(me.Line - 1), "character": uint32(me.Col - 1)},
-				"end":   map[string]uint32{"line": uint32(me.Line - 1), "character": uint32(me.Col + 20)},
-			},
-			"severity": 1,
-			"source":   "moonbasic",
-			"message":  me.Message,
-		})
-	} else if err != nil {
-		diags = append(diags, map[string]any{
-			"range": map[string]any{
-				"start": map[string]uint32{"line": 0, "character": 0},
-				"end":   map[string]uint32{"line": 0, "character": 1},
-			},
-			"severity": 1,
-			"source":   "moonbasic",
-			"message":  err.Error(),
-		})
+	if err != nil {
+		moonErrs := moonerrors.AsMoonErrors(err)
+		if len(moonErrs) == 0 {
+			var me *moonerrors.MoonError
+			if errors.As(err, &me) {
+				moonErrs = []*moonerrors.MoonError{me}
+			}
+		}
+		for _, me := range moonErrs {
+			line := me.Line - 1
+			if line < 0 {
+				line = 0
+			}
+			col := me.Col - 1
+			if col < 0 {
+				col = 0
+			}
+			endCol := col + 20
+			if endCol < col+1 {
+				endCol = col + 1
+			}
+			diags = append(diags, map[string]any{
+				"range": map[string]any{
+					"start": map[string]uint32{"line": uint32(line), "character": uint32(col)},
+					"end":   map[string]uint32{"line": uint32(line), "character": uint32(endCol)},
+				},
+				"severity": 1,
+				"source":   "moonbasic",
+				"message":  me.Message,
+			})
+		}
+		if len(moonErrs) == 0 {
+			diags = append(diags, map[string]any{
+				"range": map[string]any{
+					"start": map[string]uint32{"line": 0, "character": 0},
+					"end":   map[string]uint32{"line": 0, "character": 1},
+				},
+				"severity": 1,
+				"source":   "moonbasic",
+				"message":  err.Error(),
+			})
+		}
 	}
 	for _, n := range notices {
 		diags = append(diags, deprecationDiagnostic(n))

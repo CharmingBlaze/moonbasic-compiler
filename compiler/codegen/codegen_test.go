@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"moonbasic/compiler/ast"
 	"moonbasic/compiler/parser"
 	"moonbasic/vm/opcode"
 )
@@ -241,5 +242,23 @@ func TestCompileFuncLitAndCallRef(t *testing.T) {
 	}
 	if _, ok := out.Functions["__anon_1"]; !ok {
 		t.Fatal("expected synthetic __anon_1 function chunk")
+	}
+}
+
+func TestEmitArgsStableRegisterOverflow(t *testing.T) {
+	g := New("t.mb", []string{"x = 1"})
+	g.baseReg = 250
+	g.nextReg = 250
+	ch := &opcode.Chunk{}
+	args := make([]ast.Expr, 20)
+	for i := range args {
+		args[i] = &ast.IntLitNode{Value: 1, Line: 1}
+	}
+	_ = g.emitArgsStable(ch, args, 1)
+	if g.err == nil {
+		t.Fatal("expected register overflow error")
+	}
+	if !strings.Contains(g.err.Error(), "temporary registers") {
+		t.Fatalf("unexpected error: %v", g.err)
 	}
 }

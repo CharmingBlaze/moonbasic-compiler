@@ -40,15 +40,31 @@ export async function runFile(filePath) {
   return api.RunFile(filePath);
 }
 
+export async function stopRun() {
+  const api = appApi();
+  if (!api?.StopRun) {
+    return { success: false, error: 'Stop requires moonBASIC IDE desktop app' };
+  }
+  return api.StopRun();
+}
+
+export async function readNativeFilePath(path) {
+  const api = appApi();
+  if (!api?.ReadFilePath) {
+    return { success: false, error: 'Open path needs desktop app' };
+  }
+  return api.ReadFilePath(path);
+}
+
 export async function openNativeFile() {
   const api = appApi();
   if (api?.OpenFile) return api.OpenFile();
   return { success: false, error: 'Open file needs desktop app' };
 }
 
-export async function saveNativeFile(content, filename) {
+export async function saveNativeFile(content, filename, diskPath = '') {
   const api = appApi();
-  if (api?.SaveFile) return api.SaveFile(content, filename);
+  if (api?.SaveFile) return api.SaveFile(content, filename, diskPath || '');
   return { success: false, error: 'Save needs desktop app' };
 }
 
@@ -119,4 +135,32 @@ export async function testToolchain() {
   const api = appApi();
   if (!api?.TestToolchain) return getToolchain();
   return api.TestToolchain();
+}
+
+export async function getInstallLayout() {
+  const api = appApi();
+  if (!api?.GetInstallLayout) return null;
+  return api.GetInstallLayout();
+}
+
+export async function listSampleFiles() {
+  const api = appApi();
+  if (!api?.ListSampleFiles) return [];
+  return api.ListSampleFiles() || [];
+}
+
+export async function openSamplesFolder() {
+  const api = appApi();
+  if (!api?.OpenSamplesFolder) {
+    return { success: false, error: 'Open samples needs the desktop app' };
+  }
+  return api.OpenSamplesFolder();
+}
+
+export async function openInFileManager(path) {
+  const api = appApi();
+  if (!api?.OpenInFileManager) {
+    return { success: false, error: 'Open folder needs the desktop app' };
+  }
+  return api.OpenInFileManager(path || '');
 }

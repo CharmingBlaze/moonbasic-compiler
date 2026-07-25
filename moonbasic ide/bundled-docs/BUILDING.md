@@ -26,7 +26,7 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 **Raylib 5.5 pairing:** Upstream tags **`raylib/v0.55.x`** are the **Go bindings** aimed at **Raylib C 5.5**. Your **`raylib.dll`** should be a **5.5** build from the same family so symbols match. This repository currently pins a **newer** `raylib-go` revision; for a strict **5.5** stack you would use **`v0.55.x`** bindings **and** a **5.5** DLL once the code is ported (see above).
 
-**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** defaults to **`mattn/go-sqlite3`** (CGO); for **pure Go** SQLite with **`CGO_ENABLED=0`**, build with **`-tags modernc_sqlite`** ([`modernc.org/sqlite`](https://pkg.go.dev/modernc.org/sqlite)). **ENet** still needs **CGO** for the linked **libenet** path.
+**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** defaults to **`mattn/go-sqlite3`** (CGO); for **pure Go** SQLite with **`CGO_ENABLED=0`**, build with **`-tags modernc_sqlite`** ([`modernc.org/sqlite`](https://pkg.go.dev/modernc.org/sqlite)). **ENet** still needs **CGO**, but ENet C sources are **vendored and statically linked** via `third_party/go-enet` — you do **not** need a system `libenet-dev` / `libenet.so` to build or run `moonrun`.
 
 **Linux / macOS:** **gen2brain/raylib-go** does **not** ship a non-CGO desktop Raylib for non-Windows; you link Raylib with **CGO** there.
 
@@ -46,6 +46,7 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 ### Linux (Debian / Ubuntu)
 - **A C Compiler and Libraries**: You'll need `gcc` and the development headers for the libraries `raylib` depends on.
+  **ENet is vendored** (`third_party/go-enet`) — do **not** install `libenet-dev` for moonBASIC builds.
   ```bash
   sudo apt-get update
   sudo apt-get install -y gcc libgl1-mesa-dev libxi-dev \

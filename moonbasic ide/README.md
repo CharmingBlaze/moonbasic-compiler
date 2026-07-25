@@ -15,10 +15,10 @@ Desktop IDE for **moonBASIC** `.mb` source files. Uses the real **moonbasic** co
 Each bundle includes **moonbasic-ide**, **moonbasic**, **moonrun**, and **README-IDE-RELEASE.txt**. Documentation is built into the IDE.
 
 1. Extract anywhere permanent.
-2. Run **START-IDE.bat** (Windows) or **./START-IDE.sh** (Linux/macOS).
-3. Start coding — F5 run, Ctrl+Shift+C check, Alt+H help at cursor.
+2. Run **START-IDE.bat** (Windows), **START-IDE.command** (macOS), or **./START-IDE.sh** (Linux).
+3. Open **`samples/hello.mb`** (or File → Open Samples Folder) → press **F5**.
 
-No Go, Node.js, or VS Code required.
+No Go, Node.js, or VS Code required. Optional **ADD-TO-PATH** puts `moonbasic` / `moonrun` on your shell PATH; the IDE does not need it.
 
 Engine source and release CI live in [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler).
 
@@ -31,7 +31,9 @@ Engine source and release CI live in [moonbasic-compiler](https://github.com/Cha
 - **Themes & appearance** — 7 presets, custom colors, font sizes (gear menu / Settings)
 - **Check** — `moonbasic --check`
 - **Compile** — writes `.mbc` bytecode next to source
-- **Run** — launches `moonrun` (game opens in its own window)
+- **Run / Stop** — launches `moonrun` (F5) and can kill it (Shift+F5 / Stop button)
+- **Offline editor** — CodeMirror and fonts are local (no CDN required)
+- **Cross-platform** — Windows, Linux, and macOS shortcuts (⌘ on Mac); toolchain auto-detects binaries next to the IDE
 
 ## Build from source (contributors)
 
@@ -53,9 +55,9 @@ Release binary:
 wails build
 ```
 
-Local toolchain (Windows dev):
+Local toolchain (dev; Windows PowerShell or Unix shell):
 
-```powershell
+```bash
 npm run toolchain:build
 ```
 

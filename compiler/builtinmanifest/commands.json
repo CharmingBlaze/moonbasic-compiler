@@ -21480,9 +21480,9 @@
         "int",
         "float",
         "float",
-        "float",
-        "any"
+        "float"
       ],
+      "description": "Set entity world position (x, y, z)",
       "key": "ENTITY.SETPOS"
     },
     {
@@ -21493,8 +21493,30 @@
         "float",
         "any"
       ],
+      "description": "Set entity position with optional global/local flag",
+      "key": "ENTITY.SETPOS"
+    },
+    {
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
       "deprecated_of": "ENTITY.SETPOS",
-      "description": "DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS. Deprecated alias of ENTITY.SETPOS \u00e2\u20ac\u201d set world or local position",
+      "description": "DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS.",
+      "key": "ENTITY.SETPOSITION"
+    },
+    {
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ],
+      "deprecated_of": "ENTITY.SETPOS",
+      "description": "DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS. Deprecated alias of ENTITY.SETPOS — set world or local position",
       "key": "ENTITY.SETPOSITION"
     },
     {

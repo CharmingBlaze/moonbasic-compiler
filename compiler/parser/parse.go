@@ -8,8 +8,17 @@ import (
 	"moonbasic/compiler/lexer"
 )
 
+func stripBOM(src string) string {
+	// UTF-8 BOM from Windows editors (Notepad, some VS Code configs).
+	if strings.HasPrefix(src, "\ufeff") {
+		return src[len("\ufeff"):]
+	}
+	return src
+}
+
 func normalized(src string) string {
-	n := strings.ReplaceAll(src, "\r\n", "\n")
+	n := stripBOM(src)
+	n = strings.ReplaceAll(n, "\r\n", "\n")
 	return strings.ReplaceAll(n, "\r", "\n")
 }
 

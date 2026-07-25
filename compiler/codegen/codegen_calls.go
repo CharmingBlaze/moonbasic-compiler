@@ -12,16 +12,29 @@ import (
 // from clobbering earlier argument registers.
 func (g *CodeGen) emitArgsStable(ch *opcode.Chunk, args []ast.Expr, line int) uint8 {
 	argStart := g.nextReg
+	if argStart >= 256 {
+		g.codegenError(line, 0, "too many temporary registers (max 256)", "Simplify nested call arguments.")
+		return 0
+	}
 	nextArg := argStart
 	for _, a := range args {
+		if nextArg >= 256 || g.err != nil {
+			if g.err == nil {
+				g.codegenError(line, 0, "too many temporary registers (max 256)", "Simplify nested call arguments.")
+			}
+			return 0
+		}
 		r := g.emitExpr(ch, a)
-		if r != nextArg {
-			ch.Emit(opcode.OpMove, nextArg, r, 0, 0, line)
+		if g.err != nil {
+			return 0
+		}
+		if int(r) != nextArg {
+			ch.Emit(opcode.OpMove, uint8(nextArg), r, 0, 0, line)
 		}
 		nextArg++
 		g.nextReg = nextArg
 	}
-	return argStart
+	return uint8(argStart)
 }
 
 // emitCallStmt translates a call statement (builtin or user function) into bytecode.

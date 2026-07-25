@@ -39,6 +39,16 @@ func TestParseSimpleAssign(t *testing.T) {
 	}
 }
 
+func TestParseStripsUTF8BOM(t *testing.T) {
+	prog, err := ParseSource("bom.mb", "\ufeffx = 1\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prog.Stmts) != 1 {
+		t.Fatalf("BOM should not break parse, got %d stmts: %#v", len(prog.Stmts), prog.Stmts)
+	}
+}
+
 func TestSingleLineIf(t *testing.T) {
 	_, err := ParseSource("x.mbc", "IF TRUE THEN x = 1\n")
 	if err != nil {

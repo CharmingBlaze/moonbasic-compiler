@@ -39,10 +39,15 @@ foreach ($line in $out) {
 }
 
 # Names we do not want next to the exe for "fully static MinGW runtime" distro builds.
+# Keep engine/native game libs here so a bad -l / CGO_LDFLAGS cannot silently reintroduce sidecars
+# (same class of bug as Linux libenet.so.7).
 $forbidden = @()
 foreach ($d in $dlls) {
     $lower = $d.ToLowerInvariant()
     if ($lower -eq "raylib.dll") { $forbidden += $d; continue }
+    if ($lower -eq "jolt.dll") { $forbidden += $d; continue }
+    if ($lower -eq "enet.dll" -or $lower -like "libenet*.dll") { $forbidden += $d; continue }
+    if ($lower -eq "sqlite3.dll" -or $lower -eq "libsqlite3.dll") { $forbidden += $d; continue }
     if ($lower -eq "libstdc++-6.dll") { $forbidden += $d; continue }
     if ($lower -like "libwinpthread*.dll") { $forbidden += $d; continue }
     if ($lower -like "libgcc_s_*.dll") { $forbidden += $d; continue }

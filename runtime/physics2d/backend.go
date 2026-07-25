@@ -3,10 +3,11 @@ package mbphysics2d
 // Physics2DBackend is the seam for swapping 2D physics implementations without changing
 // BODY2D.* / JOINT2D.* surface area. The active implementation is selected at compile time.
 //
-// Today: [github.com/ByteArena/box2d] (C++ Box2D via CGO) — see box2d.go and box2d_extra.go.
+// Today: [github.com/ByteArena/box2d] — pure-Go Box2D port (no shared libenet-style sidecar).
+// See box2d.go and box2d_extra.go.
 //
-// Candidates for a zero-CGO path:
-//   - A pure-Go Box2D-class engine (API differs from ByteArena — needs an adapter layer).
+// Other backend ideas (not required for end-user releases):
+//   - Alternate pure-Go solvers with a different API (needs an adapter layer).
 //   - WASM-hosted Box2D or a 2D subset behind a small host ABI (heavier, sandbox-friendly).
 //
 // [github.com/ByteArena/box2d]: https://github.com/ByteArena/box2d

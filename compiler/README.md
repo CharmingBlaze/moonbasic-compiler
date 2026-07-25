@@ -47,7 +47,7 @@ The final compiler phase takes the validated AST and walks through it, generatin
 
 If you want to add a new command like `DRAW_CIRCLE x, y, r`:
 
-1. **Token (if it's a structural keyword like `FOR`):** Add it to `token/token.go` and `lexer/keywords.go`. *(Note: Most game commands are just plain identifiers / library functions, not structural tokens. You might not need to touch the lexer unless it's a core language primitive!)*
+1. **Token (if it's a structural keyword like `FOR`):** Add it to `token/token.go` (keyword map via `LookupKeyword`). *(Note: Most game commands are just plain identifiers / library functions, not structural tokens. You might not need to touch the lexer unless it's a core language primitive!)*
 2. **Built-in Manifest (`builtinmanifest/`):** For standard library features (like math or rendering), MoonBASIC relies on a manifest to register the VM handlers and signatures. Ensure the command name exists.
 3. **VM Registration:** Don't forget that after adding it to the compiler, the runtime VM (`vm/`) must have a corresponding Go function registered to handle the dispatched call.
 

@@ -35,8 +35,15 @@ type Analyzer struct {
 	// typeScopes mirrors scopes with inferred static types for signature checking.
 	typeScopes []map[string]types.Tag
 
+	// handleScopes mirrors scopes with inferred heap handle tags for recv.METHOD checks.
+	handleScopes []map[string]uint16
+
 	// StrictDeprecated turns manifest migration aliases (MAKE, SETPOSITION, …) into type errors.
 	StrictDeprecated bool
+
+	// CollectErrors gathers multiple semantic errors instead of failing on the first.
+	CollectErrors bool
+	errors        []error
 
 	deprecationNotices []DeprecationNotice
 	deprecationSeen    map[string]bool
@@ -74,12 +81,17 @@ func (a *Analyzer) Run(prog *ast.Program) error {
 	}
 	a.scopes = []map[string]bool{make(map[string]bool)} // Global scope
 	a.typeScopes = []map[string]types.Tag{make(map[string]types.Tag)}
+	a.handleScopes = []map[string]uint16{make(map[string]uint16)}
 	a.deprecationNotices = nil
 	a.deprecationSeen = make(map[string]bool)
 	a.warnings = nil
 	a.warningSeen = make(map[string]bool)
-	a.seedBuiltinConstants()
-	return a.checkProgram(prog)
+	a.errors = nil
+	err := a.checkProgram(prog)
+	if a.CollectErrors && len(a.errors) > 0 {
+		return errors.Join(a.errors...)
+	}
+	return err
 }
 
 // Warnings returns non-fatal semantic warnings (namespace shadowing, NOT/OR precedence, …).
@@ -114,29 +126,6 @@ func (a *Analyzer) DeprecationWarnings() []string {
 	return out
 }
 
-func (a *Analyzer) seedBuiltinConstants() {
-	// Subset of key constants from runtime/keyglobals.go
-	keys := []string{
-		"KEY_ESCAPE", "KEY_SPACE", "KEY_W", "KEY_A", "KEY_S", "KEY_D",
-		"KEY_Q", "KEY_E", "KEY_G", "KEY_I", "KEY_K", "KEY_LEFT", "KEY_RIGHT", "KEY_UP", "KEY_DOWN",
-		"KEY_1", "KEY_2", "KEY_3", "KEY_4", "KEY_5", "KEY_6",
-		"KEY_F1", "KEY_F2", "KEY_F3", "KEY_F4", "KEY_F5", "KEY_F6", "KEY_F7", "KEY_F8", "KEY_F9", "KEY_F10", "KEY_F11", "KEY_F12",
-		"GAMEPAD_AXIS_LEFT_X", "GAMEPAD_AXIS_LEFT_Y",
-		"GAMEPAD_AXIS_RIGHT_X", "GAMEPAD_AXIS_RIGHT_Y",
-		"GAMEPAD_AXIS_LEFT_TRIGGER", "GAMEPAD_AXIS_RIGHT_TRIGGER",
-		"GAMEPAD_BUTTON_RIGHT_FACE_DOWN", "GAMEPAD_BUTTON_RIGHT_FACE_RIGHT",
-		"GAMEPAD_BUTTON_RIGHT_FACE_LEFT", "GAMEPAD_BUTTON_RIGHT_FACE_UP",
-		"GAMEPAD_BUTTON_LEFT_FACE_UP", "GAMEPAD_BUTTON_LEFT_FACE_DOWN", "GAMEPAD_BUTTON_LEFT_FACE_LEFT", "GAMEPAD_BUTTON_LEFT_FACE_RIGHT",
-		"GAMEPAD_BUTTON_LEFT_TRIGGER_1", "GAMEPAD_BUTTON_LEFT_TRIGGER_2",
-		"GAMEPAD_BUTTON_RIGHT_TRIGGER_1", "GAMEPAD_BUTTON_RIGHT_TRIGGER_2",
-		"GAMEPAD_BUTTON_MIDDLE_LEFT", "GAMEPAD_BUTTON_MIDDLE", "GAMEPAD_BUTTON_MIDDLE_RIGHT",
-		"GAMEPAD_BUTTON_LEFT_THUMB", "GAMEPAD_BUTTON_RIGHT_THUMB",
-	}
-	for _, k := range keys {
-		a.scopes[0][k] = true
-	}
-}
-
 func (a *Analyzer) lineText(line int) string {
 	if line < 1 || line > len(a.Lines) {
 		return ""
@@ -145,13 +134,18 @@ func (a *Analyzer) lineText(line int) string {
 }
 
 func (a *Analyzer) typeError(line, col int, msg, hint string) error {
-	return errors.NewTypeError(a.File, line, col, msg, a.lineText(line), hint)
+	err := errors.NewTypeError(a.File, line, col, msg, a.lineText(line), hint)
+	if a.CollectErrors {
+		a.errors = append(a.errors, err)
+		return nil // continue walking the AST
+	}
+	return err
 }
 
 func (a *Analyzer) checkProgram(prog *ast.Program) error {
 	a.funcNames = make(map[string]bool)
 	for _, f := range prog.Functions {
-		a.funcNames[f.Name] = true
+		a.funcNames[strings.ToLower(f.Name)] = true
 	}
 
 	// 0. Register Types (Pass 0)
@@ -219,12 +213,14 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 func (a *Analyzer) pushScope() {
 	a.scopes = append(a.scopes, make(map[string]bool))
 	a.typeScopes = append(a.typeScopes, make(map[string]types.Tag))
+	a.handleScopes = append(a.handleScopes, make(map[string]uint16))
 }
 
 func (a *Analyzer) popScope() {
 	if len(a.scopes) > 1 {
 		a.scopes = a.scopes[:len(a.scopes)-1]
 		a.typeScopes = a.typeScopes[:len(a.typeScopes)-1]
+		a.handleScopes = a.handleScopes[:len(a.handleScopes)-1]
 	}
 }
 
@@ -270,6 +266,9 @@ func (a *Analyzer) checkNotOrPrecedence(e ast.Expr) {
 
 func (a *Analyzer) isAssigned(name string) bool {
 	name = strings.ToUpper(name)
+	if strings.HasPrefix(name, "KEY_") || strings.HasPrefix(name, "GAMEPAD_") {
+		return true
+	}
 	for i := len(a.scopes) - 1; i >= 0; i-- {
 		if a.scopes[i][name] {
 			return true
@@ -293,15 +292,22 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		}
 		a.assign(n.Name, n.Line, n.Col)
 		a.setVarType(n.Name, a.inferExprTag(n.Expr))
+		if ht, ok := a.inferHandleTag(n.Expr); ok {
+			a.setHandleTag(n.Name, ht)
+		}
 		return nil
 	case *ast.MultiAssignNode:
 		if err := a.checkExprCalls(n.Expr); err != nil {
 			return err
 		}
 		tag := a.inferExprTag(n.Expr)
+		ht, htOK := a.inferHandleTag(n.Expr)
 		for _, nm := range n.Names {
 			a.assign(nm, n.Line, n.Col)
 			a.setVarType(nm, tag)
+			if htOK {
+				a.setHandleTag(nm, ht)
+			}
 		}
 		return nil
 	case *ast.IndexAssignNode:
@@ -348,6 +354,9 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
 			}
+		}
+		if err := a.checkHandleCall(n.Receiver, n.Method, n.Args, n.Line, n.Col); err != nil {
+			return err
 		}
 	case *ast.IfNode:
 		a.checkNotOrPrecedence(n.Cond)
@@ -567,6 +576,9 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 		if err := a.checkUserCall(n.Name, n.Args, n.Line, n.Col); err != nil {
 			return err
 		}
+		if err := a.checkGlobalBuiltinCall(n.Name, n.Args, n.Line, n.Col); err != nil {
+			return err
+		}
 	case *ast.IndexFieldExpr:
 		for _, arg := range n.Index {
 			if err := a.checkExprCalls(arg); err != nil {
@@ -581,6 +593,9 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 			if err := a.checkExprCalls(arg); err != nil {
 				return err
 			}
+		}
+		if err := a.checkHandleCall(n.Receiver, n.Method, n.Args, n.Line, n.Col); err != nil {
+			return err
 		}
 	case *ast.IndexExpr:
 		if err := a.checkExprCalls(n.Base); err != nil {
@@ -604,15 +619,30 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 }
 
 func (a *Analyzer) checkGlobalBuiltinCall(name string, args []ast.Expr, line, col int) error {
-	if a.funcNames[strings.ToUpper(name)] {
+	if a.funcNames[strings.ToLower(name)] {
 		return nil
 	}
+	key := builtinmanifest.NormalizeCommand(name)
 	cmd, ok := a.Table.LookupGlobalArity(name, len(args))
 	if !ok {
-		return nil
+		ovs := a.Table.Overloads(key)
+		if len(ovs) == 0 {
+			msg := fmt.Sprintf("Unknown command '%s'", key)
+			hint := "Use Namespace.Method form, or a registered Easy Mode global (see docs/EASY_MODE.md)."
+			if alt, ok := a.Table.BestSimilarKey(key, 3); ok {
+				hint = fmt.Sprintf("Did you mean %s ?", alt)
+			}
+			return a.typeError(line, col, msg, hint)
+		}
+		var parts []string
+		for _, c := range ovs {
+			parts = append(parts, fmt.Sprintf("%d", len(c.Args)))
+		}
+		return a.typeError(line, col,
+			fmt.Sprintf("%s: no overload matches %d argument(s)", key, len(args)),
+			fmt.Sprintf("Overloads expect argument count(s): %s.", strings.Join(parts, ", ")))
 	}
 	if msg := strings.TrimSpace(cmd.Stub); msg != "" {
-		key := builtinmanifest.NormalizeCommand(name)
 		return a.typeError(line, col,
 			fmt.Sprintf("command %s is not yet available in this release: %s", key, msg),
 			"Remove the call or use an implemented alternative (see docs/reference/MIGRATION.md).")

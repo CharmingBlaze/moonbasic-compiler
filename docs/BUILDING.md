@@ -26,7 +26,7 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 **Raylib 5.5 pairing:** Upstream tags **`raylib/v0.55.x`** are the **Go bindings** aimed at **Raylib C 5.5**. Your **`raylib.dll`** should be a **5.5** build from the same family so symbols match. This repository currently pins a **newer** `raylib-go` revision; for a strict **5.5** stack you would use **`v0.55.x`** bindings **and** a **5.5** DLL once the code is ported (see above).
 
-**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** defaults to **`mattn/go-sqlite3`** (CGO); for **pure Go** SQLite with **`CGO_ENABLED=0`**, build with **`-tags modernc_sqlite`** ([`modernc.org/sqlite`](https://pkg.go.dev/modernc.org/sqlite)). **ENet** still needs **CGO** for the linked **libenet** path.
+**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** defaults to **`mattn/go-sqlite3`** (CGO); for **pure Go** SQLite with **`CGO_ENABLED=0`**, build with **`-tags modernc_sqlite`** ([`modernc.org/sqlite`](https://pkg.go.dev/modernc.org/sqlite)). **ENet** still needs **CGO**, but ENet C sources are **vendored and statically linked** via [`third_party/go-enet`](../third_party/go-enet) — you do **not** need a system `libenet-dev` / `libenet.so` to build or run `moonrun`.
 
 **Linux / macOS:** **gen2brain/raylib-go** does **not** ship a non-CGO desktop Raylib for non-Windows; you link Raylib with **CGO** there.
 
@@ -46,6 +46,7 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 ### Linux (Debian / Ubuntu)
 - **A C Compiler and Libraries**: You'll need `gcc` and the development headers for the libraries `raylib` depends on.
+  **ENet is vendored** (`third_party/go-enet`) — do **not** install `libenet-dev` for moonBASIC builds.
   ```bash
   sudo apt-get update
   sudo apt-get install -y gcc libgl1-mesa-dev libxi-dev \
@@ -86,7 +87,7 @@ This is the contract the **tagged release job** and the **`windows_fullruntime` 
 
 ### Linux full-runtime shipping (authors)
 
-Official **Linux** full-runtime archives (**`moonbasic-<tag>-linux-amd64.tar.gz`**) link against **glibc**, **libstdc++**, **X11/Wayland**, **OpenGL**, and related desktop libraries from the **ubuntu-latest**-style build environment — **not** a fully static binary. Authors should ship **`.mb` / `.mbc` + assets** and point players at the **matching** full-runtime download, or assemble a custom directory / AppImage / `.deb` using local staging (maintainer-oriented notes in **[`dist/README.md`](../dist/README.md)**). **Do not** promise a single portable ELF with zero **`.so`** dependencies unless you invest in a dedicated **musl** / bundling pipeline (non-default; high maintenance).
+Official **Linux** full-runtime archives (**`moonbasic-<tag>-linux-amd64.tar.gz`**) link against **glibc**, **Wayland/X11**, **OpenGL**, and related desktop libraries from the **ubuntu-latest**-style build environment — **not** a fully static musl binary. **ENet, Raylib sources, Jolt `.a`, and `libstdc++`/`libgcc` are statically linked** into **`moonrun`** (see [`scripts/linux_fullruntime_go_ldflags.sh`](../scripts/linux_fullruntime_go_ldflags.sh) and [`scripts/verify_linux_shared_libs.sh`](../scripts/verify_linux_shared_libs.sh)). Authors should ship **`.mb` / `.mbc` + assets** and point players at the **matching** full-runtime download, or assemble a custom directory / AppImage / `.deb` using local staging (maintainer-oriented notes in **[`dist/README.md`](../dist/README.md)**).
 
 **Version string:** CLI tools read **`moonbasic/internal/version.Version`**. Local `go build` shows **`devel`** unless you set **`MOONBASIC_VERSION`** when running the release scripts or pass **`-ldflags="-X moonbasic/internal/version.Version=v1.2.18"`**. Git tag builds (`.github/workflows/release.yml`) inject the tag (e.g. **`v1.2.18`**).
 

@@ -7,7 +7,9 @@ import (
 )
 
 // Resolve resolves an INCLUDE path relative to the host file's directory, or returns a clean absolute path.
+// Relative paths may use forward slashes on all platforms (filepath.FromSlash).
 func Resolve(hostFile, includePath string) (string, error) {
+	includePath = filepath.FromSlash(includePath)
 	if filepath.IsAbs(includePath) {
 		return filepath.Clean(includePath), nil
 	}
@@ -15,7 +17,7 @@ func Resolve(hostFile, includePath string) (string, error) {
 	if dir == "" || dir == "." {
 		dir = "."
 	}
-	return filepath.Join(dir, filepath.FromSlash(includePath)), nil
+	return filepath.Join(dir, includePath), nil
 }
 
 // ResolvePackage finds a package entry file under configured package roots.

@@ -1,84 +1,94 @@
-moonBASIC IDE — quick start (everything in one folder)
-======================================================
+moonBASIC IDE — unzip and code (Windows / Linux / macOS)
+========================================================
 
-WHAT'S IN THIS FOLDER
----------------------
-
-  moonbasic-ide (or moonbasic-ide.exe)  — Desktop IDE: edit .mb files, docs, check, compile, run
-
-  moonbasic (or moonbasic.exe)          — Compiler + language server (--check, --lsp, .mb → .mbc)
-
-  moonrun   (or moonrun.exe)            — Game runtime (F5 / Run opens your game window)
-
-  Full moonBASIC documentation is built into the IDE (Documentation panel).
-
-  You do NOT need Go, Node.js, VS Code, or any other tools. Extract and start coding.
+Everything you need is in THIS folder. No Go, Node, VS Code, or hunting for DLLs.
 
 
-FIRST STEPS
------------
+START IN 30 SECONDS
+-------------------
 
-  1. Extract this zip/tar anywhere permanent (Desktop, Projects, etc.).
+  1. Extract this archive somewhere permanent (Desktop, Documents, Projects…).
 
   2. Start the IDE:
 
        Windows:  double-click  START-IDE.bat
-                 or run  moonbasic-ide.exe
+                 (or moonbasic-ide.exe)
 
-       Linux:    chmod +x moonbasic-ide moonbasic moonrun START-IDE.sh
+       macOS:    double-click  START-IDE.command
+                 If Gatekeeper blocks it: right-click → Open
+                 (Terminal alternative: ./START-IDE.sh)
+
+       Linux:    chmod +x START-IDE.sh moonbasic-ide moonbasic moonrun
                  ./START-IDE.sh
 
-       macOS:    chmod +x moonbasic-ide moonbasic moonrun START-IDE.sh
-                 ./START-IDE.sh
+  3. Status bar should say "Toolchain ready".
 
-  3. The IDE auto-detects moonbasic and moonrun in this same folder.
-     Status bar should show "Toolchain ready".
+  4. File → Open Samples Folder → open hello.mb → press F5.
 
-  4. Write or open a .mb file, then:
+That's it. moonbasic and moonrun are already beside the IDE.
 
-       F5              Run (moonrun)
-       Ctrl+Shift+C    Check syntax
-       Ctrl+Shift+B    Compile to .mbc
-       Alt+H           Help at cursor
 
-  5. New project from terminal (optional):
+WHAT'S IN THIS FOLDER
+---------------------
+
+  START-IDE.* / START-IDE.command   Launch the editor
+  moonbasic-ide (.exe / bare / .app) Desktop IDE (docs built in)
+  moonbasic (.exe)                  Compiler + LSP (--check, .mb → .mbc)
+  moonrun (.exe)                    Game runtime (F5)
+  samples/                          hello.mb, spin_cube.mb — try these first
+  ADD-TO-PATH.*                     Optional: use moonbasic/moonrun in any terminal
+  README-IDE-RELEASE.txt            This file
+
+
+KEYBOARD
+--------
+
+  F5                Run game (moonrun)
+  Shift+F5          Stop game
+  Ctrl/⌘+Shift+C    Check syntax
+  Ctrl/⌘+Shift+B    Compile to .mbc
+  Alt+H             Help at cursor
+
+  macOS: use ⌘ (Command) instead of Ctrl for editor shortcuts.
+
+
+TERMINAL (OPTIONAL)
+-------------------
+
+  The IDE does not need PATH. For a shell in any folder:
+
+       Windows:  double-click ADD-TO-PATH.bat  (then open a NEW terminal)
+       Linux/macOS:  ./ADD-TO-PATH.sh
+
+  Then:
 
        moonbasic new MyGame
        cd MyGame
-       Open main.mb in the IDE, or:  moonrun main.mb
+       moonrun main.mb
 
 
-SETTINGS
---------
+IF SOMETHING'S WRONG
+--------------------
 
-  Gear icon (title bar) or File → Settings:
+  Status "No toolchain"
+    → Keep moonbasic and moonrun in THIS same folder (don't move only the IDE).
+    → Or: File → Settings → Toolchain → Browse…
 
-    • Themes — 7 color presets + custom colors
-    • Editor — font size, line height, monospace font
-    • Toolchain — override compiler paths (usually leave blank)
+  Status "moonbasic only — F5 needs moonrun"
+    → Copy moonrun from this same release into the IDE folder.
+
+  IDE won't start
+    Windows: install WebView2 Evergreen Runtime (usually already on Win 10/11).
+    Linux:   install WebKitGTK + GTK3 (OS packages, not moonBASIC sidecars):
+               Arch / CachyOS:  sudo pacman -S webkit2gtk-4.1 gtk3 mesa wayland libxkbcommon
+               Debian / Ubuntu: sudo apt install libwebkit2gtk-4.1-0 libgtk-3-0 libgl1
+    macOS:   right-click START-IDE.command → Open (Gatekeeper).
 
 
-TIPS
+MORE
 ----
 
-  • Begin Here: open Documentation → BEGIN_HERE.md inside the IDE.
-
-  • Examples ship in the public moonBASIC repo: github.com/CharmingBlaze/moonbasic/tree/main/examples
-
-  • VS Code / Cursor alternative: use moonbasic install-vscode from the full runtime zip.
-
-  • Engine source (contributors): github.com/CharmingBlaze/moonbasic-compiler
-
-  • User downloads & docs: github.com/CharmingBlaze/moonbasic
-
-
-PLATFORM NOTES
---------------
-
-  Windows: WebView2 is required (included on Windows 10/11). If the IDE won't start,
-           install the Evergreen WebView2 Runtime from Microsoft.
-
-  Linux:   Needs a normal desktop (GTK + WebKit). GPU drivers for games via moonrun.
-
-  macOS:   Apple Silicon (arm64). On first launch, right-click → Open if Gatekeeper blocks.
-
+  Docs inside the IDE: Documentation → BEGIN_HERE.md / GETTING_STARTED.md
+  More examples: https://github.com/CharmingBlaze/moonbasic/tree/main/examples
+  Releases: https://github.com/CharmingBlaze/moonbasic/releases
+  Engine source: https://github.com/CharmingBlaze/moonbasic-compiler

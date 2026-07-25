@@ -4,6 +4,8 @@ package pipeline
 
 import (
 	"errors"
+
+	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/vm/opcode"
 )
 
@@ -12,8 +14,7 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	return errors.New("moonBASIC runtime engine is not included in this build (rebuild with -tags fullruntime)")
 }
 
+// ListBuiltins returns manifest command keys (compiler-only builds have no live registry).
 func ListBuiltins() []string {
-	// For compiler-only builds, we should probably still return the manifest keys if we want ListBuiltins to work.
-	// But it usually requires the registry. We can just return an error or a message.
-	return []string{"[Runtime disabled: build with -tags fullruntime]"}
+	return builtinmanifest.Default().Keys()
 }

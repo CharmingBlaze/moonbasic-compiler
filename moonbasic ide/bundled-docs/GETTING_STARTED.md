@@ -14,20 +14,43 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 
 ## 1. Installation
 
-Use the **compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** — official Windows/Linux archives with **`moonbasic`** and (for the full runtime) **`moonrun`**. That is the supported way to run games and use the compiler: **no Go, no GCC, no local build** of the engine.
+### Easiest: moonBASIC IDE (recommended)
 
-You only need a **clone or ZIP of this repo** if you want example `.mb` sources or documentation; everyday play and compile use **only** the extracted release binaries.
+Download the **IDE bundle** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)** — one folder with the editor, compiler, runtime, docs, and samples:
 
-Pick the file that matches what you need (replace `<tag>` with the release version, e.g. `v1.2.20`):
+| Platform | Archive |
+|----------|---------|
+| **Windows** | `moonbasic-<tag>-ide-windows-amd64.zip` |
+| **Linux x64** | `moonbasic-<tag>-ide-linux-amd64.tar.gz` |
+| **macOS Apple Silicon** | `moonbasic-<tag>-ide-macos-arm64.tar.gz` |
+
+1. Extract anywhere permanent.
+2. Start: **`START-IDE.bat`** (Windows), **`START-IDE.command`** (macOS), or **`./START-IDE.sh`** (Linux).
+3. Open **`samples/hello.mb`** (or File → Open Samples Folder) and press **F5**.
+
+No Go, Node, VS Code, or hunting for DLLs. The IDE finds **`moonbasic`** / **`moonrun`** beside itself. Optional: run **`ADD-TO-PATH`** if you want those commands in any terminal.
+
+### Other downloads
 
 | Your goal | Download |
 |-----------|----------|
-| **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
+| **Run games from a terminal** (no IDE) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
 | **Compile / check / LSP only** (CI, tooling, no `moonrun`) | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
 
-**Full runtime** includes **`moonbasic`** and **`moonrun`** plus `README-RELEASE.txt`. **Compiler only** ships in a folder such as **`MoonBasic-compiler/`** with **`moonbasic`** (or **`moonbasic.exe`**) and a short readme — there is **no** `moonrun` in that bundle.
+**Full runtime** includes **`moonbasic`** and **`moonrun`** plus `README-RELEASE.txt`. **Compiler only** has **no** `moonrun` and cannot open a game window.
 
-Extract the archive somewhere permanent — on **Windows**, keep the **full-runtime** zip contents together (both `.exe` files from the **same** release; do not mix executables from different builds). On **Windows**, use `moonbasic.exe` in the examples below; on **Linux**, use `./moonbasic` if the binary is not on your `PATH`.
+Extract archives somewhere permanent and keep files from the **same** release together. On **Windows**, use `moonbasic.exe` in the examples below; on **Linux** / **macOS**, use `./moonbasic` if the binary is not on your `PATH`.
+
+**No game-engine libraries to hunt down.** Full-runtime / IDE `moonrun` already includes Raylib, Jolt, SQLite, and **ENet** inside the binary — not `libenet`, `raylib`, MinGW DLLs, or a Go toolchain.
+
+On **Linux** you still need a normal desktop stack (these are OS packages, not moonBASIC sidecars):
+
+| Distro | Typical packages |
+|--------|------------------|
+| Arch / CachyOS | `mesa` `wayland` `libxkbcommon` `libglvnd` |
+| Debian / Ubuntu | `libgl1` `libwayland-client0` `libxkbcommon0` |
+
+(If an *older* release prints `libenet.so.7 => not found`, download a newer full-runtime archive, or temporarily `sudo pacman -S enet` on Arch/CachyOS.)
 
 More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic-compiler#download-and-use-recommended)** on GitHub.
 

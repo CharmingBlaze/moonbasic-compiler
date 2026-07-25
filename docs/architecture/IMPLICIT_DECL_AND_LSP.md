@@ -6,7 +6,7 @@ This document specifies how moonBASIC’s **modern syntax** (optional explicit `
 
 | Component | Path | Role |
 |-----------|------|------|
-| Pipeline options | [compiler/pipeline/compile.go](../../compiler/pipeline/compile.go) `CompileOptions` | `ImplicitDeclaration` and `TypeInference` (defaults **on** in `CompileSource`). |
+| Pipeline options | [compiler/pipeline/compile.go](../../compiler/pipeline/compile.go) `CompileOptions` | `ImplicitDeclaration` (default **on** in `CompileSource`). |
 | Two-pass symbol builder | [compiler/symtable/builder.go](../../compiler/symtable/builder.go) | Pass 1: predeclare `FUNCTION` / `TYPE`. Pass 2: global assignments, `DIM`, `CONST`, `LOCAL`, loop vars; Pass 3: function-local symbols. |
 | Symbol table | [compiler/symtable/symtable.go](../../compiler/symtable/symtable.go) | `Table`, `Symbol` (`Kind`, `Type`, `Slot`). **`ExportJSON()`** for tooling. |
 | Semantic analysis | [compiler/semantic/analyze.go](../../compiler/semantic/analyze.go) | Validation after symbol build. |

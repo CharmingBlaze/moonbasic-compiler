@@ -9,6 +9,28 @@ import (
 	"moonbasic/compiler/parser"
 )
 
+func TestResolve_forwardSlashRelative(t *testing.T) {
+	dir := t.TempDir()
+	sub := filepath.Join(dir, "libs")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	lib := filepath.Join(sub, "lib.mb")
+	if err := os.WriteFile(lib, []byte("PRINT(1)\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	host := filepath.Join(dir, "main.mb")
+	got, err := Resolve(host, "libs/lib.mb")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, _ := filepath.Abs(lib)
+	gotAbs, _ := filepath.Abs(got)
+	if gotAbs != want {
+		t.Fatalf("Resolve: got %q want %q", gotAbs, want)
+	}
+}
+
 func TestExpand_duplicateIncludeSkipped(t *testing.T) {
 	dir := t.TempDir()
 	lib := filepath.Join(dir, "lib.mb")

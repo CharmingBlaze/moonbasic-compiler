@@ -76,16 +76,19 @@ export function toggleRightPanel() {
   setRightPanelVisible(!state.rightVisible);
 }
 
+const _isMac = /Mac|iPhone|iPad/.test(navigator.platform || '') || /Mac OS X/.test(navigator.userAgent || '');
+const _mod = _isMac ? '⌘' : 'Ctrl';
+
 export function panelMenuItems() {
   return [
     {
       label: state.leftVisible ? 'Hide Left Sidebar' : 'Show Left Sidebar',
-      shortcut: 'Ctrl+B',
+      shortcut: `${_mod}+B`,
       action: () => toggleLeftPanel()
     },
     {
       label: state.rightVisible ? 'Hide Help Panel' : 'Show Help Panel',
-      shortcut: 'Ctrl+\\',
+      shortcut: `${_mod}+\\`,
       action: () => toggleRightPanel()
     }
   ];

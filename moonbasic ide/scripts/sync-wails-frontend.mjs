@@ -27,6 +27,9 @@ fs.mkdirSync(dest, { recursive: true });
 fs.copyFileSync(path.join(root, 'index.html'), path.join(dest, 'index.html'));
 copyTree(path.join(root, 'css'), path.join(dest, 'css'));
 copyTree(path.join(root, 'js'), path.join(dest, 'js'));
+if (fs.existsSync(path.join(root, 'lib'))) {
+  copyTree(path.join(root, 'lib'), path.join(dest, 'lib'));
+}
 if (fs.existsSync(path.join(root, 'bundled-docs'))) {
   copyTree(path.join(root, 'bundled-docs'), path.join(dest, 'bundled-docs'));
 }

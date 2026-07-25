@@ -118,17 +118,21 @@ export const PLATFORM_OPTIONS = [
   { id: 'mac-arm', label: 'macOS (Apple Silicon)', hint: 'Apple Silicon desktop player' }
 ];
 
+const _isMac = /Mac|iPhone|iPad/.test(navigator.platform || '') || /Mac OS X/.test(navigator.userAgent || '');
+const _mod = _isMac ? '⌘' : 'Ctrl';
+
 export const KEYBOARD_SHORTCUTS = [
   ['Run (moonrun)', 'F5'],
-  ['Toggle left sidebar', 'Ctrl+B'],
-  ['Toggle help panel', 'Ctrl+\\'],
-  ['Check syntax', 'Ctrl+Shift+C'],
-  ['Compile to .mbc', 'Ctrl+Shift+B'],
-  ['Save', 'Ctrl+S'],
-  ['Open file', 'Ctrl+O'],
-  ['Find', 'Ctrl+F'],
-  ['Go to line', 'Ctrl+G'],
-  ['Autocomplete', 'Ctrl+Space'],
+  ['Stop game', 'Shift+F5'],
+  ['Toggle left sidebar', `${_mod}+B`],
+  ['Toggle help panel', `${_mod}+\\`],
+  ['Check syntax', `${_mod}+Shift+C`],
+  ['Compile to .mbc', `${_mod}+Shift+B`],
+  ['Save', `${_mod}+S`],
+  ['Open file', `${_mod}+O`],
+  ['Find', `${_mod}+F`],
+  ['Go to line', `${_mod}+G`],
+  ['Autocomplete', `${_mod}+Space`],
   ['Help at cursor', 'Alt+H'],
   ['API search', 'F1']
 ];

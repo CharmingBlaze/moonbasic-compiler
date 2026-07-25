@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	stdruntime "runtime"
 	"strings"
 
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -47,13 +48,8 @@ func saveIDESettings(s IDESettings) error {
 
 func (a *App) loadSettings() {
 	a.settings = loadIDESettings()
-	if strings.TrimSpace(a.settings.MoonbasicPath) != "" {
-		return
-	}
-	if info := findLocalToolchain(); info.Found {
-		a.settings.MoonbasicPath = info.Moonbasic
-		a.settings.MoonrunPath = info.Moonrun
-	}
+	// Do not invent absolute paths here. Auto-discovery prefers binaries next to
+	// the IDE executable so moving an extract folder keeps working.
 }
 
 // GetIDESettings returns current toolchain path configuration.
@@ -81,12 +77,18 @@ func (a *App) BrowseToolchain(which string) string {
 	if which == "moonrun" {
 		title = "Choose moonrun executable"
 	}
-	path, err := wailsruntime.OpenFileDialog(a.ctx, wailsruntime.OpenDialogOptions{
-		Title: title,
-		Filters: []wailsruntime.FileFilter{
+	filters := []wailsruntime.FileFilter{
+		{DisplayName: "All files", Pattern: "*.*"},
+	}
+	if stdruntime.GOOS == "windows" {
+		filters = []wailsruntime.FileFilter{
 			{DisplayName: "Executables (*.exe)", Pattern: "*.exe"},
 			{DisplayName: "All files", Pattern: "*.*"},
-		},
+		}
+	}
+	path, err := wailsruntime.OpenFileDialog(a.ctx, wailsruntime.OpenDialogOptions{
+		Title:   title,
+		Filters: filters,
 	})
 	if err != nil || path == "" {
 		return ""

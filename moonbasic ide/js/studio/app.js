@@ -10,9 +10,10 @@ import {
   formatCommandHelp, lookupAtCursor, completionItems
 } from './lang.js';
 import {
-  isDesktopApp, getToolchain, checkFile, compileFile, runFile,
-  openNativeFile, saveNativeFile, saveNativeFileAs,
-  getLSPHover, getLSPCompletion, openProjectFolder
+  isDesktopApp, getToolchain, checkFile, compileFile, runFile, stopRun,
+  openNativeFile, saveNativeFile, saveNativeFileAs, readNativeFilePath,
+  getLSPHover, getLSPCompletion, openProjectFolder,
+  getInstallLayout, openSamplesFolder, listSampleFiles
 } from './toolchain.js';
 import { initModals, showNewProjectModal, showGoToModal, showShortcutsModal } from './modals.js';
 import { showSettingsModal } from './settings.js';
@@ -26,6 +27,21 @@ import { initDocs, loadDoc, markdownToHtml, getDocIndex, showDocPanel, openDocFo
 
 const RECENT_KEY = 'moonbasic-ide-recent';
 const DRAFT_KEY = 'moonbasic-ide-draft';
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || '') || /Mac OS X/.test(navigator.userAgent || '');
+const MOD = IS_MAC ? '⌘' : 'Ctrl';
+
+/** Bind Ctrl-* and Cmd-* to the same handler (CodeMirror 5). */
+function withModKeys(map) {
+  const out = { ...map };
+  for (const [k, v] of Object.entries(map)) {
+    if (k.startsWith('Ctrl-') || k.startsWith('Ctrl+')) {
+      const rest = k.slice(5);
+      out['Cmd-' + rest] = v;
+      out['Cmd+' + rest] = v;
+    }
+  }
+  return out;
+}
 
 export async function startStudio() {
   initAppearance();
@@ -62,14 +78,77 @@ export async function startStudio() {
     $('status-text').textContent = text || 'Ready';
   }
 
+  const SETUP_BANNER_KEY = 'moonbasic-ide-setup-banner';
+
+  function hideSetupBanner() {
+    $('setup-banner')?.classList.add('hidden');
+  }
+
+  function showSetupBanner(kind, text, { sticky = false } = {}) {
+    const banner = $('setup-banner');
+    const textEl = $('setup-banner-text');
+    if (!banner || !textEl) return;
+    if (!sticky) {
+      try {
+        if (localStorage.getItem(SETUP_BANNER_KEY) === 'dismissed:' + kind) return;
+      } catch (_) {}
+    }
+    textEl.textContent = text;
+    banner.classList.remove('hidden', 'warn', 'err');
+    if (kind === 'compiler_only' || kind === 'warn') banner.classList.add('warn');
+    if (kind === 'missing' || kind === 'err') banner.classList.add('err');
+    banner.dataset.kind = kind;
+  }
+
+  async function openSamplesFlow() {
+    if (!isDesktopApp()) {
+      log('warn', 'Samples folder is in the IDE release zip (samples/hello.mb)');
+      openBuffer('hello.mb', EXAMPLES.hello.code);
+      return;
+    }
+    const samples = await listSampleFiles();
+    if (samples?.length) {
+      const hello = samples.find(s => /hello\.mb$/i.test(s.name)) || samples[0];
+      const res = await readNativeFilePath(hello.path);
+      if (res.success) {
+        openBuffer(res.filename || hello.name, res.content || '', res.path || hello.path);
+        addRecent(res.path || hello.path);
+        log('success', 'Opened ' + (res.filename || hello.name) + ' — press F5 to run');
+        return;
+      }
+    }
+    const opened = await openSamplesFolder();
+    if (opened.success) log('accent', opened.message || 'Opened samples folder');
+    else {
+      log('warn', opened.error || 'No samples/ beside the IDE — use the Hello button, or re-extract the IDE zip');
+      openBuffer('hello.mb', EXAMPLES.hello.code);
+    }
+  }
+
   async function refreshToolchainLog() {
-    const tc = await getToolchain();
-    if (tc.found) {
-      log('success', `Toolchain ready: moonbasic${tc.moonrun ? ' + moonrun' : ''}`);
+    if (!isDesktopApp()) return;
+    const layout = await getInstallLayout();
+    const tc = layout || await getToolchain();
+    const found = !!(layout ? layout.hasMoonbasic : tc.found);
+    const hasRun = !!(layout ? layout.hasMoonrun : tc.moonrun);
+    const status = layout?.status || (found && hasRun ? 'ready' : found ? 'compiler_only' : 'missing');
+
+    if (status === 'ready') {
+      log('success', 'Toolchain ready: moonbasic + moonrun (same folder as the IDE)');
       setStatus('ok', 'Toolchain ready');
-    } else if (isDesktopApp()) {
-      log('warn', 'Toolchain not found — run npm run toolchain:build or File → Settings');
+      if (layout?.hasSamples) {
+        showSetupBanner('ready', 'Try File → Open Samples Folder → hello.mb, then press F5.', { sticky: false });
+      } else {
+        hideSetupBanner();
+      }
+    } else if (status === 'compiler_only') {
+      log('warn', layout?.hint || 'moonbasic found, but moonrun is missing — F5 needs moonrun beside the IDE');
+      setStatus('warn', 'moonbasic only — F5 needs moonrun');
+      showSetupBanner('compiler_only', layout?.hint || 'Put moonrun next to the IDE for F5 Run.', { sticky: true });
+    } else {
+      log('warn', layout?.hint || 'Put moonbasic and moonrun next to the IDE (same folder as START-IDE), or File → Settings → Toolchain');
       setStatus('warn', 'No toolchain');
+      showSetupBanner('missing', layout?.hint || 'Toolchain not found — keep moonbasic and moonrun beside the IDE.', { sticky: true });
     }
   }
 
@@ -290,6 +369,33 @@ export async function startStudio() {
     } catch (e) { log('error', e.message); }
   }
 
+  async function doStop() {
+    try {
+      const res = await stopRun();
+      if (res.success) {
+        log('success', res.message || 'Stopped');
+        setStatus('ready', 'Stopped');
+      } else {
+        log('warn', res.error || 'Nothing to stop');
+      }
+    } catch (e) { log('error', e.message); }
+  }
+
+  async function openRecentPath(path) {
+    if (!path) return;
+    if (isDesktopApp()) {
+      const res = await readNativeFilePath(path);
+      if (res.success) {
+        openBuffer(res.filename || path.split(/[/\\]/).pop(), res.content || '', res.path || path);
+        addRecent(res.path || path);
+        return;
+      }
+      log('error', res.error || 'Could not open ' + path);
+      return;
+    }
+    openBuffer(path.split(/[/\\]/).pop(), '', path);
+  }
+
   let activeDocTab = 'guide';
   let helpDebounce = null;
 
@@ -441,7 +547,7 @@ export async function startStudio() {
       undoDepth: 300,
       scrollbarStyle: 'native',
       autoRefresh: true,
-      extraKeys: {
+      extraKeys: withModKeys({
         Tab: cm => {
           if (cm.somethingSelected()) cm.indentSelection('add');
           else cm.replaceSelection('    ', 'end');
@@ -452,6 +558,7 @@ export async function startStudio() {
         'Ctrl-N': () => openBuffer('untitled.mb', EXAMPLES.hello.code),
         'Ctrl-O': () => openFileDialog(),
         'Ctrl-F': () => findBar?.show(),
+        'Ctrl-G': () => showGoToModal({ maxLine: editor.lineCount(), onGo: n => editor.setCursor(n - 1, 0) }),
         'Ctrl-D': cm => {
           cm.execCommand('selectNextOccurrence');
           return true;
@@ -470,13 +577,14 @@ export async function startStudio() {
           });
         },
         F5: () => doRun(),
+        'Shift-F5': () => doStop(),
         'Ctrl-Shift-C': () => doCheck(),
         'Ctrl-Shift-B': () => doCompile(),
         'Alt-H': () => updateHelpAtCursor({ showTab: true }),
         F1: () => { document.querySelector('[data-activity="reference"]')?.click(); refSearch?.focus(); },
         'Ctrl-B': () => toggleLeftPanel(),
         'Ctrl-\\': () => toggleRightPanel()
-      }
+      })
     });
     editor.on('cursorActivity', () => {
       const pos = editor.getCursor();
@@ -514,7 +622,9 @@ export async function startStudio() {
     syncEditor();
     const f = openFiles[activeFile];
     if (isDesktopApp()) {
-      const res = f.diskPath ? await saveNativeFile(f.content, f.name) : await saveNativeFileAs(f.content, f.name);
+      const res = f.diskPath
+        ? await saveNativeFile(f.content, f.name, f.diskPath)
+        : await saveNativeFileAs(f.content, f.name);
       if (res.success) {
         f.diskPath = res.path || f.diskPath;
         f.name = res.filename || f.name;
@@ -569,7 +679,7 @@ export async function startStudio() {
   function recentSubmenu() {
     const items = getRecent().map(p => ({
       label: p.split(/[/\\]/).pop() || p,
-      action: () => { if (isDesktopApp()) openBuffer(p.split(/[/\\]/).pop(), '', p); }
+      action: () => openRecentPath(p)
     }));
     return items.length ? items : [{ label: '(empty)', disabled: true }];
   }
@@ -589,10 +699,11 @@ export async function startStudio() {
       {
         label: 'File',
         items: [
-          { label: 'New File', shortcut: 'Ctrl+N', action: () => openBuffer('untitled.mb', EXAMPLES.hello.code) },
-          { label: 'Open File…', shortcut: 'Ctrl+O', action: () => openFileDialog() },
+          { label: 'New File', shortcut: `${MOD}+N`, action: () => openBuffer('untitled.mb', EXAMPLES.hello.code) },
+          { label: 'Open File…', shortcut: `${MOD}+O`, action: () => openFileDialog() },
           { label: 'Open Folder…', action: () => openFolderDialog() },
-          { label: 'Save', shortcut: 'Ctrl+S', action: () => saveCurrent() },
+          { label: 'Open Samples Folder', action: () => openSamplesFlow() },
+          { label: 'Save', shortcut: `${MOD}+S`, action: () => saveCurrent() },
           { label: 'Save As…', action: () => saveAsDialog() },
           { sep: true },
           { label: 'New Project…', action: () => newProject() },
@@ -606,19 +717,20 @@ export async function startStudio() {
       {
         label: 'Edit',
         items: [
-          { label: 'Undo', shortcut: 'Ctrl+Z', action: () => editor.undo() },
-          { label: 'Redo', shortcut: 'Ctrl+Y', action: () => editor.redo() },
+          { label: 'Undo', shortcut: `${MOD}+Z`, action: () => editor.undo() },
+          { label: 'Redo', shortcut: IS_MAC ? `${MOD}+Shift+Z` : `${MOD}+Y`, action: () => editor.redo() },
           { sep: true },
-          { label: 'Find…', shortcut: 'Ctrl+F', action: () => findBar?.show() },
-          { label: 'Go to Line…', shortcut: 'Ctrl+G', action: () => showGoToModal({ maxLine: editor.lineCount(), onGo: n => editor.setCursor(n - 1, 0) }) }
+          { label: 'Find…', shortcut: `${MOD}+F`, action: () => findBar?.show() },
+          { label: 'Go to Line…', shortcut: `${MOD}+G`, action: () => showGoToModal({ maxLine: editor.lineCount(), onGo: n => editor.setCursor(n - 1, 0) }) }
         ]
       },
       {
         label: 'Run',
         items: [
           { label: 'Run (moonrun)', shortcut: 'F5', action: () => doRun() },
-          { label: 'Check Syntax', shortcut: 'Ctrl+Shift+C', action: () => doCheck() },
-          { label: 'Compile to .mbc', shortcut: 'Ctrl+Shift+B', action: () => doCompile() }
+          { label: 'Stop', shortcut: 'Shift+F5', action: () => doStop() },
+          { label: 'Check Syntax', shortcut: `${MOD}+Shift+C`, action: () => doCheck() },
+          { label: 'Compile to .mbc', shortcut: `${MOD}+Shift+B`, action: () => doCompile() }
         ]
       },
       {
@@ -684,7 +796,7 @@ export async function startStudio() {
     hideLeft.type = 'button';
     hideLeft.className = 'activity-btn panel-toggle-btn';
     hideLeft.id = 'btn-hide-left';
-    hideLeft.title = 'Hide left sidebar (Ctrl+B)';
+    hideLeft.title = `Hide left sidebar (${MOD}+B)`;
     hideLeft.textContent = '‹';
     bar.appendChild(hideLeft);
 
@@ -809,15 +921,29 @@ export async function startStudio() {
     $('btn-new')?.addEventListener('click', () => openBuffer('untitled.mb', EXAMPLES.hello.code));
     $('btn-open')?.addEventListener('click', () => openFileDialog());
     $('btn-save')?.addEventListener('click', () => saveCurrent());
+    $('btn-open-samples')?.addEventListener('click', () => openSamplesFlow());
     addIcon('btn-run', 'play');
     $('btn-run').title = 'Run (F5)';
     $('btn-run').addEventListener('click', () => doRun());
+    addIcon('btn-stop', 'stop');
+    if ($('btn-stop')) {
+      $('btn-stop').title = 'Stop (Shift+F5)';
+      $('btn-stop').addEventListener('click', () => doStop());
+    }
     addIcon('btn-check', 'check');
     $('btn-check').title = 'Check';
     $('btn-check').addEventListener('click', () => doCheck());
     addIcon('btn-compile', 'debug');
     $('btn-compile').title = 'Compile';
     $('btn-compile').addEventListener('click', () => doCompile());
+
+    $('setup-banner-samples')?.addEventListener('click', () => openSamplesFlow());
+    $('setup-banner-settings')?.addEventListener('click', () => openSettings('toolchain'));
+    $('setup-banner-dismiss')?.addEventListener('click', () => {
+      const kind = $('setup-banner')?.dataset?.kind || 'ready';
+      try { localStorage.setItem(SETUP_BANNER_KEY, 'dismissed:' + kind); } catch (_) {}
+      hideSetupBanner();
+    });
 
     const settingsBtn = $('btn-settings');
     const settingsDrop = $('settings-dropdown');
@@ -902,13 +1028,18 @@ export async function startStudio() {
   document.head.appendChild(style);
 
   document.addEventListener('keydown', e => {
-    if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'b') {
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && !e.shiftKey && e.key.toLowerCase() === 'b') {
       e.preventDefault();
       toggleLeftPanel();
     }
-    if (e.ctrlKey && e.key === '\\') {
+    if (mod && e.key === '\\') {
       e.preventDefault();
       toggleRightPanel();
+    }
+    if (e.shiftKey && e.key === 'F5') {
+      e.preventDefault();
+      doStop();
     }
   });
 
@@ -940,5 +1071,5 @@ export async function startStudio() {
   updateHelpAtCursor({ showTab: false });
   await refreshToolchainLog();
   if (!isDesktopApp()) log('dim', 'Browser mode — use desktop app for run/compile');
-  log('accent', 'moonBASIC IDE — File menus, docs, F5 run, Ctrl+Shift+B compile');
+  log('accent', `moonBASIC IDE — F5 run · Shift+F5 stop · ${MOD}+Shift+B compile`);
 }

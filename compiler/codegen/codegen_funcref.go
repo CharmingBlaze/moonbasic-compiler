@@ -31,7 +31,7 @@ func (g *CodeGen) emitAnonFunction(params []ast.Param, body []ast.Stmt, line, co
 		g.Symbols.DefineParam(p.Name)
 	}
 	g.predeclareFunctionBody(body)
-	g.baseReg = uint8(g.Symbols.NextLocal())
+	g.baseReg = g.Symbols.NextLocal()
 	g.nextReg = g.baseReg
 	for _, st := range body {
 		g.emitStmt(ch, st)
@@ -55,7 +55,7 @@ func (g *CodeGen) emitFuncLit(ch *opcode.Chunk, n *ast.FuncLitNode) uint8 {
 	idx := ch.AddName(name)
 	dst := g.allocReg()
 	ch.Emit(opcode.OpPushFuncRef, dst, 0, 0, idx, n.Line)
-	g.nextReg = dst + 1
+	g.nextReg = int(dst) + 1
 	return dst
 }
 
@@ -64,7 +64,7 @@ func (g *CodeGen) emitCallRef(ch *opcode.Chunk, n *ast.CallRefExpr) uint8 {
 	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 	dst := g.allocReg()
 	ch.Emit(opcode.OpCallRef, dst, refReg, argStart, int32(len(n.Args)), n.Line)
-	g.nextReg = dst + 1
+	g.nextReg = int(dst) + 1
 	return dst
 }
 

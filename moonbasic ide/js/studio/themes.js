@@ -172,7 +172,7 @@ export const DEFAULT_APPEARANCE = {
   editorFontSize: 15,
   editorLineHeight: 1.65,
   uiFontSize: 13,
-  fontMono: 'JetBrains Mono',
+  fontMono: 'Cascadia Code',
   colorOverrides: {}
 };
 
@@ -225,7 +225,7 @@ export function applyAppearance(appearance = currentAppearance) {
   root.style.setProperty('--ed-font-size', `${currentAppearance.editorFontSize}px`);
   root.style.setProperty('--ed-line-height', String(currentAppearance.editorLineHeight));
   root.style.setProperty('--ui-font-size', `${currentAppearance.uiFontSize}px`);
-  const mono = currentAppearance.fontMono || 'JetBrains Mono';
+  const mono = currentAppearance.fontMono || 'Cascadia Code';
   root.style.setProperty('--sb-mono', `"${mono}", Consolas, monospace`);
   document.body.style.fontSize = `${currentAppearance.uiFontSize}px`;
   document.body.dataset.theme = currentAppearance.themeId;

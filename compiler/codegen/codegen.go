@@ -29,8 +29,8 @@ type CodeGen struct {
 	fnDepth     int    // >0 when emitting a FUNCTION body
 	funcName    string // uppercase function name when fnDepth > 0
 	loopStack   []loopFrame
-	nextReg     uint8 // next available temporary register
-	baseReg     uint8 // start of temporary registers for the current statement
+	nextReg     int   // next available temporary register (0–255)
+	baseReg     int   // start of temporary registers for the current statement
 	enumValues  map[string]int64 // STATE.IDLE -> 0
 	anonFnSeq   int              // synthetic names for FuncLitNode
 }
@@ -69,10 +69,10 @@ func (g *CodeGen) codegenError(line, col int, msg, hint string) {
 	g.err = errors.NewCodeGenError(g.File, line, col, msg, g.lineText(line), hint)
 }
 
-// argCountFlags encodes call arity for IR v2 (Flags byte, max 255).
+// argCountFlags encodes call arity into the IR Flags byte (max 255).
 func (g *CodeGen) argCountFlags(count int, line, col int) uint8 {
 	if count > 255 {
-		g.codegenError(line, col, fmt.Sprintf("too many arguments (%d); IR v2 allows at most 255", count), "")
+		g.codegenError(line, col, fmt.Sprintf("too many arguments (%d); IR allows at most 255", count), "")
 		return 0
 	}
 	return uint8(count)
@@ -130,7 +130,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 	// 2. Main program
 	g.collectAllEnums(tree)
 	g.loopStack = nil
-	g.baseReg = uint8(g.Symbols.NextLocal())
+	g.baseReg = g.Symbols.NextLocal()
 	g.nextReg = g.baseReg
 	for _, st := range tree.Stmts {
 		g.emitStmt(g.Prog.Main, st)
@@ -234,12 +234,22 @@ func (g *CodeGen) predeclareStmt(s ast.Stmt) {
 	}
 }
 func (g *CodeGen) allocReg() uint8 {
-	r := g.nextReg
+	if g.nextReg >= 256 {
+		if g.err == nil {
+			g.err = errors.NewCodeGenError(g.File, 0, 0,
+				"too many temporary registers (max 256)", "",
+				"Simplify the expression or split the statement to free register pressure.")
+		}
+		return 0
+	}
+	r := uint8(g.nextReg)
 	g.nextReg++
-	// TODO: check for overflow > 255
 	return r
 }
 
 func (g *CodeGen) freeRegs(count int) {
-	g.nextReg -= uint8(count)
+	g.nextReg -= count
+	if g.nextReg < g.baseReg {
+		g.nextReg = g.baseReg
+	}
 }

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	stdruntime "runtime"
 	"strings"
+	"sync"
 )
 
 // ToolchainInfo describes discovered moonbasic/moonrun binaries.
@@ -41,35 +42,57 @@ func moonrunName() string {
 	return "moonrun"
 }
 
-func findToolchainAuto() ToolchainInfo {
-	if info := findLocalToolchain(); info.Found {
-		return info
+func lookPathBin(name string) (string, bool) {
+	// Try with and without .exe so Windows/Unix both work.
+	candidates := []string{name}
+	if stdruntime.GOOS == "windows" {
+		if !strings.HasSuffix(strings.ToLower(name), ".exe") {
+			candidates = append(candidates, name+".exe")
+		}
+	} else {
+		candidates = append(candidates, strings.TrimSuffix(name, ".exe"))
 	}
+	for _, c := range candidates {
+		if p, err := exec.LookPath(c); err == nil {
+			return p, true
+		}
+	}
+	return "", false
+}
 
+func toolchainAtDir(dir string) ToolchainInfo {
 	mbName := moonbasicName()
 	mrName := moonrunName()
-
-	if p, err := exec.LookPath(strings.TrimSuffix(mbName, ".exe")); err == nil {
-		info := ToolchainInfo{Moonbasic: p, Found: true}
-		if mr, err := exec.LookPath(strings.TrimSuffix(mrName, ".exe")); err == nil {
-			info.Moonrun = mr
-		}
-		return fillMissingMoonrun(info)
+	mb := filepath.Join(dir, mbName)
+	if st, err := os.Stat(mb); err != nil || st.IsDir() {
+		// macOS .app: binaries may sit next to the .app bundle, not inside Contents/MacOS
+		return ToolchainInfo{}
 	}
+	info := ToolchainInfo{Moonbasic: mb, Found: true}
+	mr := filepath.Join(dir, mrName)
+	if st, err := os.Stat(mr); err == nil && !st.IsDir() {
+		info.Moonrun = mr
+	}
+	return fillMissingMoonrun(info)
+}
 
-	searchRoots := []string{}
+func findSiblingToolchain() ToolchainInfo {
+	roots := []string{}
 	if exe, err := os.Executable(); err == nil {
-		searchRoots = append(searchRoots, filepath.Dir(exe))
+		exeDir := filepath.Dir(exe)
+		roots = append(roots, exeDir)
+		// If running from Foo.app/Contents/MacOS, also check the folder containing the .app
+		if stdruntime.GOOS == "darwin" {
+			if strings.HasSuffix(filepath.Base(filepath.Dir(filepath.Dir(exeDir))), ".app") {
+				roots = append(roots, filepath.Dir(filepath.Dir(filepath.Dir(exeDir))))
+			}
+		}
 	}
 	if cwd, err := os.Getwd(); err == nil {
-		searchRoots = append(searchRoots, cwd)
+		roots = append(roots, cwd)
 	}
-	if a := os.Getenv("MOONBASIC_ROOT"); a != "" {
-		searchRoots = append(searchRoots, a)
-	}
-
-	seen := make(map[string]struct{})
-	for _, root := range searchRoots {
+	seen := map[string]struct{}{}
+	for _, root := range roots {
 		if root == "" {
 			continue
 		}
@@ -77,16 +100,14 @@ func findToolchainAuto() ToolchainInfo {
 			continue
 		}
 		seen[root] = struct{}{}
+		if info := toolchainAtDir(root); info.Found {
+			return info
+		}
+		// Walk a few parents (release extract / monorepo layouts).
 		cur := root
 		for depth := 0; depth < 6; depth++ {
-			mb := filepath.Join(cur, mbName)
-			if st, err := os.Stat(mb); err == nil && !st.IsDir() {
-				info := ToolchainInfo{Moonbasic: mb, Found: true}
-				mr := filepath.Join(cur, mrName)
-				if st2, err2 := os.Stat(mr); err2 == nil && !st2.IsDir() {
-					info.Moonrun = mr
-				}
-				return fillMissingMoonrun(info)
+			if info := toolchainAtDir(cur); info.Found {
+				return info
 			}
 			parent := filepath.Dir(cur)
 			if parent == cur {
@@ -95,26 +116,61 @@ func findToolchainAuto() ToolchainInfo {
 			cur = parent
 		}
 	}
-
 	return ToolchainInfo{}
 }
 
-func (a *App) resolveToolchain() ToolchainInfo {
-	mb := strings.TrimSpace(a.settings.MoonbasicPath)
-	mr := strings.TrimSpace(a.settings.MoonrunPath)
-	if mb != "" {
-		if st, err := os.Stat(mb); err == nil && !st.IsDir() {
-			info := ToolchainInfo{Moonbasic: mb, Found: true}
-			if mr != "" {
-				if st2, err2 := os.Stat(mr); err2 == nil && !st2.IsDir() {
-					info.Moonrun = mr
-				}
-			}
-			return fillMissingMoonrun(info)
+func findToolchainAuto() ToolchainInfo {
+	// 1) Binaries next to the IDE (release zip/tar) — highest priority.
+	if info := findSiblingToolchain(); info.Found {
+		return info
+	}
+	// 2) Dev toolchain/ folder under the repo.
+	if info := findLocalToolchain(); info.Found {
+		return info
+	}
+	// 3) PATH
+	if p, ok := lookPathBin(moonbasicName()); ok {
+		info := ToolchainInfo{Moonbasic: p, Found: true}
+		if mr, ok2 := lookPathBin(moonrunName()); ok2 {
+			info.Moonrun = mr
+		}
+		return fillMissingMoonrun(info)
+	}
+	if a := os.Getenv("MOONBASIC_ROOT"); a != "" {
+		if info := toolchainAtDir(a); info.Found {
+			return info
 		}
 	}
-	info := findToolchainAuto()
+	return ToolchainInfo{}
+}
+
+func settingsToolchainValid(mb, mr string) ToolchainInfo {
+	mb = strings.TrimSpace(mb)
+	if mb == "" {
+		return ToolchainInfo{}
+	}
+	if st, err := os.Stat(mb); err != nil || st.IsDir() {
+		return ToolchainInfo{}
+	}
+	info := ToolchainInfo{Moonbasic: mb, Found: true}
+	mr = strings.TrimSpace(mr)
+	if mr != "" {
+		if st, err := os.Stat(mr); err == nil && !st.IsDir() {
+			info.Moonrun = mr
+		}
+	}
 	return fillMissingMoonrun(info)
+}
+
+func (a *App) resolveToolchain() ToolchainInfo {
+	// Prefer binaries beside the IDE so moving the extract folder always works.
+	if info := findSiblingToolchain(); info.Found {
+		return info
+	}
+	if info := settingsToolchainValid(a.settings.MoonbasicPath, a.settings.MoonrunPath); info.Found {
+		return info
+	}
+	return findToolchainAuto()
 }
 
 func runTool(exe string, args []string, cwd string) ToolchainResult {
@@ -160,7 +216,7 @@ func (a *App) GetToolchain() ToolchainInfo {
 func (a *App) CheckFile(filePath string) ToolchainResult {
 	tc := a.resolveToolchain()
 	if !tc.Found {
-		return ToolchainResult{Success: false, Error: "moonbasic not found on PATH or next to IDE"}
+		return ToolchainResult{Success: false, Error: "moonbasic not found — keep it in the same folder as the IDE (START-IDE), or set Settings → Toolchain"}
 	}
 	if filePath == "" {
 		return ToolchainResult{Success: false, Error: "No file path"}
@@ -178,7 +234,7 @@ func (a *App) CheckFile(filePath string) ToolchainResult {
 func (a *App) CompileFile(filePath string) ToolchainResult {
 	tc := a.resolveToolchain()
 	if !tc.Found {
-		return ToolchainResult{Success: false, Error: "moonbasic not found on PATH or next to IDE"}
+		return ToolchainResult{Success: false, Error: "moonbasic not found — keep it in the same folder as the IDE (START-IDE), or set Settings → Toolchain"}
 	}
 	if filePath == "" {
 		return ToolchainResult{Success: false, Error: "No file path"}
@@ -194,12 +250,17 @@ func (a *App) CompileFile(filePath string) ToolchainResult {
 	return res
 }
 
+var (
+	runMu   sync.Mutex
+	runCmd  *exec.Cmd
+)
+
 func (a *App) RunFile(filePath string) ToolchainResult {
 	tc := a.resolveToolchain()
 	if tc.Moonrun == "" {
 		return ToolchainResult{
 			Success: false,
-			Error:   "moonrun not found — copy moonrun.exe to toolchain/ or install the full runtime from GitHub Releases",
+			Error:   "moonrun not found — put " + moonrunName() + " in the same folder as the IDE (re-extract the IDE zip), or Settings → Toolchain",
 		}
 	}
 	if filePath == "" {
@@ -208,11 +269,41 @@ func (a *App) RunFile(filePath string) ToolchainResult {
 	cwd := filepath.Dir(filePath)
 	cmd := exec.Command(tc.Moonrun, filePath)
 	cmd.Dir = cwd
+	runMu.Lock()
+	if runCmd != nil && runCmd.Process != nil {
+		_ = runCmd.Process.Kill()
+		runCmd = nil
+	}
 	if err := cmd.Start(); err != nil {
+		runMu.Unlock()
 		return ToolchainResult{Success: false, Error: err.Error()}
 	}
+	runCmd = cmd
+	runMu.Unlock()
+	go func() {
+		_ = cmd.Wait()
+		runMu.Lock()
+		if runCmd == cmd {
+			runCmd = nil
+		}
+		runMu.Unlock()
+	}()
 	return ToolchainResult{
 		Success: true,
 		Message: fmt.Sprintf("Started %s", filepath.Base(tc.Moonrun)),
 	}
+}
+
+// StopRun kills the last moonrun process started from the IDE (if still running).
+func (a *App) StopRun() ToolchainResult {
+	runMu.Lock()
+	defer runMu.Unlock()
+	if runCmd == nil || runCmd.Process == nil {
+		return ToolchainResult{Success: false, Error: "No running game from this IDE"}
+	}
+	if err := runCmd.Process.Kill(); err != nil {
+		return ToolchainResult{Success: false, Error: err.Error()}
+	}
+	runCmd = nil
+	return ToolchainResult{Success: true, Message: "Stopped game"}
 }
