@@ -52,4 +52,16 @@ Replacement: updated links in ARCHITECTURE.md and docs/*
 Tests performed: link path updates; docs-only
 ```
 
+### 2026-07-25 — scripts subfolders
+
+```text
+Date: 2026-07-25
+Change type: move
+Path: scripts/* → scripts/{build,release,packaging,verification,development}/
+Reason: Clear maintainer navigation; update CI/Makefile/docs paths
+Evidence: n/a
+Replacement: scripts/README.md index
+Tests performed: path grep; ROOT ../.. in nested scripts
+```
+
 *(Subsequent entries appended as commits land.)*

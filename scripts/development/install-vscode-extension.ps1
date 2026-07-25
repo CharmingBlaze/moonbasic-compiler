@@ -1,7 +1,7 @@
 # Install the moonBASIC VS Code / Cursor extension (one command).
-# Usage: powershell -ExecutionPolicy Bypass -File scripts/install-vscode-extension.ps1
+# Usage: powershell -ExecutionPolicy Bypass -File scripts/development/install-vscode-extension.ps1
 $ErrorActionPreference = "Stop"
-$root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $mb = Join-Path $root "moonbasic.exe"
 if (Test-Path $mb) {
   & $mb install-vscode @args

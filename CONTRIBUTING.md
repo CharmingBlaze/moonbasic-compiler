@@ -9,7 +9,7 @@ Thank you for helping improve the compiler, VM, runtime, or docs.
 
 ## Platform priority (Windows, then Linux)
 
-**Windows first, Linux second:** The project assumes most contributors run **Windows** for the default **fullruntime** + **CGO** + **Raylib** loop (`moonrun`, `--check`). **Linux** is the follow-on target for **full Jolt** (KCC, rigid-body **`PHYSICS3D`**) and for running **`bash scripts/check_builds.sh`** in CI. When you document OS-specific behavior, list **Windows** before **Linux** in tables and prose. Details: [docs/DEVELOPER.md](docs/DEVELOPER.md#platform-priority-windows-then-linux).
+**Windows first, Linux second:** The project assumes most contributors run **Windows** for the default **fullruntime** + **CGO** + **Raylib** loop (`moonrun`, `--check`). **Linux** is the follow-on target for **full Jolt** (KCC, rigid-body **`PHYSICS3D`**) and for running **`bash scripts/build/check_builds.sh`** in CI. When you document OS-specific behavior, list **Windows** before **Linux** in tables and prose. Details: [docs/DEVELOPER.md](docs/DEVELOPER.md#platform-priority-windows-then-linux).
 
 ## Clone and verify
 
@@ -30,13 +30,13 @@ The [`--check`](.github/workflows/ci.yml) samples mirror a subset of CI; fixing 
 | **Headless Compiler** (default) | `go build -o moonbasic .` | `.mb` → `.mbc`, `--check`, `--lsp`, `--disasm`. Uses **Null Driver** (dependency-free). |
 | **Full Interactive Runtime** | `go build -tags fullruntime -o moonrun ./cmd/moonrun` | Run graphical programs from `.mb` / `.mbc`. Uses **Raylib Driver**. |
 
-Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** locally. To produce a **standalone static exe** on Windows, use [`scripts/build_static.ps1`](scripts/build_static.ps1). To ship **`moonrun.exe`** with **`shaders/`**, **`assets/`**, and **`examples/`** in a zip, use [`scripts/package_beta_zip.ps1`](scripts/package_beta_zip.ps1) (see [docs/BUILDING.md](docs/BUILDING.md#beta-zip-distribution-exe--loose-folders)).
+Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** locally. To produce a **standalone static exe** on Windows, use [`scripts/build/build_static.ps1`](scripts/build/build_static.ps1). To ship **`moonrun.exe`** with **`shaders/`**, **`assets/`**, and **`examples/`** in a zip, use [`scripts/packaging/package_beta_zip.ps1`](scripts/packaging/package_beta_zip.ps1) (see [docs/BUILDING.md](docs/BUILDING.md#beta-zip-distribution-exe--loose-folders)).
 
 ### IDE: gopls and build tags (“split brain”)
 
 VS Code is configured (see [`.vscode/settings.json`](.vscode/settings.json)) with **`gopls` `buildFlags`: `-tags=fullruntime,gopls_stub`** so IntelliSense covers the game runtime, [`main_fullruntime.go`](main_fullruntime.go), and [`cmd/moonrun/`](cmd/moonrun/), and **`runtime/terrain`** stub files analyze on **Windows** (see **`docs/DEVELOPER.md`**). That **excludes** the default compiler entrypoints [`main.go`](main.go) and [`cmd/moonbasic/`](cmd/moonbasic/); you may see **“No packages found”** for those until you adjust tags and **restart the Go language server**. Full rationale and switching steps: **[docs/DEVELOPER.md](docs/DEVELOPER.md#developer-environment-vs-code-gopls-and-split-brain)**.
 
-Before pushing Go changes, run **`bash scripts/check_builds.sh`** (or **`make check-builds`**, or **`powershell -File scripts/check_builds.ps1`** on Windows) to compile **both** the default compiler path and **`-tags fullruntime`** (`moonrun` + full root). On Windows, if PowerShell hits **`runtime/cgo`** errors on the fullruntime steps, use **Git Bash / MSYS2** and `bash scripts/check_builds.sh` (see [docs/DEVELOPER.md](docs/DEVELOPER.md#pre-push-validate-both-build-paths)).
+Before pushing Go changes, run **`bash scripts/build/check_builds.sh`** (or **`make check-builds`**, or **`powershell -File scripts/build/check_builds.ps1`** on Windows) to compile **both** the default compiler path and **`-tags fullruntime`** (`moonrun` + full root). On Windows, if PowerShell hits **`runtime/cgo`** errors on the fullruntime steps, use **Git Bash / MSYS2** and `bash scripts/build/check_builds.sh` (see [docs/DEVELOPER.md](docs/DEVELOPER.md#pre-push-validate-both-build-paths)).
 
 **`ENTITY` spatial macros:** literal entity indices are range-checked in **semantic analysis** (visible to **`--check`**) and **codegen**; see [docs/COMPILER_SPEC.md](docs/COMPILER_SPEC.md). Regression: `go run . --check testdata/entity_spatial_id_oob.mb` must **fail** with a type error; other scripts in **`testdata/`** used by CI should still pass **`--check`** as before.
 

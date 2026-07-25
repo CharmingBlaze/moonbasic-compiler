@@ -12,7 +12,7 @@
 #   # $Allowlisted = @('^SomeCodec\.dll$')
 #
 # Usage (from repo root, MSYS2 mingw64 bin on PATH):
-#   powershell -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin "C:\msys64\mingw64\bin"
+#   powershell -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin "C:\msys64\mingw64\bin"
 
 param(
     [Parameter(Mandatory = $true)][string]$Exe,

@@ -1,7 +1,7 @@
 # Verifies MinGW link inputs for Jolt on Windows x64 (fullruntime + CGO).
 # Exit 0 if both archives exist; exit 1 with a short hint otherwise.
 $ErrorActionPreference = "Stop"
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $libDir = Join-Path $repoRoot "third_party\jolt-go\jolt\lib\windows_amd64"
 $jolt = Join-Path $libDir "libJolt.a"
 $wrap = Join-Path $libDir "libjolt_wrapper.a"

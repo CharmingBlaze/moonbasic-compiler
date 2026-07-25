@@ -3,7 +3,7 @@
 # after -Seconds (success = game loop stayed alive; immediate exit = failure).
 #
 # Usage (repo root, after building dist/moonrun.exe):
-#   powershell -File scripts/smoke_moonrun_pong.ps1 -Exe dist/moonrun.exe -RepoRoot $PWD
+#   powershell -File scripts/verification/smoke_moonrun_pong.ps1 -Exe dist/moonrun.exe -RepoRoot $PWD
 
 param(
     [Parameter(Mandatory = $true)][string]$Exe,

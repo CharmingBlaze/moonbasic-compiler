@@ -2,7 +2,7 @@
 # Copy IDE release extras into a staging directory (arg1).
 set -euo pipefail
 STAGE="${1:?stage dir}"
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PKG="$ROOT/packaging"
 
 cp "$PKG/README-IDE-RELEASE.txt" "$STAGE/"

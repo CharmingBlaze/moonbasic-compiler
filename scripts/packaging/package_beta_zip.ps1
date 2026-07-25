@@ -1,8 +1,8 @@
 # Package a Windows "Beta" distribution zip: moonrun + loose folders (experimental Zig build path).
 #
-# Prefer shipping a release-aligned binary: use scripts/package_release_style_zip.ps1 with
+# Prefer shipping a release-aligned binary: use scripts/packaging/package_release_style_zip.ps1 with
 # moonrun.exe from an official full-runtime GitHub zip or a local MSYS2 build matching
-# scripts/windows_fullruntime_go_ldflags.sh (see docs/BUILDING.md). This script defaults to
+# scripts/build/windows_fullruntime_go_ldflags.sh (see docs/BUILDING.md). This script defaults to
 # build_static.ps1 (Zig-oriented); linkage can differ from official releases — use for experiments.
 #
 # Layout (default: one root folder inside the zip so "Extract all" stays tidy):
@@ -13,7 +13,7 @@
 #     examples/            (optional, whole examples tree)
 #     README-BETA.txt      (how to run, cwd, failure modes)
 #
-# Prerequisites: same as scripts/build_static.ps1 (Go, Zig or CC/CXX, Jolt static libs for full physics).
+# Prerequisites: same as scripts/build/build_static.ps1 (Go, Zig or CC/CXX, Jolt static libs for full physics).
 #
 # Usage (PowerShell, from repo root):
 #   .\scripts\package_beta_zip.ps1
@@ -41,7 +41,7 @@ if (-not $RepoRoot) {
     if (-not $here) {
         $here = (Get-Location).Path
     }
-    $RepoRoot = (Resolve-Path (Join-Path $here "..")).Path
+    $RepoRoot = (Resolve-Path (Join-Path $here "..\..")).Path
 }
 
 if (-not $OutZip) {
@@ -58,8 +58,8 @@ New-Item -ItemType Directory -Path $staging -Force | Out-Null
 try {
     Push-Location $RepoRoot
     if (-not $SkipBuild) {
-        Write-Host "Building static moonrun (see scripts/build_static.ps1)..."
-        & (Join-Path $RepoRoot "scripts\build_static.ps1")
+        Write-Host "Building static moonrun (see scripts/build/build_static.ps1)..."
+        & (Join-Path $RepoRoot "scripts\build\build_static.ps1")
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }

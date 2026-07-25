@@ -3,8 +3,8 @@
 # into moonrun (same class of bug as libenet.so.7 on Arch/CachyOS).
 #
 # Usage (from repo root, after building dist/moonrun):
-#   bash scripts/verify_linux_shared_libs.sh dist/moonrun
-#   bash scripts/verify_linux_shared_libs.sh dist/moonbasic   # optional; compiler may be thinner
+#   bash scripts/verification/verify_linux_shared_libs.sh dist/moonrun
+#   bash scripts/verification/verify_linux_shared_libs.sh dist/moonbasic   # optional; compiler may be thinner
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then

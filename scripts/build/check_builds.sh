@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Dry-run both build-tag paths before push (compiler vs full runtime).
 # Requires a working C toolchain when CGO_ENABLED=1 (fullruntime targets).
-# From repo root: bash scripts/check_builds.sh   or: make check-builds
+# From repo root: bash scripts/build/check_builds.sh   or: make check-builds
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 OUT="$ROOT/.check"
 rm -rf "$OUT"

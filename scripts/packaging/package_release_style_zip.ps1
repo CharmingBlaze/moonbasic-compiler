@@ -4,7 +4,7 @@
 #   - Copy moonrun.exe (and optionally moonbasic.exe) from an official full-runtime zip, or
 #   - Build locally with MSYS2 using the same steps as .github/workflows (Jolt from
 #     third_party/jolt-go/scripts/build-libs-windows.ps1 + ldflags from
-#     scripts/windows_fullruntime_go_ldflags.sh) — see docs/BUILDING.md.
+#     scripts/build/windows_fullruntime_go_ldflags.sh) — see docs/BUILDING.md.
 #
 # Layout (default: MoonBasic/ root inside the zip):
 #   MoonBasic/
@@ -34,7 +34,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 if (-not $RepoRoot) {
-    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 }
 
 if (-not $OutZip) {
@@ -101,7 +101,7 @@ try {
     $readme = @"
 MoonBASIC bundle (Windows amd64) — release-style moonrun.exe
 
-This zip was built with scripts/package_release_style_zip.ps1. moonrun.exe must match
+This zip was built with scripts/packaging/package_release_style_zip.ps1. moonrun.exe must match
 official full-runtime builds (see docs/BUILDING.md, "Windows full-runtime PE link model").
 
 Run from this folder:

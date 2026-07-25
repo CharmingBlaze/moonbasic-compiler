@@ -2,10 +2,10 @@
 # Build an AppImage from a moonBASIC full-runtime dist/ folder (Linux x64).
 # Requires: moonbasic + moonrun in dist/, linuxdeploy + appimagetool on PATH.
 #
-# Usage: ./scripts/build_appimage.sh [version-tag]
+# Usage: ./scripts/build/build_appimage.sh [version-tag]
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="${1:-dev}"
 DIST="$ROOT/dist"
 APPDIR="$ROOT/build/AppDir"

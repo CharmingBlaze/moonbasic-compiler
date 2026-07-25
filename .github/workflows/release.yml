@@ -91,9 +91,9 @@ jobs:
         run: |
           set -e
           mkdir -p dist
-          chmod +x scripts/linux_fullruntime_go_ldflags.sh
-          # shellcheck source=scripts/linux_fullruntime_go_ldflags.sh
-          source scripts/linux_fullruntime_go_ldflags.sh
+          chmod +x scripts/build/linux_fullruntime_go_ldflags.sh
+          # shellcheck source=scripts/build/linux_fullruntime_go_ldflags.sh
+          source scripts/build/linux_fullruntime_go_ldflags.sh
           LD="$(moonbasic_linux_fullruntime_go_ldflags)"
           # Compiler binary: no fullruntime / no Jolt — keep normal ldflags.
           VER="${GITHUB_REF_NAME}"
@@ -103,9 +103,9 @@ jobs:
 
       - name: Verify no engine shared libs (ldd)
         run: |
-          chmod +x scripts/verify_linux_shared_libs.sh
+          chmod +x scripts/verification/verify_linux_shared_libs.sh
           # moonrun must be free of engine + libstdc++ sidecars; moonbasic (compiler) may still use dynamic libstdc++ if any CGO.
-          ./scripts/verify_linux_shared_libs.sh dist/moonrun
+          ./scripts/verification/verify_linux_shared_libs.sh dist/moonrun
           # Soft check compiler: forbid engine libs only (allow libstdc++).
           if ldd dist/moonbasic 2>/dev/null | grep -E 'libenet\.so|libraylib\.so|libjolt\.so'; then
             echo "ERROR: dist/moonbasic unexpectedly links engine shared libs" >&2
@@ -133,8 +133,8 @@ jobs:
       - name: Build AppImage (optional tooling)
         continue-on-error: true
         run: |
-          chmod +x scripts/build_appimage.sh
-          ./scripts/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
+          chmod +x scripts/build/build_appimage.sh
+          ./scripts/build/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
 
       - uses: actions/upload-artifact@v5
         with:
@@ -167,7 +167,7 @@ jobs:
           cp build/bin/moonbasic-ide ../ide-dist/
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
           chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
-          bash ../scripts/stage_ide_extras.sh ../ide-dist
+          bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-linux-amd64.tar.gz" -C ../ide-dist .
 
       - uses: actions/upload-artifact@v5
@@ -225,7 +225,7 @@ jobs:
         run: |
           set -e
           mkdir -p dist
-          . scripts/windows_fullruntime_go_ldflags.sh
+          . scripts/build/windows_fullruntime_go_ldflags.sh
           EX="$(moonbasic_windows_fullruntime_go_ldflags)"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
@@ -248,10 +248,10 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
-          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
-          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
 
-      # Interactive Pong smoke is local-only (scripts/smoke_moonrun_pong.ps1): GitHub Windows
+      # Interactive Pong smoke is local-only (scripts/verification/smoke_moonrun_pong.ps1): GitHub Windows
       # runners often have no working OpenGL/WGL for GLFW, so moonrun exits immediately.
 
       - name: Package (zip)
@@ -345,8 +345,8 @@ jobs:
 
       - name: Verify no engine dylibs (otool)
         run: |
-          chmod +x scripts/verify_macos_shared_libs.sh
-          ./scripts/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
+          chmod +x scripts/verification/verify_macos_shared_libs.sh
+          ./scripts/verification/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
 
       - uses: actions/download-artifact@v5
         with:
@@ -392,7 +392,7 @@ jobs:
           cp build/bin/moonbasic-ide ../ide-dist/
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
           chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
-          bash ../scripts/stage_ide_extras.sh ../ide-dist
+          bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
           xattr -cr ../ide-dist || true
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" -C ../ide-dist .
 
@@ -414,8 +414,8 @@ jobs:
         env:
           MOONBASIC_VERSION: ${{ github.ref_name }}
         run: |
-          chmod +x scripts/release_compiler_linux.sh
-          ./scripts/release_compiler_linux.sh
+          chmod +x scripts/release/release_compiler_linux.sh
+          ./scripts/release/release_compiler_linux.sh
           mv dist/MoonBasic-compiler-linux-amd64.tar.gz "moonbasic-${GITHUB_REF_NAME}-compiler-linux-amd64.tar.gz"
 
       - name: Smoke test (unpack + --version + --check)
@@ -443,7 +443,7 @@ jobs:
         env:
           MOONBASIC_VERSION: ${{ github.ref_name }}
         run: |
-          powershell -ExecutionPolicy Bypass -File scripts/release_compiler_windows.ps1 -Version "${{ github.ref_name }}"
+          powershell -ExecutionPolicy Bypass -File scripts/release/release_compiler_windows.ps1 -Version "${{ github.ref_name }}"
           Move-Item -Path dist/MoonBasic-compiler-windows-amd64.zip -Destination "moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip"
 
       - name: Smoke test

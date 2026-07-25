@@ -1,15 +1,15 @@
-# Dry-run both build-tag paths (same as scripts/check_builds.sh).
-# From repo root: powershell -File scripts/check_builds.ps1
+# Dry-run both build-tag paths (same as scripts/build/check_builds.sh).
+# From repo root: powershell -File scripts/build/check_builds.ps1
 # If fullruntime fails with runtime/cgo in plain PowerShell, use Git Bash / MSYS2:
-#   bash scripts/check_builds.sh
-# (MinGW gcc on PATH; same idea as scripts/release-windows.sh.)
+#   bash scripts/build/check_builds.sh
+# (MinGW gcc on PATH; same idea as scripts/release/release-windows.sh.)
 $ErrorActionPreference = "Stop"
 function Invoke-GoBuild {
     param([string[]]$GoArgs)
     & go @GoArgs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
-$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$Root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 Set-Location $Root
 $Out = Join-Path $Root ".check"
 if (Test-Path $Out) { Remove-Item -Recurse -Force $Out }

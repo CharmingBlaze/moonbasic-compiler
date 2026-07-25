@@ -72,7 +72,7 @@ If no local VSIX is found, **`moonbasic install-vscode`** downloads the latest *
 
 You get **syntax highlighting**, **snippets**, **LSP** (completions, hover help, diagnostics), and **moonBASIC** commands. **Ctrl+F5** run, **Ctrl+Shift+C** check, **Alt+H** help at cursor. Projects from **`moonbasic new`** include **`.vscode/`** for check, compile, run, and debug.
 
-**From source:** `powershell -File scripts/install-vscode-extension.ps1` or `./scripts/install-vscode-extension.sh`
+**From source:** `powershell -File scripts/development/install-vscode-extension.ps1` or `./scripts/development/install-vscode-extension.sh`
 
 ### VS Code: debugging (full runtime)
 

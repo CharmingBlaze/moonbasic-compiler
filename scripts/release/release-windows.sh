@@ -5,7 +5,7 @@ export PATH="/c/Progra~1/Go/bin:/mingw64/bin:/usr/bin:${PATH}"
 export CGO_ENABLED=1
 export CC=/mingw64/bin/gcc.exe
 export CGO_LDFLAGS='-lraylib -lgdi32 -lwinmm -lws2_32'
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 mkdir -p dist
 go build -trimpath -ldflags='-s -w' -o dist/moonbasic.exe .

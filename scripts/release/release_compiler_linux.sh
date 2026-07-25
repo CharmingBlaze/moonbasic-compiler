@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Build a portable Linux amd64 moonBASIC *compiler* tarball: single moonbasic binary, CGO off.
 # End users need only this binary to compile, --check, --lsp, --disasm (no Python/C compiler).
-# Usage: from repo root: bash scripts/release_compiler_linux.sh
+# Usage: from repo root: bash scripts/release/release_compiler_linux.sh
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="${ROOT}/dist/MoonBasic-compiler-linux-amd64.tar.gz"
 mkdir -p "${ROOT}/dist"
 STAGE="$(mktemp -d)"

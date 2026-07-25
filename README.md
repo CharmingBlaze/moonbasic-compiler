@@ -170,7 +170,7 @@ CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
 
 Guidelines: **[CONTRIBUTING.md](CONTRIBUTING.md)** and **[docs/DEVELOPER.md](docs/DEVELOPER.md)**. CI validates builds, tests, and representative `go run . --check` samples.
 
-On **Windows**, a **`fullruntime`** link that pulls in Jolt may require prebuilt **`libJolt.a`** and **`libjolt_wrapper.a`** in **[third_party/jolt-go/jolt/lib/windows_amd64/](third_party/jolt-go/jolt/lib/windows_amd64/README.md)**. **`scripts/check-jolt-windows-libs.ps1`** checks that both files are present.
+On **Windows**, a **`fullruntime`** link that pulls in Jolt may require prebuilt **`libJolt.a`** and **`libjolt_wrapper.a`** in **[third_party/jolt-go/jolt/lib/windows_amd64/](third_party/jolt-go/jolt/lib/windows_amd64/README.md)**. **`scripts/verification/check-jolt-windows-libs.ps1`** checks that both files are present.
 
 ---
 

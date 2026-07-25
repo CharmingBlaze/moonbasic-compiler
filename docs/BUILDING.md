@@ -31,7 +31,7 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 **Linux / macOS:** **gen2brain/raylib-go** does **not** ship a non-CGO desktop Raylib for non-Windows; you link Raylib with **CGO** there.
 
 ### Windows
-- **Optional: Zig CC wrapper** — For experimenting with static-friendly Windows builds, see [`scripts/build_static.ps1`](../scripts/build_static.ps1) (sets `CGO_ENABLED=1` and `CC="zig cc -target x86_64-windows-gnu"` before `go build -tags fullruntime ./cmd/moonrun`). You still need Raylib and GLFW/GL headers/libs on the compiler search path (e.g. MSYS2 MinGW + `mingw-w64-x86_64-raylib`).
+- **Optional: Zig CC wrapper** — For experimenting with static-friendly Windows builds, see [`scripts/build/build_static.ps1`](../scripts/build/build_static.ps1) (sets `CGO_ENABLED=1` and `CC="zig cc -target x86_64-windows-gnu"` before `go build -tags fullruntime ./cmd/moonrun`). You still need Raylib and GLFW/GL headers/libs on the compiler search path (e.g. MSYS2 MinGW + `mingw-w64-x86_64-raylib`).
 
 - **C toolchain (recommended full build)**  
   For the default **CGO** build (linked **raylib**, **raygui**, ENet, SQLite, etc.), install a C compiler. We recommend **MinGW-w64** via **MSYS2**:
@@ -60,12 +60,12 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 To ship a **compiler-only** moonBASIC build so players of *your* release do **not** need **`raylib.dll`**, **Python**, or a **C compiler**—only the usual **Windows** or **Linux** OS:
 
-- **Windows (PowerShell):** run [`scripts/release_compiler_windows.ps1`](../scripts/release_compiler_windows.ps1) from the repo root. It builds **[`cmd/moonbasic`](../cmd/moonbasic/)** with **`CGO_ENABLED=0`** and writes **`dist/MoonBasic-compiler-windows-amd64.zip`** ( **`moonbasic.exe`** + **`README-COMPILER.txt`** ).
-- **Linux:** run **`bash scripts/release_compiler_linux.sh`** → **`dist/MoonBasic-compiler-linux-amd64.tar.gz`**.
+- **Windows (PowerShell):** run [`scripts/release/release_compiler_windows.ps1`](../scripts/release/release_compiler_windows.ps1) from the repo root. It builds **[`cmd/moonbasic`](../cmd/moonbasic/)** with **`CGO_ENABLED=0`** and writes **`dist/MoonBasic-compiler-windows-amd64.zip`** ( **`moonbasic.exe`** + **`README-COMPILER.txt`** ).
+- **Linux:** run **`bash scripts/release/release_compiler_linux.sh`** → **`dist/MoonBasic-compiler-linux-amd64.tar.gz`**.
 
-That binary supports **compile**, **`--check`**, **`--lsp`**, **`--disasm`**. It does **not** bundle the full game runtime (**`moonrun`**, **`--run`** with graphics). For **author bundles** aligned with official Windows full-runtime links, see [`scripts/package_release_style_zip.ps1`](../scripts/package_release_style_zip.ps1) (consumes **`dist/moonrun.exe`** from a release-quality build). For an **experimental** Zig-based **`moonrun`**, see [`scripts/package_beta_zip.ps1`](../scripts/package_beta_zip.ps1) / [`build_static.ps1`](../scripts/build_static.ps1). See also [DEVELOPER.md](DEVELOPER.md).
+That binary supports **compile**, **`--check`**, **`--lsp`**, **`--disasm`**. It does **not** bundle the full game runtime (**`moonrun`**, **`--run`** with graphics). For **author bundles** aligned with official Windows full-runtime links, see [`scripts/packaging/package_release_style_zip.ps1`](../scripts/packaging/package_release_style_zip.ps1) (consumes **`dist/moonrun.exe`** from a release-quality build). For an **experimental** Zig-based **`moonrun`**, see [`scripts/packaging/package_beta_zip.ps1`](../scripts/packaging/package_beta_zip.ps1) / [`build_static.ps1`](../scripts/build/build_static.ps1). See also [DEVELOPER.md](DEVELOPER.md).
 
-**Windows full-runtime releases** (GitHub Actions `release.yml`): the tagged **Windows amd64** zip links **libgcc**, **libstdc++**, and **winpthread** statically into `moonbasic.exe` / `moonrun.exe` (Raylib is compiled from sources — no **`raylib.dll`**). For an alternate local static **`moonrun`** (Zig / custom flags), see [`scripts/build_static.ps1`](../scripts/build_static.ps1).
+**Windows full-runtime releases** (GitHub Actions `release.yml`): the tagged **Windows amd64** zip links **libgcc**, **libstdc++**, and **winpthread** statically into `moonbasic.exe` / `moonrun.exe` (Raylib is compiled from sources — no **`raylib.dll`**). For an alternate local static **`moonrun`** (Zig / custom flags), see [`scripts/build/build_static.ps1`](../scripts/build/build_static.ps1).
 
 ### Windows full-runtime PE link model (distributors / CI)
 
@@ -73,7 +73,7 @@ This is the contract the **tagged release job** and the **`windows_fullruntime` 
 
 1. **Go / CGO** — `CGO_ENABLED=1`, `CC` points at **MSYS2 MINGW64** `gcc.exe` (same family as **g++** used to build Jolt).
 
-2. **Final link** — `-linkmode external` so the Go linker invokes MinGW **`g++`** / **`ld`** with explicit flags. The canonical flag string is generated in **[`scripts/windows_fullruntime_go_ldflags.sh`](../scripts/windows_fullruntime_go_ldflags.sh)** (do not fork ad‑hoc copies in other scripts without updating that file and CI).
+2. **Final link** — `-linkmode external` so the Go linker invokes MinGW **`g++`** / **`ld`** with explicit flags. The canonical flag string is generated in **[`scripts/build/windows_fullruntime_go_ldflags.sh`](../scripts/build/windows_fullruntime_go_ldflags.sh)** (do not fork ad‑hoc copies in other scripts without updating that file and CI).
 
 3. **MinGW runtimes in the PE** — `-static-libgcc` and `-static-libstdc++` pull the corresponding archive members into the image so **`libgcc_s_*.dll`** and **`libstdc++-6.dll`** are not load-time dependencies. **`pthread`** is taken from the **static** `libwinpthread` archive between `-Wl,-Bstatic … -Wl,-Bdynamic` so **`libwinpthread-1.dll`** is not required.
 
@@ -81,13 +81,13 @@ This is the contract the **tagged release job** and the **`windows_fullruntime` 
 
 5. **Jolt** — **`libJolt.a`** / **`libjolt_wrapper.a`** must be built with the **same** MinGW toolchain as the Go link (release and **`windows_fullruntime`** CI rebuild Jolt from **JoltPhysics v5.4.0** every time). The build script **[`third_party/jolt-go/scripts/build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1)** uses **`-fno-lto`** and **`CMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF`** so the static archives contain **normal objects**, not **GCC LTO bytecode** that only matches one **`lto1`** version. Without that, you get failures like *bytecode stream … LTO version X instead of expected Y* when a cached **`libJolt.a`** was produced by another GCC.
 
-6. **Verification** — After linking, **[`scripts/verify_windows_pe_imports.ps1`](../scripts/verify_windows_pe_imports.ps1)** parses **`objdump -p`** and fails the job if the import table still lists **`raylib.dll`** or the usual MinGW runtime DLLs above. **Maintenance:** when you add a new **Windows CGO** dependency that legitimately requires a **non-system** companion DLL, update **`verify_windows_pe_imports.ps1`** (see the file header: allowlist / rationale) and extend this bullet — do not delete or weaken the check silently.
+6. **Verification** — After linking, **[`scripts/verification/verify_windows_pe_imports.ps1`](../scripts/verification/verify_windows_pe_imports.ps1)** parses **`objdump -p`** and fails the job if the import table still lists **`raylib.dll`** or the usual MinGW runtime DLLs above. **Maintenance:** when you add a new **Windows CGO** dependency that legitimately requires a **non-system** companion DLL, update **`verify_windows_pe_imports.ps1`** (see the file header: allowlist / rationale) and extend this bullet — do not delete or weaken the check silently.
 
-7. **Interactive smoke (Pong)** — **[`scripts/smoke_moonrun_pong.ps1`](../scripts/smoke_moonrun_pong.ps1)** starts **`moonrun`** on **`examples/pong/main.mb`**, expects the process to **stay alive** for **`-Seconds`** (default 8), then kills it. Use on a **real Windows desktop with a GPU/OpenGL stack** (local QA). **GitHub-hosted Windows runners** typically **cannot** open a GLFW window (no usable WGL/OpenGL), so release/CI do **not** run this step — **PE import verification** is the automated check for static MinGW policy.
+7. **Interactive smoke (Pong)** — **[`scripts/verification/smoke_moonrun_pong.ps1`](../scripts/verification/smoke_moonrun_pong.ps1)** starts **`moonrun`** on **`examples/pong/main.mb`**, expects the process to **stay alive** for **`-Seconds`** (default 8), then kills it. Use on a **real Windows desktop with a GPU/OpenGL stack** (local QA). **GitHub-hosted Windows runners** typically **cannot** open a GLFW window (no usable WGL/OpenGL), so release/CI do **not** run this step — **PE import verification** is the automated check for static MinGW policy.
 
 ### Linux full-runtime shipping (authors)
 
-Official **Linux** full-runtime archives (**`moonbasic-<tag>-linux-amd64.tar.gz`**) link against **glibc**, **Wayland/X11**, **OpenGL**, and related desktop libraries from the **ubuntu-latest**-style build environment — **not** a fully static musl binary. **ENet, Raylib sources, Jolt `.a`, and `libstdc++`/`libgcc` are statically linked** into **`moonrun`** (see [`scripts/linux_fullruntime_go_ldflags.sh`](../scripts/linux_fullruntime_go_ldflags.sh) and [`scripts/verify_linux_shared_libs.sh`](../scripts/verify_linux_shared_libs.sh)). Authors should ship **`.mb` / `.mbc` + assets** and point players at the **matching** full-runtime download, or assemble a custom directory / AppImage / `.deb` using local staging (maintainer-oriented notes in **[`dist/README.md`](../dist/README.md)**).
+Official **Linux** full-runtime archives (**`moonbasic-<tag>-linux-amd64.tar.gz`**) link against **glibc**, **Wayland/X11**, **OpenGL**, and related desktop libraries from the **ubuntu-latest**-style build environment — **not** a fully static musl binary. **ENet, Raylib sources, Jolt `.a`, and `libstdc++`/`libgcc` are statically linked** into **`moonrun`** (see [`scripts/build/linux_fullruntime_go_ldflags.sh`](../scripts/build/linux_fullruntime_go_ldflags.sh) and [`scripts/verification/verify_linux_shared_libs.sh`](../scripts/verification/verify_linux_shared_libs.sh)). Authors should ship **`.mb` / `.mbc` + assets** and point players at the **matching** full-runtime download, or assemble a custom directory / AppImage / `.deb` using local staging (maintainer-oriented notes in **[`dist/README.md`](../dist/README.md)**).
 
 **Version string:** CLI tools read **`moonbasic/internal/version.Version`**. Local `go build` shows **`devel`** unless you set **`MOONBASIC_VERSION`** when running the release scripts or pass **`-ldflags="-X moonbasic/internal/version.Version=v1.2.18"`**. Git tag builds (`.github/workflows/release.yml`) inject the tag (e.g. **`v1.2.18`**).
 
@@ -170,8 +170,8 @@ For a **standalone `.exe`** where native code is linked statically (game content
 2. From the repo root, run:
 
 ```powershell
-powershell -File scripts/check-jolt-windows-libs.ps1   # optional preflight
-powershell -File scripts/build_static.ps1
+powershell -File scripts/verification/check-jolt-windows-libs.ps1   # optional preflight
+powershell -File scripts/build/build_static.ps1
 ```
 
 Default output: **`moonrun_static.exe`**. Optional: `$env:OUTPUT="moonrun.exe"` before the script.
@@ -193,7 +193,7 @@ You should **not** see **`raylib.dll`** or **`jolt.dll`**. Non-system DLLs (e.g.
 Shipping **scripts, shaders, and assets** as files next to the binary keeps rebuilds fast and matches common engine layouts. A helper script builds the static runner and packs a standard tree:
 
 ```powershell
-powershell -File scripts/package_beta_zip.ps1
+powershell -File scripts/packaging/package_beta_zip.ps1
 ```
 
 Default archive: **`dist/MoonBasic-beta-windows-amd64.zip`**, containing a **`MoonBasic/`** root with **`moonrun.exe`**, **`shaders/shd/`** (mirror of [`runtime/shaders/shd`](../runtime/shaders/shd)), **`assets/`**, **`examples/`**, and **`README-BETA.txt`**.
@@ -202,7 +202,7 @@ Default archive: **`dist/MoonBasic-beta-windows-amd64.zip`**, containing a **`Mo
 |-------|----------------|
 | **File not found** | Restore the full zip layout; paths are often relative to the bundle folder or the `.exe` directory (see **`RES.PATH`** in scripts). |
 | **Wrong working directory** | Run commands from the unzipped **`MoonBasic`** folder (or the folder that contains **`moonrun.exe`**) so relative paths in samples resolve. |
-| **Missing DLL error** | You are likely running a **non-static** build (e.g. purego). Rebuild with **`scripts/build_static.ps1`** or use the packaged **`moonrun.exe`**. |
+| **Missing DLL error** | You are likely running a **non-static** build (e.g. purego). Rebuild with **`scripts/build/build_static.ps1`** or use the packaged **`moonrun.exe`**. |
 
 **Clean-room check:** On a PC **without** Go, Zig, or **`raylib.dll`** on `PATH`, unzip the archive, open a terminal in **`MoonBasic`**, run **`.\moonrun.exe examples\sphere_drop\main.mb`**. The window should open if GPU drivers are available.
 

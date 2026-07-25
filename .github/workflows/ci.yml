@@ -202,7 +202,7 @@ jobs:
         run: |
           set -e
           mkdir -p dist
-          . scripts/windows_fullruntime_go_ldflags.sh
+          . scripts/build/windows_fullruntime_go_ldflags.sh
           EX="$(moonbasic_windows_fullruntime_go_ldflags)"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
@@ -212,8 +212,8 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $bin = Join-Path "${{ steps.msys2_fullrt.outputs.msys2-location }}" "mingw64\bin"
-          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
-          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
           & .\dist\moonrun.exe -version
 
       # No headed Pong smoke here: GitHub Windows runners lack reliable OpenGL for GLFW.
@@ -282,11 +282,11 @@ jobs:
         run: |
           set -e
           mkdir -p dist
-          source scripts/linux_fullruntime_go_ldflags.sh
+          source scripts/build/linux_fullruntime_go_ldflags.sh
           LD="$(moonbasic_linux_fullruntime_go_ldflags)"
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
-          chmod +x scripts/verify_linux_shared_libs.sh scripts/linux_fullruntime_go_ldflags.sh
-          ./scripts/verify_linux_shared_libs.sh dist/moonrun
+          chmod +x scripts/verification/verify_linux_shared_libs.sh scripts/build/linux_fullruntime_go_ldflags.sh
+          ./scripts/verification/verify_linux_shared_libs.sh dist/moonrun
           ./dist/moonrun --version || ./dist/moonrun -version || true
 
   # Compile-only: core Raylib via raylib-go purego (no C compiler). raygui/DB/ENet still need CGO in full builds.

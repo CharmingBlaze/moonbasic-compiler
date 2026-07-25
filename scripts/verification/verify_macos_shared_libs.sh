@@ -2,7 +2,7 @@
 # Fail if a macOS full-runtime binary links engine dylibs that must be static.
 #
 # Usage:
-#   bash scripts/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
+#   bash scripts/verification/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then

@@ -75,5 +75,5 @@ Write-Host "Done! Binaries: $outMoonbasic, $outMoonrun" -ForegroundColor Green
 # Verification
 $MingwBin = Split-Path (Get-Command gcc).Source
 Write-Host "--- Verifying Imports ---" -ForegroundColor Yellow
-powershell -File scripts/verify_windows_pe_imports.ps1 -Exe $outMoonbasic -MingwBin $MingwBin
-powershell -File scripts/verify_windows_pe_imports.ps1 -Exe $outMoonrun -MingwBin $MingwBin
+powershell -File scripts/verification/verify_windows_pe_imports.ps1 -Exe $outMoonbasic -MingwBin $MingwBin
+powershell -File scripts/verification/verify_windows_pe_imports.ps1 -Exe $outMoonrun -MingwBin $MingwBin

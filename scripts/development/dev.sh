@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# moonBASIC dev helpers (Unix / Git Bash / WSL). Repo root: ./scripts/dev.sh <cmd>
+# moonBASIC dev helpers (Unix / Git Bash / WSL). Repo root: ./scripts/development/dev.sh <cmd>
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 cmd="${1:-help}"
 case "$cmd" in
   build-compiler) go build -o moonbasic . ;;
   build-moonrun)  go build -tags fullruntime -o moonrun ./cmd/moonrun ;;
   test)           go test ./... ;;
   check)          go run . --check examples/mario64/main_entities.mb && go run . --check examples/mario64/main_easymode.mb ;;
-  check-builds)   bash scripts/check_builds.sh ;;
+  check-builds)   bash scripts/build/check_builds.sh ;;
   run-spin-cube)  CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb ;;
   help|*)
-    echo "Usage: scripts/dev.sh <build-compiler|build-moonrun|test|check|check-builds|run-spin-cube>"
+    echo "Usage: scripts/development/dev.sh <build-compiler|build-moonrun|test|check|check-builds|run-spin-cube>"
     ;;
 esac

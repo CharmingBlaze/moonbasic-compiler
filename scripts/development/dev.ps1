@@ -5,7 +5,7 @@ param(
     [string]$Target = "help"
 )
 
-$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$Root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 Set-Location $Root
 
 switch ($Target) {
@@ -13,7 +13,7 @@ switch ($Target) {
     "build-moonrun"  { go build -tags fullruntime -o moonrun.exe ./cmd/moonrun }
     "test"           { go test ./... }
     "check"          { go run . --check examples/mario64/main_entities.mb; go run . --check examples/mario64/main_easymode.mb }
-    "check-builds"   { & powershell -File (Join-Path $PSScriptRoot "check_builds.ps1") }
+    "check-builds"   { & powershell -File (Join-Path (Split-Path -Parent $PSScriptRoot) "build\check_builds.ps1") }
     "run-spin-cube" {
         $env:CGO_ENABLED = "1"
         go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb

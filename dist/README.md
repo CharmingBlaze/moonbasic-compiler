@@ -33,7 +33,7 @@ binary**. Players do **not** install `libenet`, `raylib`, or `jolt` packages.
 
 ## Maintainer packaging
 
-- Windows PE policy: `scripts/verify_windows_pe_imports.ps1`
-- Linux ELF policy: `scripts/verify_linux_shared_libs.sh` + `scripts/linux_fullruntime_go_ldflags.sh`
-- macOS: `scripts/verify_macos_shared_libs.sh`
+- Windows PE policy: `scripts/verification/verify_windows_pe_imports.ps1`
+- Linux ELF policy: `scripts/verification/verify_linux_shared_libs.sh` + `scripts/build/linux_fullruntime_go_ldflags.sh`
+- macOS: `scripts/verification/verify_macos_shared_libs.sh`
 - Release workflow: `.github/workflows/release.yml`

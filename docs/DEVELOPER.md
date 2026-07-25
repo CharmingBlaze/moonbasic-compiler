@@ -17,7 +17,7 @@ Entity system refactor: [ARCHITECTURE_MODULAR_ENTITIES.md](ARCHITECTURE_MODULAR_
 
 ## Platform priority (Windows, then Linux)
 
-**Policy:** Treat **Windows** as the **first** platform for **day-to-day development**, **default tooling**, and **how reference docs are ordered**. Treat **Linux** as the **second** platform for **full Jolt** behavior (native **`PHYSICS3D`** / **`CharacterVirtual`**, rigid bodies, picks) and for **Unix-style CI** (`bash scripts/check_builds.sh`).
+**Policy:** Treat **Windows** as the **first** platform for **day-to-day development**, **default tooling**, and **how reference docs are ordered**. Treat **Linux** as the **second** platform for **full Jolt** behavior (native **`PHYSICS3D`** / **`CharacterVirtual`**, rigid bodies, picks) and for **Unix-style CI** (`bash scripts/build/check_builds.sh`).
 
 - **Docs:** In tables and bullet lists that compare OSes, put **Windows** before **Linux** unless the page is explicitly Linux-only (e.g. Jolt implementation notes).
 - **Code:** Still maintain **both** paths (`*_cgo.go` / `*_stub.go`, same manifest keys); see [CONTRIBUTING.md](../CONTRIBUTING.md) and [AGENTS.md](../AGENTS.md).
@@ -33,7 +33,7 @@ Details: [BUILDING.md](BUILDING.md). **HAL / drivers / Windows purego vs CGO:** 
 
 - **Native Jolt** sources use **`(linux || windows) && cgo`**; **stub** companions use the complement **`(!linux && !windows) || !cgo`** so stubs never overlap native code on desktop. Full detail: [PHYSICS.md](PHYSICS.md#build-tag-contract-for-physics3d).
 - **Compile check** (no link): `go build -tags fullruntime ./runtime/... ./compiler/...` with **`CGO_ENABLED=1`** and a C toolchain on `PATH`.
-- **Full link** (`go build -tags fullruntime ./...`, **`moonrun`**, root binary) needs **`libJolt.a`** and **`libjolt_wrapper.a`** under [`third_party/jolt-go/jolt/lib/windows_amd64/`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md). Build them with [`third_party/jolt-go/scripts/build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1) (set **`JPH_SRC`** to a [JoltPhysics](https://github.com/jrouwe/JoltPhysics) checkout). Optional: `powershell -File scripts/check-jolt-windows-libs.ps1` verifies the archives are present.
+- **Full link** (`go build -tags fullruntime ./...`, **`moonrun`**, root binary) needs **`libJolt.a`** and **`libjolt_wrapper.a`** under [`third_party/jolt-go/jolt/lib/windows_amd64/`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md). Build them with [`third_party/jolt-go/scripts/build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1) (set **`JPH_SRC`** to a [JoltPhysics](https://github.com/jrouwe/JoltPhysics) checkout). Optional: `powershell -File scripts/verification/check-jolt-windows-libs.ps1` verifies the archives are present.
 - **`runtime/player`:** Kinematic **`PLAYER.*` / `CHAR.*` / `CHARACTER.*`** use one **Jolt-backed** implementation on desktop **`(linux || windows) && cgo`**; **`!cgo`** uses stubs with a shared **CGO + Jolt** error string (see [AGENTS.md](../AGENTS.md)).
 
 ## Developer environment: VS Code, gopls, and “split brain”
@@ -83,7 +83,7 @@ After touching shared packages, confirm **both** tag axes still compile (avoids 
 
 ```bash
 # Unix / Git Bash / WSL
-bash scripts/check_builds.sh
+bash scripts/build/check_builds.sh
 # or
 make check-builds
 ```
@@ -91,13 +91,13 @@ make check-builds
 On Windows PowerShell:
 
 ```powershell
-powershell -File scripts/check_builds.ps1
+powershell -File scripts/build/check_builds.ps1
 ```
 
-If **fullruntime** steps fail with **`runtime/cgo`** in plain PowerShell, run the same script from **Git Bash** or **MSYS2 MINGW64** so **MinGW `gcc`** is on `PATH` (same as [scripts/release-windows.sh](../scripts/release-windows.sh)):
+If **fullruntime** steps fail with **`runtime/cgo`** in plain PowerShell, run the same script from **Git Bash** or **MSYS2 MINGW64** so **MinGW `gcc`** is on `PATH` (same as [scripts/release/release-windows.sh](../scripts/release/release-windows.sh)):
 
 ```bash
-bash scripts/check_builds.sh
+bash scripts/build/check_builds.sh
 ```
 
 The full-runtime steps expect **`CGO_ENABLED=1`** and a C toolchain (see [BUILDING.md](BUILDING.md)), same as a normal `moonrun` build.
@@ -112,13 +112,13 @@ Replace paths as needed. On Windows, set `CGO_ENABLED=1` and `CC` per BUILDING.m
 | Compile to `.mbc` (Headless) | `go run . path/to/script.mb` |
 | Run game (source) | `CGO_ENABLED=1 moonrun path/to/script.mb` |
 | Run game (alternate) | `CGO_ENABLED=1 moonrun path/to/script.mb` |
-| Static Build (Windows) | `powershell -File scripts/build_static.ps1` |
-| Beta zip (static exe + `shaders` / `assets` / `examples`) | `powershell -File scripts/package_beta_zip.ps1` |
+| Static Build (Windows) | `powershell -File scripts/build/build_static.ps1` |
+| Beta zip (static exe + `shaders` / `assets` / `examples`) | `powershell -File scripts/packaging/package_beta_zip.ps1` |
 | Disassemble bytecode | `go run . --disasm path/to/script.mbc` |
 | All Go tests | `go test ./...` |
 | Regenerate API consistency doc | `go run ./tools/apidoc` |
 
-Shortcuts: see [Makefile](../Makefile) (Unix/Git Bash) and [scripts/dev.ps1](../scripts/dev.ps1) / [scripts/dev.sh](../scripts/dev.sh).
+Shortcuts: see [Makefile](../Makefile) (Unix/Git Bash) and [scripts/development/dev.ps1](../scripts/development/dev.ps1) / [scripts/development/dev.sh](../scripts/development/dev.sh).
 
 ## CI parity
 

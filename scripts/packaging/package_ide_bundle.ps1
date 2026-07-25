@@ -3,7 +3,7 @@ param(
   [string]$Version = "dev"
 )
 $ErrorActionPreference = "Stop"
-$Root = Split-Path -Parent $PSScriptRoot
+$Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $IdeDir = Join-Path $Root "moonbasic ide"
 $Stage = Join-Path $Root "dist\ide-bundle"
 $Out = Join-Path $Root "moonbasic-$Version-ide-windows-amd64.zip"
@@ -15,7 +15,7 @@ if (-not (Test-Path $IdeExe)) {
 }
 foreach ($f in @("dist\moonbasic.exe", "dist\moonrun.exe")) {
   if (-not (Test-Path (Join-Path $Root $f))) {
-    throw "Build runtime into dist/ first (see scripts/release-windows.ps1)"
+    throw "Build runtime into dist/ first (see scripts/release/release-windows.ps1)"
   }
 }
 
