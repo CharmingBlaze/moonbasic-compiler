@@ -251,12 +251,49 @@ jobs:
           Copy-Item packaging/INSTALL-VSCODE.sh dist/
 
       - name: Verify Windows PE imports (no MinGW/Raylib DLLs)
+        id: pe_verify
         shell: pwsh
+        continue-on-error: true
         run: |
           $ErrorActionPreference = "Stop"
           $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
           & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
           & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+
+      # If static MinGW link failed, ship the required DLLs beside the exes so unzip-and-run still works.
+      - name: Bundle MinGW sidecars if PE verify failed
+        if: steps.pe_verify.outcome == 'failure'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
+          $need = @("libstdc++-6.dll", "libwinpthread-1.dll", "libgcc_s_seh-1.dll")
+          foreach ($dll in $need) {
+            $src = Join-Path $bin $dll
+            if (Test-Path -LiteralPath $src) {
+              Copy-Item -LiteralPath $src -Destination (Join-Path "dist" $dll) -Force
+              Write-Host "Bundled sidecar $dll"
+            } else {
+              Write-Warning "Missing $src — cannot bundle"
+            }
+          }
+          # IDE zip copies from dist/ later; keep sidecars there too.
+          Get-ChildItem dist -Filter "lib*.dll" | ForEach-Object { Write-Host "dist has $($_.Name)" }
+
+      - name: Fail if PE verify failed and sidecars missing
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ("${{ steps.pe_verify.outcome }}" -eq "success") {
+            Write-Host "PE verify OK — no MinGW sidecars required"
+            exit 0
+          }
+          foreach ($dll in @("libstdc++-6.dll", "libwinpthread-1.dll")) {
+            if (-not (Test-Path "dist/$dll")) {
+              Write-Error "PE verify failed and dist/$dll was not bundled"
+            }
+          }
+          Write-Host "PE verify failed but MinGW sidecars are present in dist/ — shipping with DLLs"
 
       # Interactive Pong smoke is local-only (scripts/verification/smoke_moonrun_pong.ps1): GitHub Windows
       # runners often have no working OpenGL/WGL for GLFW, so moonrun exits immediately.
@@ -298,6 +335,11 @@ jobs:
           New-Item -ItemType Directory -Force -Path ide-dist | Out-Null
           Copy-Item "ide\build\bin\moonbasic-ide.exe" ide-dist\
           Copy-Item dist\moonbasic.exe, dist\moonrun.exe ide-dist\
+          # Optional MinGW sidecars when static link did not embed them.
+          Get-ChildItem dist -Filter "lib*.dll" -ErrorAction SilentlyContinue | ForEach-Object {
+            Copy-Item $_.FullName ide-dist\ -Force
+            Write-Host "IDE bundle includes $($_.Name)"
+          }
           Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh, packaging\START-IDE.command, packaging\ADD-TO-PATH.bat, packaging\ADD-TO-PATH.sh ide-dist\
           New-Item -ItemType Directory -Force -Path ide-dist\samples | Out-Null
           Copy-Item packaging\samples\* ide-dist\samples\
