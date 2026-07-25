@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// toolchainPathsFile is optional JSON in moonbasic ide/toolchain/ for local testing.
+// toolchainPathsFile is optional JSON in ide/toolchain/ for local testing.
 type toolchainPathsFile struct {
 	MoonbasicPath string `json:"moonbasicPath"`
 	MoonrunPath   string `json:"moonrunPath"`
@@ -32,7 +32,7 @@ func localToolchainDirs() []string {
 
 	if cwd, err := os.Getwd(); err == nil {
 		add(filepath.Join(cwd, "toolchain"))
-		add(filepath.Join(filepath.Dir(cwd), "moonbasic ide", "toolchain"))
+		add(filepath.Join(filepath.Dir(cwd), "ide", "toolchain"))
 	}
 	if exe, err := os.Executable(); err == nil {
 		cur := filepath.Dir(exe)

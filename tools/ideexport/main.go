@@ -68,7 +68,7 @@ func argName(k builtinmanifest.ArgKind) string {
 }
 
 func main() {
-	outPath := filepath.Join("moonbasic ide", "js", "studio", "lang-data.json")
+	outPath := filepath.Join("ide", "js", "studio", "lang-data.json")
 	vscodeOut := filepath.Join("editors", "vscode-moonbasic", "resources", "lang-data.json")
 	if len(os.Args) > 1 {
 		outPath = os.Args[1]

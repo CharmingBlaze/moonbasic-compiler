@@ -1,4 +1,4 @@
-# Build moonbasic/moonrun into moonbasic ide/toolchain/ for local IDE testing.
+# Build moonbasic/moonrun into ide/toolchain/ for local IDE testing.
 $ErrorActionPreference = "Stop"
 
 $ideRoot = Split-Path $PSScriptRoot -Parent

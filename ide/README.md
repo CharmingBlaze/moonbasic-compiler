@@ -43,7 +43,7 @@ Engine source and release CI live in [moonbasic-compiler](https://github.com/Cha
 | **Desktop** (`wails dev` / `wails build`) | Go, Wails v2, **moonbasic** + **moonrun** on PATH or in `toolchain/` |
 
 ```bash
-cd "moonbasic ide"
+cd "ide"
 npm install
 npm run langdata
 wails dev
@@ -74,7 +74,7 @@ When `compiler/builtinmanifest/commands.json` or `docs/` changes:
 ```bash
 go run ./tools/ideexport
 go run ./tools/docsexport
-# or from moonbasic ide/:  npm run langdata
+# or from ide/:  npm run langdata
 ```
 
 ## VS Code alternative

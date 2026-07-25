@@ -4,14 +4,14 @@ param(
 )
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$IdeDir = Join-Path $Root "moonbasic ide"
+$IdeDir = Join-Path $Root "ide"
 $Stage = Join-Path $Root "dist\ide-bundle"
 $Out = Join-Path $Root "moonbasic-$Version-ide-windows-amd64.zip"
 $Pkg = Join-Path $Root "packaging"
 
 $IdeExe = Join-Path $IdeDir "build\bin\moonbasic-ide.exe"
 if (-not (Test-Path $IdeExe)) {
-  throw "Build the IDE first: cd 'moonbasic ide'; npm ci; npm run langdata; wails build"
+  throw "Build the IDE first: cd 'ide'; npm ci; npm run langdata; wails build"
 }
 foreach ($f in @("dist\moonbasic.exe", "dist\moonrun.exe")) {
   if (-not (Test-Path (Join-Path $Root $f))) {

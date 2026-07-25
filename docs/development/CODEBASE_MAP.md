@@ -51,7 +51,7 @@ Quick answers for contributors navigating moonbasic-compiler.
 
 | Question | Location |
 |----------|----------|
-| Where is the desktop IDE? | [`ide/`](../../ide/) (Wails; formerly `moonbasic ide/`) |
+| Where is the desktop IDE? | [`ide/`](../../ide/) (Wails; formerly `ide/`) |
 | Where is the VS Code extension? | [`editors/vscode-moonbasic/`](../../editors/vscode-moonbasic/) |
 | Where is the LSP? | [`lsp/`](../../lsp/) |
 | Where is the debugger (DAP)? | [`dap/`](../../dap/) |

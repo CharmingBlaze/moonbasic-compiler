@@ -36,8 +36,8 @@ func bundledDocRoots() []string {
 	if cwd, err := os.Getwd(); err == nil {
 		add(filepath.Join(cwd, "bundled-docs"))
 		add(filepath.Join(cwd, "frontend", "bundled-docs"))
-		add(filepath.Join(filepath.Dir(cwd), "moonbasic ide", "bundled-docs"))
-		add(filepath.Join(filepath.Dir(cwd), "moonbasic ide", "frontend", "bundled-docs"))
+		add(filepath.Join(filepath.Dir(cwd), "ide", "bundled-docs"))
+		add(filepath.Join(filepath.Dir(cwd), "ide", "frontend", "bundled-docs"))
 	}
 	if exe, err := os.Executable(); err == nil {
 		cur := filepath.Dir(exe)

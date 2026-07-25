@@ -7,7 +7,7 @@ Put compiler binaries here so the IDE finds them automatically — no Settings d
 From the repo root (PowerShell):
 
 ```powershell
-cd "moonbasic ide"
+cd "ide"
 npm run toolchain:build
 ```
 

@@ -89,11 +89,11 @@ Legend — **Action:** keep | move | rename | generate | defer | ignore-local
 | Reason | New shared package; moving now adds churn |
 | Validation required | `go test ./handlecall/... ./compiler/semantic/...` |
 
-### `moonbasic ide/` → `ide/`
+### `ide/` → `ide/`
 
 | Field | Value |
 |-------|--------|
-| Current path | `moonbasic ide/` (space in name) |
+| Current path | `ide/` (space in name) |
 | Purpose | Wails v2 desktop IDE |
 | References | `.github/workflows/release.yml`, `scripts/package_ide_bundle.*`, `tools/docsexport`, `tools/ideexport`, internal toolchain paths |
 | Recommended destination | `ide/` |
@@ -102,11 +102,11 @@ Legend — **Action:** keep | move | rename | generate | defer | ignore-local
 | Reason | Space breaks tooling/scripts; many path strings |
 | Validation required | `npm run sync` in ide; `go run ./tools/docsexport`; release packaging scripts |
 
-### `moonbasic ide/bundled-docs/`
+### `ide/bundled-docs/`
 
 | Field | Value |
 |-------|--------|
-| Current path | `moonbasic ide/bundled-docs/` (→ `ide/bundled-docs/`) |
+| Current path | `ide/bundled-docs/` (→ `ide/bundled-docs/`) |
 | Purpose | Generated copy of `docs/` for offline IDE |
 | References | `tools/docsexport`, IDE `docs.go` |
 | Recommended destination | Keep under `ide/` |
@@ -324,6 +324,6 @@ Legend — **Action:** keep | move | rename | generate | defer | ignore-local
 1. Add this audit, cleanup log, codebase map  
 2. Move root planning docs into `docs/`  
 3. Reorganize `scripts/` into subfolders + update references  
-4. Rename `moonbasic ide` → `ide`  
+4. Rename `ide` → `ide`  
 5. Add `docsexport --check` + generated marker  
 6. Package READMEs + CONTRIBUTING link to codebase map  

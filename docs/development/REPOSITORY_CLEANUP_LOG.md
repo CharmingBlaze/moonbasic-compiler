@@ -64,4 +64,16 @@ Replacement: scripts/README.md index
 Tests performed: path grep; ROOT ../.. in nested scripts
 ```
 
+### 2026-07-25 — IDE directory rename
+
+```text
+Date: 2026-07-25
+Change type: rename
+Path: moonbasic ide/ → ide/
+Reason: Remove space from path; match repo naming
+Evidence: n/a
+Replacement: updated release.yml, package_ide_bundle.*, tools/docsexport, tools/ideexport, ide internals
+Tests performed: path grep shows zero "moonbasic ide" folder refs
+```
+
 *(Subsequent entries appended as commits land.)*

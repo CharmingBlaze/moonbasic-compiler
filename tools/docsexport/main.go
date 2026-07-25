@@ -40,8 +40,8 @@ func main() {
 		root = os.Args[1]
 	}
 	srcDocs := filepath.Join(root, "docs")
-	dest := filepath.Join(root, "moonbasic ide", "bundled-docs")
-	indexOut := filepath.Join(root, "moonbasic ide", "js", "studio", "docs-index.json")
+	dest := filepath.Join(root, "ide", "bundled-docs")
+	indexOut := filepath.Join(root, "ide", "js", "studio", "docs-index.json")
 
 	if err := os.RemoveAll(dest); err != nil {
 		fmt.Fprintf(os.Stderr, "warning: could not clean dest: %v\n", err)

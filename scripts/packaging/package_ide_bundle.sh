@@ -5,12 +5,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="${1:-dev}"
 PLATFORM="${2:-linux-amd64}"
-IDE_DIR="$ROOT/moonbasic ide"
+IDE_DIR="$ROOT/ide"
 STAGE="$ROOT/dist/ide-bundle"
 OUT="$ROOT/moonbasic-${TAG}-ide-${PLATFORM}.tar.gz"
 
 if [ ! -f "$IDE_DIR/build/bin/moonbasic-ide" ] && [ ! -d "$IDE_DIR/build/bin/moonbasic-ide.app" ]; then
-  echo "Build the IDE first: cd 'moonbasic ide' && npm ci && npm run langdata && wails build" >&2
+  echo "Build the IDE first: cd 'ide' && npm ci && npm run langdata && wails build" >&2
   exit 1
 fi
 if [ ! -f "$ROOT/dist/moonbasic" ] || [ ! -f "$ROOT/dist/moonrun" ]; then
