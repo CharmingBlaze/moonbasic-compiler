@@ -76,4 +76,28 @@ Replacement: updated release.yml, package_ide_bundle.*, tools/docsexport, tools/
 Tests performed: path grep shows zero "moonbasic ide" folder refs
 ```
 
-*(Subsequent entries appended as commits land.)*
+### 2026-07-25 — docs sync check
+
+```text
+Date: 2026-07-25
+Commit: 82f3b5a
+Change type: generate
+Path: tools/docsexport --check; ide/bundled-docs/GENERATED.md; CI stub-only step
+Reason: Prevent drift between docs/ and IDE bundled copy
+Evidence: n/a
+Replacement: go run ./tools/docsexport
+Tests performed: go run ./tools/docsexport --check
+```
+
+### 2026-07-25 — navigation docs
+
+```text
+Date: 2026-07-25
+Change type: generate
+Path: vm/README.md, runtime/README.md, testdata/README.md, third_party/README.md;
+         CONTRIBUTING.md Codebase map section; CODEBASE_MAP polish
+Reason: Contributor navigation after layout cleanup
+Evidence: n/a
+Replacement: docs/development/CODEBASE_MAP.md
+Tests performed: CGO_ENABLED=0 go test ./compiler/... ./vm/... ./handlecall/... ./lsp/...; --check samples
+```

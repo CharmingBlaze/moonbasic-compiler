@@ -77,6 +77,11 @@ New scripts and documentation should follow **`Namespace.Method`** with **`CREAT
 
 High-level pipeline and layout: [ARCHITECTURE.md](ARCHITECTURE.md). Deeper contributor map: [docs/DEVELOPER.md](docs/DEVELOPER.md).
 
+## Codebase map
+
+“Where is X?” quick index: [`docs/development/CODEBASE_MAP.md`](docs/development/CODEBASE_MAP.md).  
+Cleanup audit / deferred layout work: [`docs/development/REPOSITORY_CLEANUP_AUDIT.md`](docs/development/REPOSITORY_CLEANUP_AUDIT.md).
+
 ## Optional: command coverage
 
 [`docs/audit/COMMAND_AUDIT.txt`](docs/audit/COMMAND_AUDIT.txt) tracks implementation status (`DONE`, `PARTIAL`, `MISSING`) for builtins—useful for larger features, not required for every small fix. The generated doc index is [`docs/COMMAND_AUDIT.md`](docs/COMMAND_AUDIT.md).
