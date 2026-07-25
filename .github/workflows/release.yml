@@ -387,9 +387,18 @@ jobs:
           npm ci
           wails build
           mkdir -p ../ide-dist
-          cp build/bin/moonbasic-ide ../ide-dist/
+          # Wails on macOS produces a .app bundle (not a bare binary).
+          if [[ -d build/bin/moonbasic-ide.app ]]; then
+            cp -R build/bin/moonbasic-ide.app ../ide-dist/
+          elif [[ -f build/bin/moonbasic-ide ]]; then
+            cp build/bin/moonbasic-ide ../ide-dist/
+          else
+            echo "ERROR: moonbasic-ide binary/.app not found under ide/build/bin" >&2
+            ls -la build/bin || true
+            exit 1
+          fi
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
-          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
+          chmod +x ../ide-dist/moonbasic ../ide-dist/moonrun
           bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
           xattr -cr ../ide-dist || true
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" -C ../ide-dist .

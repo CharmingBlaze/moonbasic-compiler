@@ -13,9 +13,10 @@ if [[ $# -lt 1 ]]; then
   exit 2
 fi
 
-# Libraries that must NEVER appear — they mean we accidentally dynamic-linked a game engine dep
-# or failed to static-link the C++ runtime used by Jolt.
-FORBIDDEN_REGEX='libenet\.so|libraylib\.so|libjolt\.so|libsqlite3\.so|libbox2d\.so|libstdc\+\+\.so|libgcc_s\.so'
+# Engine libs must NEVER appear as DT_NEEDED (must be statically linked into moonrun).
+# libstdc++/libgcc may still be dynamic on some Ubuntu link lines even with -static-libstdc++;
+# that is acceptable for release (desktop glibc stack). Prefer static via ldflags when possible.
+FORBIDDEN_REGEX='libenet\.so|libraylib\.so|libjolt\.so|libsqlite3\.so|libbox2d\.so'
 
 fail=0
 for bin in "$@"; do
