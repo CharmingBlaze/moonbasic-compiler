@@ -50,7 +50,7 @@ The orchestration logic lives in the `compiler/pipeline` package (`compile.go`, 
 
 - **Package**: `vm/moon` — binary schema (not `encoding/gob` for shipping).
 - **Header** (16 bytes): magic `MOON`, big-endian version (**`0x00030000`** for IR v3; IR v2 supported until v1.4), reserved flags, entry offset.
-- **IR v3 payload**: program-level string table, then chunks; 8-byte register-based instructions; see **`ENGINE_IR_V3.md`**.
+- **IR v3 payload**: program-level string table, then chunks; 8-byte register-based instructions; see **[`docs/architecture/ENGINE_IR_V3.md`](docs/architecture/ENGINE_IR_V3.md)**.
 - **Loader** validates header before building VM state so launchers can reject wrong engines quickly.
 
 ---

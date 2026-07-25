@@ -1,6 +1,6 @@
 # COMPILER_ENGINEER_DIRECTIVE — implementation traceability
 
-This file maps [COMPILER_ENGINEER_DIRECTIVE.md](../COMPILER_ENGINEER_DIRECTIVE.md) requirements to concrete locations in the repo. Update when behavior changes.
+This file maps [COMPILER_ENGINEER_DIRECTIVE.md](development/COMPILER_ENGINEER_DIRECTIVE.md) requirements to concrete locations in the repo. Update when behavior changes.
 
 Aligned with the directive: **Namespace.Method** as primary style; **`CREATE`** and **`SETPOS`** canonical; **`MAKE`** and **`SETPOSITION`** kept as deprecated aliases during the v0.9 transition; **Easy Mode** only as convenience mappings (see [EASY_MODE.md](EASY_MODE.md)).
 

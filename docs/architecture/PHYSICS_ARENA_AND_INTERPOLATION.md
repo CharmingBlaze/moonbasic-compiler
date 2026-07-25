@@ -37,5 +37,5 @@ Use **`alpha`** only for **rendering**; **gameplay** reads should use the **curr
 
 ## References
 
-- [ENGINE_IR_V3.md](../../ENGINE_IR_V3.md) — VM performance context.
+- [ENGINE_IR_V3.md](ENGINE_IR_V3.md) — VM performance context.
 - Jolt integration: [runtime/physics3d/](../../runtime/physics3d/).
