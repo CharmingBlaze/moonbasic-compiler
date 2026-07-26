@@ -20,3 +20,11 @@ cp "$PKG/ADD-TO-PATH.bat" "$STAGE/" 2>/dev/null || true
 
 mkdir -p "$STAGE/samples"
 cp "$PKG/samples/"*.mb "$PKG/samples/README.txt" "$STAGE/samples/"
+
+# Offline docs (same content as IDE sidebar; prefer post-docsexport bundled copy).
+mkdir -p "$STAGE/docs"
+if [[ -d "$ROOT/ide/bundled-docs" ]]; then
+  cp -R "$ROOT/ide/bundled-docs/." "$STAGE/docs/"
+else
+  cp -R "$ROOT/docs/." "$STAGE/docs/"
+fi
