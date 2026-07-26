@@ -345,7 +345,7 @@ func Builtin(tag uint16, method string) (registryKey string, prependReceiver boo
 			return "BODY3D.SETGRAVITYFACTOR", true, true
 		case "SETCCD":
 			return "BODY3D.SETCCD", true, true
-		case "SETSTEERING", "STEER":
+		case "SETSTEERING", "SETSTEER", "STEER":
 			return "VEHICLE.SETSTEER", true, true
 		case "SETTHROTTLE", "THROTTLE":
 			return "VEHICLE.SETTHROTTLE", true, true

@@ -48,6 +48,7 @@ func main() {
 	if *showVer {
 		fmt.Printf("moonBASIC Engine %s\n", version.Version)
 		fmt.Fprintln(os.Stdout, "Runtime: raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3")
+		fmt.Fprintf(os.Stdout, "Jolt backend: %s\n", mbphysics3d.JoltBackendLabel())
 		return
 	}
 

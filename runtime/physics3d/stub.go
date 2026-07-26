@@ -4,12 +4,20 @@ package mbphysics3d
 
 import (
 	"fmt"
+	"strings"
 
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
 	"github.com/bbitechnologies/jolt-go/jolt"
 	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+// Stub motion ints align with jolt.MotionType values used by entity_level_cgo.go (Windows !cgo).
+const (
+	stubMotionStatic    = 0
+	stubMotionKinematic = 1
+	stubMotionDynamic   = 2
 )
 
 type Vec3 struct {
@@ -56,11 +64,22 @@ func phSetOnCollision(m *Module, ha, hb value.Value, cb string) (value.Value, er
 }
 
 func phCreateBody(m *Module, motion string) (value.Value, error) {
-	_ = motion
 	if m == nil || m.h == nil {
-		return value.Nil, nil
+		return value.Nil, fmt.Errorf("BODY3D.CREATE: heap not bound")
 	}
-	id, _ := m.h.Alloc(&BuilderObj{})
+	mot := stubMotionDynamic
+	switch strings.ToUpper(strings.TrimSpace(motion)) {
+	case "STATIC":
+		mot = stubMotionStatic
+	case "KINEMATIC":
+		mot = stubMotionKinematic
+	case "", "DYNAMIC":
+		mot = stubMotionDynamic
+	}
+	id, err := m.h.Alloc(&BuilderObj{Motion: mot, Friction: 0.5})
+	if err != nil {
+		return value.Nil, err
+	}
 	return value.FromHandle(id), nil
 }
 
@@ -397,11 +416,87 @@ func (m *Module) phWorldSetup(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func (m *Module) bdAddMesh(args []value.Value) (value.Value, error)    { return value.Nil, nil }
-func (m *Module) bdAddBox(args []value.Value) (value.Value, error)     { return value.Nil, nil }
-func (m *Module) bdAddSphere(args []value.Value) (value.Value, error)  { return value.Nil, nil }
-func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdCommit(args []value.Value) (value.Value, error)     { return value.Nil, nil }
+func (m *Module) bdAddMesh(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("BODY3D.ADDMESH: %s", stubHint)
+}
+
+func (m *Module) bdAddBox(args []value.Value) (value.Value, error) {
+	if len(args) < 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.ADDBOX expects (builder, hw, hh, hd)")
+	}
+	bu, err := heap.Cast[*BuilderObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	hx, _ := args[1].ToFloat()
+	hy, _ := args[2].ToFloat()
+	hz, _ := args[3].ToFloat()
+	bu.Shape = &ShapeObj{Kind: 1, F1: float32(hx), F2: float32(hy), F3: float32(hz)}
+	return value.Nil, nil
+}
+
+func (m *Module) bdAddSphere(args []value.Value) (value.Value, error) {
+	if len(args) < 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.ADDSPHERE expects (builder, radius)")
+	}
+	bu, err := heap.Cast[*BuilderObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	r, _ := args[1].ToFloat()
+	bu.Shape = &ShapeObj{Kind: 2, F1: float32(r)}
+	return value.Nil, nil
+}
+
+func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) {
+	if len(args) < 3 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.ADDCAPSULE expects (builder, radius, halfHeight)")
+	}
+	bu, err := heap.Cast[*BuilderObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	r, _ := args[1].ToFloat()
+	hh, _ := args[2].ToFloat()
+	bu.Shape = &ShapeObj{Kind: 3, F1: float32(r), F2: float32(hh)}
+	return value.Nil, nil
+}
+
+// bdCommit allocates a soft Body3D handle so API checks and aero/vehicle host
+// methods can run without native Jolt. Simulation is Euler-only (see phStep).
+func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("BODY3D.COMMIT: heap not bound")
+	}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.COMMIT expects (builder, x, y, z)")
+	}
+	bu, err := heap.Cast[*BuilderObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if bu.Shape == nil {
+		return value.Nil, fmt.Errorf("BODY3D.COMMIT: no shape (call ADDBOX/ADDSPHERE/ADDCAPSULE first)")
+	}
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	dynamic := bu.Motion == stubMotionDynamic
+	body := &body3dObj{
+		ID: nextBodyID, Shape: bu.Shape, Collision: dynamic,
+		Sx: 1, Sy: 1, Sz: 1,
+		Pos: Vec3{X: float32(x), Y: float32(y), Z: float32(z)},
+	}
+	nextBodyID++
+	bu.Shape = nil
+	m.h.Free(heap.Handle(args[0].IVal))
+	id, err := m.h.Alloc(body)
+	if err != nil {
+		return value.Nil, err
+	}
+	staticBodies[id] = body
+	return value.FromHandle(id), nil
+}
 func (m *Module) bdBufferIndex(args []value.Value) (value.Value, error) {
 	return value.FromInt(-1), nil
 }
@@ -512,7 +607,7 @@ func (m *Module) arSetThrust(args []value.Value) (value.Value, error) { return v
 func (m *Module) arSetDrag(args []value.Value) (value.Value, error)   { return value.Nil, nil }
 
 type BuilderObj struct {
-	Motion   int
+	Motion   int // stubMotionStatic / Kinematic / Dynamic (matches jolt.MotionType ordinals)
 	Friction float32
 	Shape    *ShapeObj
 }

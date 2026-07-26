@@ -24,7 +24,7 @@ func registerAeroCommands(m *Module, reg runtime.Registrar) {
 }
 
 func (m *Module) ARSetLift(args []value.Value) (value.Value, error) {
-	if len(args) < 2 {
+	if len(args) < 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("AERO.SETLIFT expects (body, coeff#)")
 	}
 	h := heap.Handle(args[0].IVal)
@@ -34,7 +34,7 @@ func (m *Module) ARSetLift(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) ARSetThrust(args []value.Value) (value.Value, error) {
-	if len(args) < 2 {
+	if len(args) < 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("AERO.SETTHRUST expects (body, power#)")
 	}
 	h := heap.Handle(args[0].IVal)
@@ -44,7 +44,7 @@ func (m *Module) ARSetThrust(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) ARSetDrag(args []value.Value) (value.Value, error) {
-	if len(args) < 2 {
+	if len(args) < 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("AERO.SETDRAG expects (body, coeff#)")
 	}
 	h := heap.Handle(args[0].IVal)
