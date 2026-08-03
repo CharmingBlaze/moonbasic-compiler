@@ -116,6 +116,7 @@ Full sample with grid and text: **[`examples/spin_cube`](examples/spin_cube/main
 
 | Document | What it covers |
 |----------|----------------|
+| [docs/THE_MOONBASIC_BOOK.md](docs/THE_MOONBASIC_BOOK.md) | **The Book** — funny full guide (also [Word/PDF](docs/book/)) |
 | [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | Install, first window, **`moonbasic new`**, debugging |
 | [docs/FIRST_HOUR.md](docs/FIRST_HOUR.md) | Friendly intro for beginners |
 | [docs/reference/MIGRATION.md](docs/reference/MIGRATION.md) | BlitzBASIC porting; compile-time stub list |
